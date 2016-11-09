@@ -4,7 +4,7 @@ describe LoanCreator::Common do
   describe '.end_date' do
     it 'should give the end date of the loan' do
       new_loan = LoanCreator::Common.new(
-        amount_in_cents:       100000,
+        amount_in_cents:       100_000,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
         duration_in_months:    4
