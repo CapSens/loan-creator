@@ -52,8 +52,8 @@ module LoanCreator
       @total_interests ||= _total_interests
     end
 
-    def interests_difference
-      @interests_difference ||= _interests_difference
+    def payments_difference
+      @payments_difference ||= _payments_difference
     end
 
     # @return calculates the monthly payment interests share
@@ -84,13 +84,22 @@ module LoanCreator
         self.amount_in_cents).round
     end
 
-    def _interests_difference
-      (self.amount_in_cents + total_interests -
-        (self.duration_in_months *
-        (self.amount_in_cents *
-        ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
-        ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
-        ((-1) * self.duration_in_months)))))).round
+    def _payments_difference
+      sum = 0
+      rounded_sum = 0
+      term = 1
+      monthly_capital = (self.amount_in_cents *
+      ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
+      ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
+      ((-1) * self.duration_in_months))))
+
+      while ++term < (self.duration_in_months + 1)
+        sum += monthly_capital
+        rounded_sum += monthly_capital.round
+        term += 1
+      end
+
+      (sum - rounded_sum).round(4)
     end
   end
 end

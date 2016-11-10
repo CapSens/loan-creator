@@ -32,7 +32,7 @@ describe LoanCreator::Linear do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
-    describe '#interests_difference' do
+    describe '#payments_difference' do
       it "has a difference in cents between 'total_interests'
           and the sum of the monthly interests share" do
          expect(subject.payments_difference).to eql(-0.3333333327)
