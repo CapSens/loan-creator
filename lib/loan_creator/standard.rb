@@ -6,15 +6,28 @@ module LoanCreator
       calc_paid_interests = 0
 
       self.duration_in_months.times do |term|
-        calc_monthly_interests = calc_remaining_capital *
-          (self.annual_interests_rate / 100.0) / 12.0
-        calc_monthly_capital = self.calc_monthly_payment -
-          calc_monthly_interests
-        calc_remaining_capital -= calc_monthly_capital
-        calc_paid_capital = self.amount_in_cents - calc_remaining_capital
-        calc_paid_interests += calc_monthly_interests
-        calc_remaining_int = self.total_interests - calc_paid_interests
 
+        calc_monthly_interests =
+          self.monthly_interests(calc_remaining_capital)
+
+        calc_monthly_capital =
+          self.monthly_capital_share(calc_remaining_capital)
+
+        # remaining capital to repay is decreased by
+        # monthly payment capital share
+        calc_remaining_capital -= calc_monthly_capital
+
+        # calculates paid capital by substracting the decreased
+        # remaining capital to the loan amount
+        calc_paid_capital = self.amount_in_cents - calc_remaining_capital
+
+        # total paid interests is increased by the calculated
+        # monthly payment interests share
+        calc_paid_interests += calc_monthly_interests
+
+        # calculates total remaining interests to pay by substracting
+        # calculated total paid interests to calculated total interests
+        calc_remaining_int = self.total_interests - calc_paid_interests
 
         time_table << LoanCreator::TimeTable.new(
           term:                            term + 1,
@@ -40,12 +53,20 @@ module LoanCreator
     end
 
     def interests_difference
-      (self.amount_in_cents + total_interests -
-        (self.duration_in_months *
-        (self.amount_in_cents *
-        ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
-        ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
-        ((-1) * self.duration_in_months)))))).round
+      @interests_difference ||= _interests_difference
+    end
+
+    # @return calculates the monthly payment interests share
+    # @return based on remaining capital to repay
+    def monthly_interests(capital)
+      capital * (self.annual_interests_rate / 100.0) / 12.0
+    end
+
+    # @return calculates the monthly payment capital share by subtracting
+    # @return the calculated monthly payment interests share to the
+    # @return calculated total monthly payment
+    def monthly_capital_share(capital)
+      self.calc_monthly_payment - self.monthly_interests(capital)
     end
 
     private
@@ -61,6 +82,15 @@ module LoanCreator
     def _total_interests
       (self.duration_in_months * self.calc_monthly_payment -
         self.amount_in_cents).round
+    end
+
+    def _interests_difference
+      (self.amount_in_cents + total_interests -
+        (self.duration_in_months *
+        (self.amount_in_cents *
+        ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
+        ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
+        ((-1) * self.duration_in_months)))))).round
     end
   end
 end

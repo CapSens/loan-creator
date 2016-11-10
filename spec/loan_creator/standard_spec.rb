@@ -32,38 +32,48 @@ describe LoanCreator::Standard do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
+    describe '#interests_difference' do
+      it "has a difference in cents between 'total_interests'
+          and the sum of the monthly interests share
+          based on rounded 'monthly_payment'" do
+         expect(subject.interests_difference).to eql(-6)
+      end
+    end
+
     it 'has the same equal monthly payment on each term' do
       all_tt = time_tables.all? { |tt|
         tt.monthly_payment == monthly_payment }
       expect(all_tt).to eql(true)
     end
 
-    it "has a difference in cents between 'total_interests'
-        and the sum of the rounded 'monthly_interests'" do
-       expect(subject.interests_difference).to eql(-6)
+    it 'verifies whole calculation' do
+      pass = true
+      calc_remaining_capital = amount_in_cents
+      calc_paid_interests = 0
+
+      time_tables.each_with_index do |tt, i|
+        unless tt.monthly_payment_interests_share ==
+            subject.monthly_interests(calc_remaining_capital) &&
+            tt.monthly_payment_capital_share ==
+            subject.monthly_capital_share(calc_remaining_capital)
+          pass = false
+        end
+
+        calc_remaining_capital -= tt.monthly_payment_capital_share
+
+        unless tt.remaining_capital == calc_remaining_capital &&
+            tt.paid_capital == amount_in_cents - calc_remaining_capital
+          pass = false
+        end
+
+        calc_paid_interests += tt.monthly_payment_interests_share
+
+        unless tt.remaining_interests == calc_paid_interests &&
+            tt.paid_interests == total_interests - tt.remaining_interests
+          pass = false
+        end
+      end
     end
-
-    # it 'has an incresaing amount of paid interests' do
-    #   pass = true
-    #   all_except_last_term.each_with_index do |tt, i|
-    #     unless tt.paid_interests == (i + 1) * monthly_interests
-    #       pass = false
-    #     end
-    #   end
-    #   expect(pass).to eql(true)
-    # end
-    #
-    # it 'has a decreasing amount of remaining interests' do
-    #   pass = true
-    #   all_except_last_term.each_with_index do |tt, i|
-    #     unless tt.remaining_interests ==
-    #            (total_interests - ((i + 1) * monthly_interests))
-    #       pass = false
-    #     end
-    #   end
-    #   expect(pass).to eql(true)
-    # end
-
   end
 
   describe "#total_interests" do
