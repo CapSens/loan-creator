@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe LoanCreator::Bullet do
+describe LoanCreator::Infine do
   describe "#time_table" do
 
     # The loan
@@ -19,6 +19,9 @@ describe LoanCreator::Bullet do
     # Loan amount
     let(:amount_in_cents) { 100_000 * 100 }
 
+    # Loan monthly interests calculation's result
+    let(:monthly_interests) { subject.monthly_interests }
+
     # Loan total interests calculation's result
     let(:total_interests) { subject.total_interests }
 
@@ -32,13 +35,13 @@ describe LoanCreator::Bullet do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
+    it "has a difference in cents between 'total_interests'
+        and the sum of the rounded 'monthly_interests'" do
+       expect(subject.interests_difference).to eql(8)
+    end
+
     describe "all but last time table" do
-      [ :monthly_payment,
-        :monthly_payment_capital_share,
-        :monthly_payment_interests_share,
-        :paid_capital,
-        :paid_interests
-      ].each do |arg|
+      [:monthly_payment_capital_share, :paid_capital].each do |arg|
         it "has the same amount equal to zero for #{arg.to_s}" do
           all_zero = all_except_last_term.all? { |tt|
             tt.send(arg) == 0 }
@@ -46,16 +49,39 @@ describe LoanCreator::Bullet do
         end
       end
 
-      it 'has same remaining capital equal to loan amount' do
+      [:monthly_payment, :monthly_payment_interests_share].each do |arg|
+        it "has the same amount equal to monthly payment for #{arg.to_s}" do
+          all_zero = all_except_last_term.all? { |tt|
+            tt.send(arg) == monthly_interests }
+          expect(all_zero).to eql(true)
+        end
+      end
+
+      it 'has the same remaining capital equal to loan amount' do
         all_zero = all_except_last_term.all? { |tt|
           tt.remaining_capital == amount_in_cents }
         expect(all_zero).to eql(true)
       end
 
-      it 'has same remaining interests equal to total interests' do
-        all_zero = all_except_last_term.all? { |tt|
-          tt.remaining_interests == total_interests }
-        expect(all_zero).to eql(true)
+      it 'has an incresaing amount of paid interests' do
+        pass = true
+        all_except_last_term.each_with_index do |tt, i|
+          unless tt.paid_interests == (i + 1) * monthly_interests
+            pass = false
+          end
+        end
+        expect(pass).to eql(true)
+      end
+
+      it 'has a decreasing amount of remaining interests' do
+        pass = true
+        all_except_last_term.each_with_index do |tt, i|
+          unless tt.remaining_interests ==
+                 (total_interests - ((i + 1) * monthly_interests))
+            pass = false
+          end
+        end
+        expect(pass).to eql(true)
       end
     end
 
@@ -68,9 +94,9 @@ describe LoanCreator::Bullet do
       end
 
       it 'has a monthly payment which is the sum of the
-      remaining interests + the capital' do
+      monthly interests + the capital' do
         expect(last_time_table.monthly_payment)
-          .to eql(total_interests + amount_in_cents)
+          .to eql(monthly_interests + amount_in_cents)
       end
 
       it 'has a monthly payment capital share equal to loan amount' do
@@ -78,9 +104,9 @@ describe LoanCreator::Bullet do
         .to eql(amount_in_cents)
       end
 
-      it 'has a monthly payment interests share equal to total interests' do
+      it 'has a monthly payment interests share equal to monthly interests' do
         expect(last_time_table.monthly_payment_interests_share)
-        .to eql(total_interests)
+        .to eql(monthly_interests)
       end
 
       it 'has a remaining capital equal to zero' do
@@ -112,7 +138,7 @@ describe LoanCreator::Bullet do
         duration_in_months:    24
       ).total_interests
 
-      expect(total_interests).to eql(2_203_910)
+      expect(total_interests).to eql(2_000_000)
     end
 
     it "has the expected value - example two" do
@@ -123,7 +149,7 @@ describe LoanCreator::Bullet do
         duration_in_months:    17
       ).total_interests
 
-      expect(total_interests).to eql(3_987_096_997)
+      expect(total_interests).to eql(3_788_142_275)
     end
   end
 end
