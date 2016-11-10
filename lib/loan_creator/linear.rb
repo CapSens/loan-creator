@@ -46,10 +46,9 @@ module LoanCreator
       @calc_monthly_payment_capital ||= _calc_monthly_payment_capital
     end
 
-    # with t = term
-    def calc_monthly_payment_interests(t)
+    def calc_monthly_payment_interests(term)
       (self.amount_in_cents *
-        (self.duration_in_months - t.to_i + 1) / (self.duration_in_months)) *
+        (self.duration_in_months - term + 1) / (self.duration_in_months)) *
         ((self.annual_interests_rate / 100.0) / 12.0)
     end
 
@@ -83,19 +82,24 @@ module LoanCreator
       sum = 0
       rounded_sum = 0
       term = 1
-      monthly_capital_share = self.calc_monthly_payment_capital
 
       while ++term < (self.duration_in_months + 1)
 
+        # p self.calc_monthly_payment_interests(term)
+        # p self.calc_monthly_payment_capital
+        # p self.calc_monthly_payment_interests(term) + self.calc_monthly_payment_capital
+
         calc_sum = self.calc_monthly_payment_interests(term) +
-          monthly_capital_share
+          self.calc_monthly_payment_capital
 
         sum += calc_sum
+        p sum
         rounded_sum += calc_sum.round
+        p rounded_sum
         term += 1
       end
 
-      (sum - rounded_sum).round(10)
+      (sum - rounded_sum).round(4)
     end
   end
 end

@@ -35,7 +35,7 @@ describe LoanCreator::Linear do
     describe '#payments_difference' do
       it "has a difference in cents between 'total_interests'
           and the sum of the monthly interests share" do
-         expect(subject.payments_difference).to eql(-0.3333333327)
+         expect(subject.payments_difference).to eql(-0.3333)
       end
     end
 
