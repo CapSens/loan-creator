@@ -64,12 +64,16 @@ Standard loan generates time tables with constant payments.
 
 Linear loan generates time tables with constant capital share payment.
 
-Infine loan generates time tables where terms' payments are composed by interests only. 
+Standard and linear loans may be deferred, i.e. capital repayment is delayed. Interests are to be payed normally during this period.
+
+In fine loan generates time tables where terms' payments are composed by interests only.
 Capital share shall be repaid in full at loan's end.
 
-Bullet loan generates time tables where terms' payments are zero. 
+Bullet loan generates time tables where terms' payments are zero.
 Interests are capitalized, i.e. added to the borrowed capital on each term.
 Capital share shall be repaid in full and all interests paid at loan's end.
+
+There is no deferred time for in fine and bullet loans as it is the same as increasing the loan duration.
 
 ## Development
 
@@ -85,4 +89,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

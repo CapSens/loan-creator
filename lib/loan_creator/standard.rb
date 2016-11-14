@@ -1,7 +1,11 @@
 module LoanCreator
   class Standard < LoanCreator::Common
     def time_table
-      time_table = []
+      if self.deferred_in_months <= 0
+        time_table = []
+      else
+        time_table = self.deferred_period_time_table
+      end
       calc_remaining_capital = self.amount_in_cents
       calc_paid_interests = 0
 
@@ -30,7 +34,7 @@ module LoanCreator
         calc_remaining_int = self.total_interests - calc_paid_interests
 
         time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1,
+          term:                            term + 1 + self.deferred_in_months,
           monthly_payment:                 self.calc_monthly_payment,
           monthly_payment_capital_share:   calc_monthly_capital,
           monthly_payment_interests_share: calc_monthly_interests,
@@ -38,6 +42,28 @@ module LoanCreator
           paid_capital:                    calc_paid_capital,
           remaining_interests:             calc_paid_interests,
           paid_interests:                  calc_remaining_int
+        )
+      end
+
+      time_table
+    end
+
+    def deferred_period_time_table
+      time_table = []
+      calc_monthly_interests = self.monthly_interests(self.amount_in_cents)
+
+      self.deferred_in_months.times do |term|
+        calc_paid_interests = (term + 1) * calc_monthly_interests
+
+        time_table << LoanCreator::TimeTable.new(
+          term:                            term + 1,
+          monthly_payment:                 calc_monthly_interests,
+          monthly_payment_capital_share:   0,
+          monthly_payment_interests_share: calc_monthly_interests,
+          remaining_capital:               self.amount_in_cents,
+          paid_capital:                    0,
+          remaining_interests:             self.total_interests - calc_paid_interests,
+          paid_interests:                  calc_paid_interests
         )
       end
 
@@ -81,7 +107,8 @@ module LoanCreator
 
     def _total_interests
       (self.duration_in_months * self.calc_monthly_payment -
-        self.amount_in_cents).round
+        self.amount_in_cents + (self.deferred_in_months *
+        self.monthly_interests(self.amount_in_cents))).round
     end
 
     def _payments_difference

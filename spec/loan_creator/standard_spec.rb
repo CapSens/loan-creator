@@ -34,8 +34,8 @@ describe LoanCreator::Standard do
 
     describe '#payments_difference' do
       it "has a difference in cents between 'total_interests'
-          and the sum of the monthly interests share
-          based on rounded 'monthly_payment'" do
+      and the sum of the monthly interests share
+      based on rounded 'monthly_payment'" do
          expect(subject.payments_difference).to eql(6.321)
       end
     end
@@ -76,6 +76,42 @@ describe LoanCreator::Standard do
     end
   end
 
+  describe 'loan with deferred period' do
+
+    # The loan
+    subject(:deferred_loan) {
+      described_class.new(
+        amount_in_cents:       amount_in_cents,
+        annual_interests_rate: 10,
+        starts_at:             '2016-01-15',
+        duration_in_months:    duration_in_months,
+        deferred_in_months:    deferred_in_months
+      )
+    }
+
+    # Duration of the loan
+    let(:duration_in_months) { 24 }
+
+    # Loan amount
+    let(:amount_in_cents) { 100_000 * 100 }
+
+    # deferred period in months
+    let(:deferred_in_months) { 12 }
+
+    # Loan monthly payment calculation's result
+    let(:monthly_payment) { subject.calc_monthly_payment }
+
+    # Loan total interests calculation's result
+    let(:total_interests) { subject.total_interests }
+
+    # Time tables array (full loan)
+    let(:time_tables) { subject.time_table }
+
+    it "returns 'duration_in_months + deferred_in_months' elements" do
+      expect(time_tables.size).to eql(duration_in_months + deferred_in_months)
+    end
+  end
+
   describe "#total_interests" do
     it "has the expected value - example one" do
       total_interests = described_class.new(
@@ -97,6 +133,18 @@ describe LoanCreator::Standard do
       ).total_interests
 
       expect(total_interests).to eql(2_039_377_012)
+    end
+
+    it "has the expected value - example three - deferred period" do
+      total_interests = described_class.new(
+        amount_in_cents:       100_000 * 100,
+        annual_interests_rate: 10,
+        starts_at:             '2016-01-15',
+        duration_in_months:    36,
+        deferred_in_months:    18
+      ).total_interests
+
+      expect(total_interests).to eql(3_116_192)
     end
   end
 end
