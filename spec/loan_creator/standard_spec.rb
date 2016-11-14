@@ -110,6 +110,61 @@ describe LoanCreator::Standard do
     it "returns 'duration_in_months + deferred_in_months' elements" do
       expect(time_tables.size).to eql(duration_in_months + deferred_in_months)
     end
+
+    it 'verifies calculation during deferred period' do
+      pass = true
+      calc_paid_interests = 0
+
+      time_tables.each_with_index do |tt, i|
+        unless tt.monthly_payment_interests_share ==
+            subject.monthly_interests(amount_in_cents) &&
+            tt.monthly_payment_capital_share == 0 &&
+            tt.remaining_capital == amount_in_cents &&
+            tt.paid_capital == 0
+          pass = false
+        end
+
+        calc_paid_interests += tt.monthly_payment_interests_share
+
+        unless tt.remaining_interests ==
+            (total_interests - calc_paid_interests) &&
+            tt.paid_interests == calc_paid_interests
+          pass = false
+        end
+
+        break if i == (deferred_in_months - 1)
+      end
+    end
+
+    it 'verifies normal period calculation' do
+      pass = true
+      calc_remaining_capital = amount_in_cents
+      calc_paid_interests = deferred_in_months *
+        subject.monthly_interests(amount_in_cents)
+
+      time_tables.each_with_index do |tt, i|
+        unless tt.monthly_payment_interests_share ==
+            subject.monthly_interests(calc_remaining_capital) &&
+            tt.monthly_payment_capital_share ==
+            subject.monthly_capital_share(calc_remaining_capital)
+          pass = false
+        end
+
+        calc_remaining_capital -= tt.monthly_payment_capital_share
+
+        unless tt.remaining_capital == calc_remaining_capital &&
+            tt.paid_capital == amount_in_cents - calc_remaining_capital
+          pass = false
+        end
+
+        calc_paid_interests += tt.monthly_payment_interests_share
+
+        unless tt.remaining_interests == calc_paid_interests &&
+            tt.paid_interests == total_interests - tt.remaining_interests
+          pass = false
+        end
+      end
+    end
   end
 
   describe "#total_interests" do

@@ -1,7 +1,11 @@
 module LoanCreator
   class Linear < LoanCreator::Common
     def time_table
-      time_table = []
+      if self.deferred_in_months <= 0
+        time_table = []
+      else
+        time_table = self.deferred_period_time_table
+      end
       calc_paid_interests = 0
 
       self.duration_in_months.times do |term|
@@ -28,13 +32,35 @@ module LoanCreator
         calc_remaining_int = self.total_interests - calc_paid_interests
 
         time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1,
+          term:                            term + 1 + self.deferred_in_months,
           monthly_payment:                 calc_monthly_payment,
           monthly_payment_capital_share:   self.calc_monthly_payment_capital,
           monthly_payment_interests_share: calc_monthly_interests,
           remaining_capital:               calc_remaining_capital,
           paid_capital:                    calc_paid_capital,
           remaining_interests:             calc_remaining_int,
+          paid_interests:                  calc_paid_interests
+        )
+      end
+
+      time_table
+    end
+
+    def deferred_period_time_table
+      time_table = []
+
+      self.deferred_in_months.times do |term|
+        calc_monthly_interests =
+          self.calc_monthly_payment_interests(term + 1)
+
+        time_table << LoanCreator::TimeTable.new(
+          term:                            term + 1,
+          monthly_payment:                 calc_monthly_interests,
+          monthly_payment_capital_share:   0,
+          monthly_payment_interests_share: calc_monthly_interests,
+          remaining_capital:               self.amount_in_cents,
+          paid_capital:                    0,
+          remaining_interests:             self.total_interests - calc_paid_interests,
           paid_interests:                  calc_paid_interests
         )
       end

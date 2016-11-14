@@ -1,13 +1,16 @@
 module LoanCreator
   class Standard < LoanCreator::Common
     def time_table
+      calc_remaining_capital = self.amount_in_cents
+      calc_paid_interests = 0
+
       if self.deferred_in_months <= 0
         time_table = []
       else
         time_table = self.deferred_period_time_table
+        calc_paid_interests += self.deferred_in_months *
+          self.monthly_interests(self.amount_in_cents)
       end
-      calc_remaining_capital = self.amount_in_cents
-      calc_paid_interests = 0
 
       self.duration_in_months.times do |term|
 
