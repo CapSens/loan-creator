@@ -22,7 +22,54 @@ Or install it yourself as:
 
 ## Usage
 
+Parent module
+```ruby
+    module LoanCreator
+```
+
+There are four categories of loan, initiated with a `Common` class which inherits the following:
+```ruby
+    LoanCreator::Standard
+    LoanCreator::Linear
+    LoanCreator::Infine
+    LoanCreator::Bullet
+```
+Each instance of one of the previous classes has the following attributes:
+```ruby
+    :amount_in_cents
+    :annual_interests_rate
+    :starts_at
+    :duration_in_months
+    :deferred_in_months (default to zero)
+```
+
+There is alos a `TimeTable` class dedicated to record the data of the loans' terms.
+Each instance of `LoanCreator::TimeTable` has the following attributes:
+```ruby
+    :term
+    :monthly_payment
+    :monthly_payment_capital_share
+    :monthly_payment_interests_share
+    :remaining_capital
+    :paid_capital
+    :remaining_interests
+    :paid_interests
+```
+
 TODO: Write usage instructions here
+
+## Explanation
+
+Standard loan generates time tables with constant payments.
+
+Linear loan generates time tables with constant capital share payment.
+
+Infine loan generates time tables where terms' payments are composed by interests only. 
+Capital share shall be repaid in full at loan's end.
+
+Bullet loan generates time tables where terms' payments are zero. 
+Interests are capitalized, i.e. added to the borrowed capital on each term.
+Capital share shall be repaid in full and all interests paid at loan's end.
 
 ## Development
 
