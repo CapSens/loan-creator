@@ -3,10 +3,12 @@ module LoanCreator
     def time_table
       if self.deferred_in_months <= 0
         time_table = []
+        calc_paid_interests = 0
       else
         time_table = self.deferred_period_time_table
+        calc_paid_interests = self.deferred_in_months *
+        self.amount_in_cents * (self.annual_interests_rate / 100.0 / 12.0)
       end
-      calc_paid_interests = 0
 
       self.duration_in_months.times do |term|
 
@@ -51,7 +53,9 @@ module LoanCreator
 
       self.deferred_in_months.times do |term|
         calc_monthly_interests =
-          self.calc_monthly_payment_interests(term + 1)
+          self.calc_monthly_payment_interests(1)
+
+        calc_paid_interests = (term + 1) * calc_monthly_interests
 
         time_table << LoanCreator::TimeTable.new(
           term:                            term + 1,
@@ -109,9 +113,11 @@ module LoanCreator
     end
 
     def _total_interests
-      (self.amount_in_cents *
+      ((self.amount_in_cents *
         ((self.annual_interests_rate / 100.0) / 12.0) *
-        (self.duration_in_months + 1) / 2).round
+        (self.duration_in_months + 1) / 2) +
+        (self.deferred_in_months * self.amount_in_cents *
+        (self.annual_interests_rate / 100.0 / 12.0))).round
     end
 
     def _payments_difference_capital_share
