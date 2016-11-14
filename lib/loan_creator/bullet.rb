@@ -40,7 +40,8 @@ module LoanCreator
 
     def _total_interests
       total_to_pay = self.amount_in_cents *
-        ((1 + (self.annual_interests_rate / 100.0) / 12) ** (self.duration_in_months))
+        ((1 + (self.annual_interests_rate / 100.0) / 12) **
+        (self.duration_in_months))
 
       (total_to_pay - self.amount_in_cents).round
     end

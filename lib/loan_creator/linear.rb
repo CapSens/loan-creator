@@ -49,7 +49,7 @@ module LoanCreator
     def calc_monthly_payment_interests(term)
       (self.amount_in_cents *
         (self.duration_in_months - term + 1) / (self.duration_in_months)) *
-        ((self.annual_interests_rate / 100.0) / 12.0)
+        (self.annual_interests_rate / 100.0 / 12.0)
     end
 
     # @return calculates the remaining capital to repay
@@ -66,10 +66,20 @@ module LoanCreator
       @payments_difference ||= _payments_difference
     end
 
+    def payments_difference_capital_share
+      @payments_difference_capital_share ||=
+        _payments_difference_capital_share
+    end
+
+    def payments_difference_interests_share
+      @payments_difference_interests_share ||=
+        _payments_difference_interests_share
+    end
+
     private
 
     def _calc_monthly_payment_capital
-      self.amount_in_cents / (self.duration_in_months * 1.0)
+      (self.amount_in_cents / (self.duration_in_months * 1.0)).round
     end
 
     def _total_interests
@@ -78,28 +88,33 @@ module LoanCreator
         (self.duration_in_months + 1) / 2).round
     end
 
-    def _payments_difference
+    def _payments_difference_capital_share
+      self.duration_in_months *
+        self.calc_monthly_payment_capital -
+        self.amount_in_cents
+    end
+
+    def _payments_difference_interests_share
       sum = 0
       rounded_sum = 0
       term = 1
 
-      while ++term < (self.duration_in_months + 1)
-
+      while term < (self.duration_in_months + 1)
+        sum += self.calc_monthly_payment_interests(term)
         # p self.calc_monthly_payment_interests(term)
-        # p self.calc_monthly_payment_capital
-        # p self.calc_monthly_payment_interests(term) + self.calc_monthly_payment_capital
-
-        calc_sum = self.calc_monthly_payment_interests(term) +
-          self.calc_monthly_payment_capital
-
-        sum += calc_sum
-        p sum
-        rounded_sum += calc_sum.round
-        p rounded_sum
+        rounded_sum += self.calc_monthly_payment_interests(term).round
+        # p self.calc_monthly_payment_interests(term).round
         term += 1
       end
 
-      (sum - rounded_sum).round(4)
+      # p rounded_sum
+      # p sum
+      rounded_sum - sum
+    end
+
+    def _payments_difference
+      self.payments_difference_capital_share +
+        self.payments_difference_interests_share
     end
   end
 end

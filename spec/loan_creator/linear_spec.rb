@@ -32,10 +32,23 @@ describe LoanCreator::Linear do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
+    describe '#payments_difference_capital_share' do
+      it "has a difference of capital payment due to rounded amounts" do
+         expect(subject.payments_difference_capital_share)
+          .to eql(8)
+      end
+    end
+
+    describe '#payments_difference_interests_share' do
+      it "has a difference of interests payment due to rounded amounts" do
+         expect(subject.payments_difference_interests_share)
+          .to eql(-0.6667)
+      end
+    end
+
     describe '#payments_difference' do
-      it "has a difference in cents between 'total_interests'
-          and the sum of the monthly interests share" do
-         expect(subject.payments_difference).to eql(-0.3333)
+      it "difference of payment due to rounded amounts" do
+         expect(subject.payments_difference).to eql(7.3333)
       end
     end
 
@@ -45,34 +58,29 @@ describe LoanCreator::Linear do
       expect(all_tt).to eql(true)
     end
 
-    # it 'verifies whole calculation' do
-    #   pass = true
-    #   calc_remaining_capital = amount_in_cents
-    #   calc_paid_interests = 0
-    #
-    #   time_tables.each_with_index do |tt, i|
-    #     unless tt.monthly_payment_interests_share ==
-    #         subject.monthly_interests(calc_remaining_capital) &&
-    #         tt.monthly_payment_capital_share ==
-    #         subject.monthly_capital_share(calc_remaining_capital)
-    #       pass = false
-    #     end
-    #
-    #     calc_remaining_capital -= tt.monthly_payment_capital_share
-    #
-    #     unless tt.remaining_capital == calc_remaining_capital &&
-    #         tt.paid_capital == amount_in_cents - calc_remaining_capital
-    #       pass = false
-    #     end
-    #
-    #     calc_paid_interests += tt.monthly_payment_interests_share
-    #
-    #     unless tt.remaining_interests == calc_paid_interests &&
-    #         tt.paid_interests == total_interests - tt.remaining_interests
-    #       pass = false
-    #     end
-    #   end
-    # end
+    it 'verifies whole calculation' do
+      pass = true
+      calc_remaining_capital = amount_in_cents
+      calc_paid_interests = 0
+
+      time_tables.each_with_index do |tt, i|
+        calc_paid_interests += subject.calc_monthly_payment_interests(tt.term)
+
+        unless tt.monthly_payment_capital_share ==
+              subject.calc_monthly_payment_capital &&
+            tt.monthly_payment_interests_share ==
+              subject.calc_monthly_payment_interests(tt.term) &&
+            tt.remaining_capital == calc_remaining_capital &&
+            tt.paid_capital == amount_in_cents - calc_remaining_capital &&
+            tt.paid_interests == calc_paid_interests &&
+            tt.remaining_interests ==
+              self.total_interests - calc_paid_interests
+          pass = false
+        end
+
+        calc_remaining_capital -= tt.monthly_payment_capital_share
+      end
+    end
   end
 
   describe "#total_interests" do

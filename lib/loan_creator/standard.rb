@@ -89,11 +89,11 @@ module LoanCreator
       rounded_sum = 0
       term = 1
       monthly_capital = (self.amount_in_cents *
-      ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
-      ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
-      ((-1) * self.duration_in_months))))
+        ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
+        ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
+        ((-1) * self.duration_in_months))))
 
-      while ++term < (self.duration_in_months + 1)
+      while term < (self.duration_in_months + 1)
         sum += monthly_capital
         rounded_sum += monthly_capital.round
         term += 1
