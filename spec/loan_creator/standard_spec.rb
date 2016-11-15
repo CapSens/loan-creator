@@ -73,6 +73,8 @@ describe LoanCreator::Standard do
           pass = false
         end
       end
+
+      expect(pass).to eql(true)
     end
   end
 

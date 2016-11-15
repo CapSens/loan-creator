@@ -80,6 +80,8 @@ describe LoanCreator::Linear do
 
         calc_remaining_capital -= tt.monthly_payment_capital_share
       end
+
+      expect(pass).to eql(true)
     end
   end
 
