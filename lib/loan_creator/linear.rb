@@ -204,8 +204,9 @@ module LoanCreator
       end
 
       p rounded_sum
+      p BigDecimal.new(rounded_sum, $accuracy)
       p sum
-      rounded_sum - sum
+      BigDecimal.new(rounded_sum, $accuracy) - BigDecimal.new(sum, $accuracy)
     end
   end
 end

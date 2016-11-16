@@ -132,32 +132,6 @@ describe LoanCreator::Linear do
           .to eql(-0.6667)
       end
     end
-
-    it 'verifies whole calculation' do
-      pass = true
-      calc_remaining_capital = amount_in_cents
-      calc_paid_interests = 0
-
-      time_tables.each_with_index do |tt, i|
-        calc_paid_interests += subject.calc_monthly_payment_interests(tt.term)
-
-        unless tt.monthly_payment_capital_share ==
-              subject.calc_monthly_payment_capital &&
-            tt.monthly_payment_interests_share ==
-              subject.calc_monthly_payment_interests(tt.term) &&
-            tt.remaining_capital == calc_remaining_capital &&
-            tt.paid_capital == amount_in_cents - calc_remaining_capital &&
-            tt.paid_interests == calc_paid_interests &&
-            tt.remaining_interests ==
-              self.total_interests - calc_paid_interests
-          pass = false
-        end
-
-        calc_remaining_capital -= tt.monthly_payment_capital_share
-      end
-
-      expect(pass).to eql(true)
-    end
   end
 
   describe 'loan with deferred period' do
@@ -193,53 +167,6 @@ describe LoanCreator::Linear do
 
     it "returns 'duration_in_months + deferred_in_months' elements" do
       expect(time_tables.size).to eql(duration_in_months + deferred_in_months)
-    end
-
-    it 'verifies calculation during deferred period' do
-      pass = true
-      calc_monthly_interests = amount_in_cents *
-        (subject.annual_interests_rate / 100.0 / 12.0)
-
-      time_tables.each_with_index do |tt, i|
-        calc_paid_interests = (i + 1) * calc_monthly_interests
-
-        unless tt.monthly_payment_interests_share == calc_monthly_interests &&
-            tt.monthly_payment_capital_share == 0 &&
-            tt.remaining_capital == amount_in_cents &&
-            tt.paid_capital == 0 &&
-            tt.paid_interests == calc_paid_interests &&
-            tt.remaining_interests == total_interests - calc_paid_interests
-          pass = false
-        end
-
-        break if i == (deferred_in_months - 1)
-      end
-    end
-
-    it 'verifies normal period calculation' do
-      pass = true
-      calc_remaining_capital = amount_in_cents
-      calc_paid_interests = deferred_in_months * amount_in_cents *
-        (subject.annual_interests_rate / 100.0 / 12.0)
-
-      time_tables.each_with_index do |tt, i|
-        calc_paid_interests +=
-          subject.calc_monthly_payment_interests(tt.term - deferred_in_months)
-
-        unless tt.monthly_payment_capital_share ==
-              subject.calc_monthly_payment_capital &&
-            tt.monthly_payment_interests_share ==
-              subject.calc_monthly_payment_interests(tt.term) &&
-            tt.remaining_capital == calc_remaining_capital &&
-            tt.paid_capital == amount_in_cents - calc_remaining_capital &&
-            tt.paid_interests == calc_paid_interests &&
-            tt.remaining_interests ==
-              self.total_interests - calc_paid_interests
-          pass = false
-        end
-
-        calc_remaining_capital -= tt.monthly_payment_capital_share
-      end
     end
   end
 end
