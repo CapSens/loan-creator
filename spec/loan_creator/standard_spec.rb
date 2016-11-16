@@ -38,11 +38,63 @@ describe LoanCreator::Standard do
       end
     end
 
+    describe '#calc_monthly_payment' do
+      it 'calculates the precise monthly payment' do
+        expect(subject.calc_monthly_payment.round(7)).to eql(461_449.2633752)
+      end
+    end
+
+    describe '#rounded_monthly_payment' do
+      it 'calculates the rounded monthly payment' do
+        expect(subject.rounded_monthly_payment).to eql(461_449)
+      end
+    end
+
+    describe '#total_payment' do
+      it 'calculates the total to pay' do
+        expect(subject.total_payment).to eql(11_074_782)
+      end
+    end
+
+    describe '#total_interests' do
+      it 'calculates the total interests to pay' do
+        expect(subject.total_interests).to eql(1_074_782)
+      end
+    end
+
+    describe '#rounded_monthly_interests(capital)' do
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_interests(8_856_173))
+          .to eql(73_801)
+      end
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_interests(6_481_288))
+          .to eql(54_011)
+      end
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_interests(2_250_668))
+          .to eql(18_756)
+      end
+    end
+
+    describe '#rounded_monthly_capital_share(capital)' do
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_capital_share(8_856_173))
+          .to eql(387_648)
+      end
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_capital_share(6_481_288))
+          .to eql(407_439)
+      end
+      it 'calculates the monthly interests - example one' do
+        expect(subject.rounded_monthly_capital_share(2_250_668))
+          .to eql(442_694)
+      end
+    end
+
     describe '#payments_difference' do
-      it "has a difference in cents between 'total_interests'
-      and the sum of the monthly interests share
-      based on rounded 'monthly_payment'" do
-         expect(subject.payments_difference).to eql(6.321)
+      it "has a difference on payments due to roundings" do
+         expect(subject.payments_difference.round).to eql(-6)
       end
     end
 

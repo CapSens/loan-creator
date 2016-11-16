@@ -3,6 +3,7 @@ module LoanCreator
     def time_table
       calc_remaining_capital = self.amount_in_cents
       calc_paid_interests    = 0
+      r_monthly_payment      = self.rounded_monthly_payment
 
       if self.deferred_in_months <= 0
         time_table = []
@@ -82,25 +83,36 @@ module LoanCreator
       @calc_monthly_payment ||= _calc_monthly_payment
     end
 
+    def rounded_monthly_payment
+      self.calc_monthly_payment.round
+    end
+
+    def total_payment
+      @total_payment ||= _total_payment
+    end
+
     def total_interests
       @total_interests ||= _total_interests
     end
 
+    def monthly_interests(capital)
+      _monthly_interests(capital)
+    end
+
+    def rounded_monthly_interests(capital)
+      self.monthly_interests(capital).round
+    end
+
+    def monthly_capital_share(capital)
+      _monthly_capital_share(capital)
+    end
+
+    def rounded_monthly_capital_share(capital)
+      self.monthly_capital_share(capital).round
+    end
+
     def payments_difference
       @payments_difference ||= _payments_difference
-    end
-
-    # @return calculates the monthly payment interests share
-    # @return based on remaining capital to repay
-    def monthly_interests(capital)
-      capital * (self.annual_interests_rate / 100.0) / 12.0
-    end
-
-    # @return calculates the monthly payment capital share by subtracting
-    # @return the calculated monthly payment interests share to the
-    # @return calculated total monthly payment
-    def monthly_capital_share(capital)
-      self.calc_monthly_payment - self.monthly_interests(capital)
     end
 
     private
@@ -114,36 +126,60 @@ module LoanCreator
         .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
     end
 
+    #          Capital * monthly_interests_rate
+    # ____________________________________________________
+    #  (1 - ((1 + monthly_interests_rate)^(-total_terms)))
+    #
     def _calc_monthly_payment
-      monthly_interests_rate = (self.annual_interests_rate / 100.0) / 12.0
-      denominator            = (1 - ((1 + monthly_interests_rate) **
-        ((-1) * self.duration_in_months)))
+      denominator = (BigDecimal.new(1, @@accuracy) -
+        ((BigDecimal.new(1, @@accuracy) + self.monthly_interests_rate) **
+        ((BigDecimal.new(-1, @@accuracy)) *
+        BigDecimal.new(self.duration_in_months, @@accuracy))))
 
-      (self.amount_in_cents * monthly_interests_rate / denominator).round
+      BigDecimal.new(self.amount_in_cents, @@accuracy) *
+        self.monthly_interests_rate / denominator
     end
 
+    # total_terms * calc_monthly_payment
+    #
+    def _total_payment
+      (BigDecimal.new(self.duration_in_months, @@accuracy) *
+        self.calc_monthly_payment).round
+    end
+
+    # calc_total_payment - amount_in_cents
+    #
     def _total_interests
-      (self.duration_in_months * self.calc_monthly_payment -
-        self.amount_in_cents + (self.deferred_in_months *
-        self.monthly_interests(self.amount_in_cents))).round
+      self.total_payment - BigDecimal.new(self.amount_in_cents, @@accuracy)
     end
 
+    # Capital (arg) * monthly_interests_rate
+    #
+    def _monthly_interests(capital)
+      capital * self.monthly_interests_rate
+    end
+
+    # calc_monthly_payment * monthly_interests(capital)
+    #
+    def _monthly_capital_share(capital)
+      self.calc_monthly_payment - self.monthly_interests(capital)
+    end
+
+    # difference between sum of precise monthly payments and
+    # sum of rounded monthly payments (required for financial flows)
+    #
     def _payments_difference
       sum             = 0
       rounded_sum     = 0
       term            = 1
-      monthly_capital = (self.amount_in_cents *
-        ((self.annual_interests_rate / 100.0) / 12.0) / (1 -
-        ((1 + ((self.annual_interests_rate / 100.0) / 12.0)) **
-          ((-1) * self.duration_in_months))))
 
       while term < (self.duration_in_months + 1)
-        sum         += monthly_capital
-        rounded_sum += monthly_capital.round
+        sum         += self.calc_monthly_payment
+        rounded_sum += self.rounded_monthly_payment
         term        += 1
       end
 
-      (sum - rounded_sum).round(4)
+      rounded_sum - sum
     end
   end
 end

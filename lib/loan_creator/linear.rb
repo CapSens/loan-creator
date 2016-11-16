@@ -191,9 +191,9 @@ module LoanCreator
     end
 
     def _payments_difference_interests_share
-      sum = BigDecimal.new(0, @@accuracy)
-      sum_of_rounded = BigDecimal.new(0, @@accuracy)
-      term = 1
+      sum             = 0
+      sum_of_rounded  = 0
+      term            = 1
 
       while term < (self.duration_in_months + 1)
         sum = sum.add(self.calc_monthly_payment_interests(term), @@accuracy)

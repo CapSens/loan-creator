@@ -1,14 +1,14 @@
 module LoanCreator
   class Infine < LoanCreator::Common
     def time_table
-      time_table = []
+      time_table          = []
       calc_paid_interests = 0
-      calc_remaining_int = self.total_interests.round
+      calc_remaining_int  = self.total_interests.round
       r_monthly_interests = self.rounded_monthly_interests
 
       (self.duration_in_months - 1).times do |term|
         calc_paid_interests += r_monthly_interests
-        calc_remaining_int -= r_monthly_interests
+        calc_remaining_int  -= r_monthly_interests
 
         time_table << LoanCreator::TimeTable.new(
           term:                            term + 1,
@@ -22,9 +22,9 @@ module LoanCreator
         )
       end
 
-      last_interests_payment = r_monthly_interests -
+      last_interests_payment  = r_monthly_interests -
         self.interests_difference.round
-      calc_paid_interests += last_interests_payment
+      calc_paid_interests     += last_interests_payment
 
       last_time_table =  LoanCreator::TimeTable.new(
         term:                            self.duration_in_months,
