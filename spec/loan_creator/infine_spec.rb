@@ -41,8 +41,68 @@ describe LoanCreator::Infine do
       end
     end
 
+    describe '#monthly_interests' do
+      it 'calculates the monthly interests' do
+        expect(subject.monthly_interests.round(3)).to eql(83333.333)
+      end
+    end
+
+    describe '#rounded_monthly_interests' do
+      it 'calculates the rounded monthly interests rate' do
+        expect(subject.rounded_monthly_interests).to eql(83333)
+      end
+    end
+
+    describe "#total_interests" do
+      it "has the expected value - example one" do
+        total_interests = described_class.new(
+          amount_in_cents:       100_000 * 100,
+          annual_interests_rate: 10,
+          starts_at:             '2016-01-15',
+          duration_in_months:    24
+        ).total_interests.round
+
+        expect(total_interests).to eql(2_000_000)
+      end
+
+      it "has the expected value - example two" do
+        total_interests = described_class.new(
+          amount_in_cents:       350_456_459 * 100,
+          annual_interests_rate: 7.63,
+          starts_at:             '2016-01-15',
+          duration_in_months:    17
+        ).total_interests.round
+
+        expect(total_interests).to eql(3_788_142_275)
+      end
+    end
+
+    describe '#total_rounded_interests' do
+      it "has a predicted difference - example one" do
+        total_interests = described_class.new(
+          amount_in_cents:       100_000 * 100,
+          annual_interests_rate: 10,
+          starts_at:             '2016-01-15',
+          duration_in_months:    24
+        ).total_rounded_interests
+
+        expect(total_interests).to eql(1_999_992) # diff - 8 cents
+      end
+
+      it "has a predicted difference - example two" do
+        total_interests = described_class.new(
+          amount_in_cents:       350_456_459 * 100,
+          annual_interests_rate: 7.63,
+          starts_at:             '2016-01-15',
+          duration_in_months:    17
+        ).total_rounded_interests
+
+        expect(total_interests).to eql(3_788_142_283) # diff + 8 cents
+      end
+    end
+
     it "has a difference in cents between 'total_interests'
-        and the sum of the rounded 'monthly_interests'" do
+    and the sum of the rounded 'monthly_interests'" do
        expect(subject.interests_difference.round).to eql(-8)
     end
 
@@ -132,30 +192,6 @@ describe LoanCreator::Infine do
         expect(last_time_table.paid_interests)
         .to eql(total_interests)
       end
-    end
-  end
-
-  describe "#total_interests" do
-    it "has the expected value - example one" do
-      total_interests = described_class.new(
-        amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
-        starts_at:             '2016-01-15',
-        duration_in_months:    24
-      ).total_interests.round
-
-      expect(total_interests).to eql(2_000_000)
-    end
-
-    it "has the expected value - example two" do
-      total_interests = described_class.new(
-        amount_in_cents:       350_456_459 * 100,
-        annual_interests_rate: 7.63,
-        starts_at:             '2016-01-15',
-        duration_in_months:    17
-      ).total_interests.round
-
-      expect(total_interests).to eql(3_788_142_275)
     end
   end
 end
