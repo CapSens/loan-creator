@@ -67,7 +67,7 @@ module LoanCreator
 
         calc_remaining_interests =
           (self.total_interests -
-          BigDecimal.new(calc_paid_interests, $accuracy)).round
+          BigDecimal.new(calc_paid_interests, @@accuracy)).round
 
 
         time_table << LoanCreator::TimeTable.new(
@@ -141,8 +141,8 @@ module LoanCreator
     #    total_terms
     #
     def _calc_monthly_payment_capital
-      BigDecimal.new(self.amount_in_cents, $accuracy)
-        .div(BigDecimal.new(self.duration_in_months, $accuracy), $accuracy)
+      BigDecimal.new(self.amount_in_cents, @@accuracy)
+        .div(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy)
     end
 
     #   annual_interests_rate
@@ -150,8 +150,8 @@ module LoanCreator
     #         1200               for the monthly frequency, so 1200)
     #
     def _monthly_interests_rate
-      BigDecimal.new(self.annual_interests_rate, $accuracy)
-        .div(BigDecimal.new(1200, $accuracy), $accuracy)
+      BigDecimal.new(self.annual_interests_rate, @@accuracy)
+        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
     end
 
     # Capital * (total_terms - passed_terms)
@@ -159,10 +159,10 @@ module LoanCreator
     #            total_terms
     #
     def _calc_monthly_payment_interests(term)
-      (BigDecimal.new(self.amount_in_cents, $accuracy) *
-        (BigDecimal.new(self.duration_in_months, $accuracy) -
-        BigDecimal.new(term, $accuracy) + BigDecimal.new(1, $accuracy))
-        .div(BigDecimal.new(self.duration_in_months, $accuracy), $accuracy)) *
+      (BigDecimal.new(self.amount_in_cents, @@accuracy) *
+        (BigDecimal.new(self.duration_in_months, @@accuracy) -
+        BigDecimal.new(term, @@accuracy) + BigDecimal.new(1, @@accuracy))
+        .div(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy)) *
         self.monthly_interests_rate
     end
 
@@ -172,41 +172,43 @@ module LoanCreator
     #                                    \       2                            /
     #
     def _total_interests
-      BigDecimal.new(self.amount_in_cents, $accuracy) *
+      BigDecimal.new(self.amount_in_cents, @@accuracy) *
         self.monthly_interests_rate *
         (
-          (BigDecimal.new(self.duration_in_months, $accuracy) +
-          BigDecimal.new(1, $accuracy))
-          .div(BigDecimal.new(2, $accuracy), $accuracy) +
-          BigDecimal.new(self.deferred_in_months, $accuracy)
+          (BigDecimal.new(self.duration_in_months, @@accuracy) +
+          BigDecimal.new(1, @@accuracy))
+          .div(BigDecimal.new(2, @@accuracy), @@accuracy) +
+          BigDecimal.new(self.deferred_in_months, @@accuracy)
         )
     end
 
     # (total_terms * rounded_monthly_payment_capital) - Capital
     #
     def _payments_difference_capital_share
-      (BigDecimal.new(self.duration_in_months, $accuracy) *
+      (BigDecimal.new(self.duration_in_months, @@accuracy) *
         self.rounded_monthly_payment_capital) -
-        BigDecimal.new(self.amount_in_cents, $accuracy)
+        BigDecimal.new(self.amount_in_cents, @@accuracy)
     end
 
     def _payments_difference_interests_share
-      sum = 0
-      rounded_sum = 0
+      sum = BigDecimal.new(0, @@accuracy)
+      sum_of_rounded = BigDecimal.new(0, @@accuracy)
       term = 1
 
       while term < (self.duration_in_months + 1)
-        sum += self.calc_monthly_payment_interests(term)
-        # p self.calc_monthly_payment_interests(term)
-        rounded_sum += self.rounded_monthly_payment_interests(term)
-        # p self.calc_monthly_payment_interests(term).round
+        sum = sum.add(self.calc_monthly_payment_interests(term), @@accuracy)
+        sum_of_rounded = sum_of_rounded
+          .add(
+            BigDecimal.new(self.rounded_monthly_payment_interests(term), @@accuracy),
+            @@accuracy
+          )
         term += 1
       end
 
-      p rounded_sum
-      p BigDecimal.new(rounded_sum, $accuracy)
-      p sum
-      BigDecimal.new(rounded_sum, $accuracy) - BigDecimal.new(sum, $accuracy)
+      p "sum of rounded: #{sum_of_rounded}"
+      p "sum of precise: #{sum}"
+      p "difference: #{sum_of_rounded - sum}"
+      sum_of_rounded - sum < 1
     end
   end
 end

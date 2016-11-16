@@ -126,10 +126,22 @@ describe LoanCreator::Linear do
       end
     end
 
-    describe '#payments_difference_interests_share' do
-      it "has a difference of interests payment due to rounded amounts" do
-         expect(subject.payments_difference_interests_share)
-          .to eql(-0.6667)
+    describe '#payments_difference_interests_share - example one' do
+      it "has a difference of interests payment below 1" do
+         expect(subject.payments_difference_interests_share).to eql(true)
+      end
+    end
+
+    describe '#payments_difference_interests_share - example two' do
+      it "has a difference of interests payment below 1" do
+        difference = described_class.new(
+          amount_in_cents:       350_456_459 * 100,
+          annual_interests_rate: 7.63,
+          starts_at:             '2016-01-15',
+          duration_in_months:    17
+        ).payments_difference_interests_share
+
+         expect(difference).to eql(true)
       end
     end
   end

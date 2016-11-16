@@ -1,4 +1,10 @@
 require 'date'
+require 'bigdecimal'
+# round towards the nearest neighbor, unless both neighbors are
+# equidistant, in which case round towards the even neighbor
+# (Banker’s rounding)
+# usage of BigDecimal method: div(value, digits)
+BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
 
 module LoanCreator
   class Common
@@ -15,6 +21,7 @@ module LoanCreator
       @starts_at             = starts_at
       @duration_in_months    = duration_in_months
       @deferred_in_months    = deferred_in_months
+      @@accuracy             = 14
     end
 
     def end_date
