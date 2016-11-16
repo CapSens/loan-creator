@@ -20,7 +20,7 @@ describe LoanCreator::Bullet do
     let(:amount_in_cents) { 100_000 * 100 }
 
     # Loan total interests calculation's result
-    let(:total_interests) { subject.total_interests }
+    let(:total_interests) { subject.rounded_total_interests }
 
     # Time tables array (full loan)
     let(:time_tables) { subject.time_table }
@@ -30,6 +30,12 @@ describe LoanCreator::Bullet do
 
     it "returns 'duration_in_months' elements" do
       expect(time_tables.size).to eql(duration_in_months)
+    end
+
+    describe '#monthly_interests_rate' do
+      it 'calculates the monthly interests rate' do
+        expect(subject.monthly_interests_rate.round(7)).to eql(0.0083333)
+      end
     end
 
     describe "all but last time table" do
@@ -103,27 +109,27 @@ describe LoanCreator::Bullet do
     end
   end
 
-  describe "#total_interests" do
+  describe "#rounded_total_interests" do
     it "has the expected value - example one" do
-      total_interests = described_class.new(
+      rounded_total_interests = described_class.new(
         amount_in_cents:       100_000 * 100,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
         duration_in_months:    24
-      ).total_interests
+      ).rounded_total_interests
 
-      expect(total_interests).to eql(2_203_910)
+      expect(rounded_total_interests).to eql(2_203_910)
     end
 
     it "has the expected value - example two" do
-      total_interests = described_class.new(
+      rounded_total_interests = described_class.new(
         amount_in_cents:       350_456_459 * 100,
         annual_interests_rate: 7.63,
         starts_at:             '2016-01-15',
         duration_in_months:    17
-      ).total_interests
+      ).rounded_total_interests
 
-      expect(total_interests).to eql(3_987_096_997)
+      expect(rounded_total_interests).to eql(3_987_096_997)
     end
   end
 end

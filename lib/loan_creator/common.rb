@@ -31,5 +31,9 @@ module LoanCreator
     def time_table
       raise 'NotImplemented'
     end
+
+    def monthly_interests_rate
+      raise 'NotImplemented'
+    end
   end
 end

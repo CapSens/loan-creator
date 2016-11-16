@@ -35,9 +35,15 @@ describe LoanCreator::Infine do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
+    describe '#monthly_interests_rate' do
+      it 'calculates the monthly interests rate' do
+        expect(subject.monthly_interests_rate.round(7)).to eql(0.0083333)
+      end
+    end
+
     it "has a difference in cents between 'total_interests'
         and the sum of the rounded 'monthly_interests'" do
-       expect(subject.interests_difference).to eql(8)
+       expect(subject.interests_difference.round).to eql(-8)
     end
 
     describe "all but last time table" do
@@ -136,7 +142,7 @@ describe LoanCreator::Infine do
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
         duration_in_months:    24
-      ).total_interests
+      ).total_interests.round
 
       expect(total_interests).to eql(2_000_000)
     end
@@ -147,7 +153,7 @@ describe LoanCreator::Infine do
         annual_interests_rate: 7.63,
         starts_at:             '2016-01-15',
         duration_in_months:    17
-      ).total_interests
+      ).total_interests.round
 
       expect(total_interests).to eql(3_788_142_275)
     end

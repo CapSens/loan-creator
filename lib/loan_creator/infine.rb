@@ -35,27 +35,67 @@ module LoanCreator
       time_table
     end
 
+    # returns precise monthly interests rate
+    def monthly_interests_rate
+      @monthly_interests_rate ||= _monthly_interests_rate
+    end
+
     def monthly_interests
       @monthly_interests ||= _monthly_interests
+    end
+
+    def rounded_monthly_interests
+      self.monthly_interests.round
     end
 
     def total_interests
       @total_interests ||= _total_interests
     end
 
+    def total_rounded_interests
+      @total_rounded_interests ||= _total_rounded_interests
+    end
+
     def interests_difference
-      total_interests - (self.duration_in_months * monthly_interests)
+      @interests_difference ||= _interests_difference
     end
 
     private
 
-    def _monthly_interests
-      (self.amount_in_cents * (self.annual_interests_rate / 100.0) / 12.0).round
+    #   annual_interests_rate
+    # ________________________  (div by 100 as percentage and by 12
+    #         1200               for the monthly frequency, so 1200)
+    #
+    def _monthly_interests_rate
+      BigDecimal.new(self.annual_interests_rate, @@accuracy)
+        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
     end
 
+    # Capital * monthly_interests_rate
+    #
+    def _monthly_interests
+      BigDecimal.new(self.amount_in_cents, @@accuracy) *
+        self.monthly_interests_rate
+    end
+
+    # total_terms * monthly_interests
+    #
     def _total_interests
-      (self.amount_in_cents * (self.annual_interests_rate / 100.0) *
-      self.duration_in_months / 12.0).round
+      BigDecimal.new(self.duration_in_months, @@accuracy) *
+        self.monthly_interests
+    end
+
+    # total_terms * rounded_monthly_interests
+    #
+    def _total_rounded_interests
+      BigDecimal.new(self.duration_in_months, @@accuracy) *
+        self.rounded_monthly_interests
+    end
+
+    # total_rounded_interests - total_interests
+    #
+    def _interests_difference
+      self.total_rounded_interests - self.total_interests
     end
   end
 end

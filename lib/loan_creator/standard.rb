@@ -73,6 +73,11 @@ module LoanCreator
       time_table
     end
 
+    # returns precise monthly interests rate
+    def monthly_interests_rate
+      @monthly_interests_rate ||= _monthly_interests_rate
+    end
+
     def calc_monthly_payment
       @calc_monthly_payment ||= _calc_monthly_payment
     end
@@ -99,6 +104,15 @@ module LoanCreator
     end
 
     private
+
+    #   annual_interests_rate
+    # ________________________  (div by 100 as percentage and by 12
+    #         1200               for the monthly frequency, so 1200)
+    #
+    def _monthly_interests_rate
+      BigDecimal.new(self.annual_interests_rate, @@accuracy)
+        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
+    end
 
     def _calc_monthly_payment
       monthly_interests_rate = (self.annual_interests_rate / 100.0) / 12.0
