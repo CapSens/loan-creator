@@ -20,10 +20,10 @@ describe LoanCreator::Infine do
     let(:amount_in_cents) { 100_000 * 100 }
 
     # Loan monthly interests calculation's result
-    let(:monthly_interests) { subject.monthly_interests }
+    let(:monthly_interests) { subject.rounded_monthly_interests }
 
     # Loan total interests calculation's result
-    let(:total_interests) { subject.total_interests }
+    let(:total_interests) { subject.total_interests.round }
 
     # Time tables array (full loan)
     let(:time_tables) { subject.time_table }
@@ -160,9 +160,10 @@ describe LoanCreator::Infine do
       end
 
       it 'has a monthly payment which is the sum of the
-      monthly interests + the capital' do
+      monthly interests + the capital + accumulated difference on interests' do
         expect(last_time_table.monthly_payment)
-          .to eql(monthly_interests + amount_in_cents)
+          .to eql(monthly_interests + amount_in_cents -
+          subject.interests_difference.round)
       end
 
       it 'has a monthly payment capital share equal to loan amount' do
@@ -170,9 +171,10 @@ describe LoanCreator::Infine do
         .to eql(amount_in_cents)
       end
 
-      it 'has a monthly payment interests share equal to monthly interests' do
+      it 'has a monthly payment interests share equal to
+      monthly interests + accumulated difference on interests' do
         expect(last_time_table.monthly_payment_interests_share)
-        .to eql(monthly_interests)
+        .to eql(monthly_interests - subject.interests_difference.round)
       end
 
       it 'has a remaining capital equal to zero' do
