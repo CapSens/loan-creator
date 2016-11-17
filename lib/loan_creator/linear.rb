@@ -196,18 +196,12 @@ module LoanCreator
       term            = 1
 
       while term < (self.duration_in_months + 1)
-        sum = sum.add(self.calc_monthly_payment_interests(term), @@accuracy)
-        sum_of_rounded = sum_of_rounded
-          .add(
-            BigDecimal.new(self.rounded_monthly_payment_interests(term), @@accuracy),
-            @@accuracy
-          )
-        term += 1
+        sum            += self.calc_monthly_payment_interests(term)
+        sum_of_rounded +=
+          self.rounded_monthly_payment_interests(term)
+        term           += 1
       end
 
-      p "sum of rounded: #{sum_of_rounded}"
-      p "sum of precise: #{sum}"
-      p "difference: #{sum_of_rounded - sum}"
       sum_of_rounded - sum < 1
     end
   end
