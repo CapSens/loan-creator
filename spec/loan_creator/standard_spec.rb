@@ -10,9 +10,18 @@ describe LoanCreator::Standard do
       duration_in_months:    48
     )
 
+    deferred_loan = described_class.new(
+      amount_in_cents:       100_000 * 100,
+      annual_interests_rate: 10,
+      starts_at:             '2016-01-15',
+      duration_in_months:    48,
+      deferred_in_months:    18
+    )
+
     lender_one_tt   = loan.lender_time_table(10_000 * 100)
     lender_two_tt   = loan.lender_time_table(6_547 * 100)
     lender_three_tt = loan.lender_time_table(453 * 100)
+    lender_four_tt  = deferred_loan.lender_time_table(68_633 * 100)
 
     context 'lender_one_tt' do
       it 'has the same monthly payment on each term except last one' do
@@ -129,6 +138,46 @@ describe LoanCreator::Standard do
           expect(lender_three_tt[6].monthly_payment_interests_share)
             .to eql(338)
         end
+      end
+    end
+
+    context 'lender_four_tt (deferred)' do
+      it 'has the same monthly payment on each deferred term' do
+        all_tt = lender_four_tt[0...(deferred_loan.deferred_in_months - 1)]
+          .all? { |tt| tt.monthly_payment == 57_194 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not pay any capital share during deferred period' do
+        expect(lender_four_tt[(deferred_loan.deferred_in_months - 1)]
+          .remaining_capital).to eql(6_863_300)
+      end
+
+      it 'calculates paid interests at the end of the deferred period' do
+        expect(lender_four_tt[deferred_loan.deferred_in_months - 1]
+          .paid_interests).to eql(1_029_492)
+      end
+
+      it 'calculates total interests to pay' do
+        expect(lender_four_tt.last.paid_interests).to eql(2_521_604)
+      end
+
+      it 'has the same monthly payment on each normal term except last one' do
+        all_tt = lender_four_tt[deferred_loan.deferred_in_months...-1]
+          .all? { |tt| tt.monthly_payment == 174_071 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last payment amount' do
+        expect(lender_four_tt.last.monthly_payment).to eql(174_075)
+      end
+
+      it 'should pay capital in full' do
+        expect(lender_four_tt.last.paid_capital).to eql(6_863_300)
+      end
+
+      it 'should not have any remaining interests' do
+        expect(lender_four_tt.last.remaining_interests).to eql(0)
       end
     end
   end
