@@ -10,9 +10,9 @@ describe LoanCreator::Standard do
       duration_in_months:    48
     )
 
-    lender_one_tt   = loan.lender_time_table((10_000 * 100), 48)
-    lender_two_tt   = loan.lender_time_table((6_547 * 100), 48)
-    lender_three_tt = loan.lender_time_table((453 * 100), 48)
+    lender_one_tt   = loan.lender_time_table(10_000 * 100)
+    lender_two_tt   = loan.lender_time_table(6_547 * 100)
+    lender_three_tt = loan.lender_time_table(453 * 100)
 
     context 'lender_one_tt' do
       it 'has the same monthly payment on each term except last one' do
