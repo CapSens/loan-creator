@@ -124,7 +124,8 @@ module LoanCreator
       end
 
       # financial difference
-      if difference < 0 # not enough paid to lender
+      if difference < 0 && (difference % difference.truncate != 0)
+        # not enough paid to lender
         difference = difference.truncate - 1
       else # too much paid to lender
         difference = difference.truncate
@@ -289,11 +290,6 @@ module LoanCreator
       time_table
     end
 
-    # returns precise monthly interests rate
-    def monthly_interests_rate
-      @monthly_interests_rate ||= _monthly_interests_rate
-    end
-
     def calc_monthly_payment(amount=self.amount_in_cents,
         duration=self.duration_in_months)
       _calc_monthly_payment(amount, duration)
@@ -333,15 +329,6 @@ module LoanCreator
 
     private
 
-    #   annual_interests_rate
-    # ________________________  (div by 100 as percentage and by 12
-    #         1200               for the monthly frequency, so 1200)
-    #
-    def _monthly_interests_rate
-      BigDecimal.new(self.annual_interests_rate, @@accuracy)
-        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
-    end
-
     #          Capital * monthly_interests_rate
     # ____________________________________________________
     #  (1 - ((1 + monthly_interests_rate)^(-total_terms)))
@@ -349,20 +336,21 @@ module LoanCreator
     def _calc_monthly_payment(amount, duration)
       denominator = (BigDecimal.new(1, @@accuracy) -
         ((BigDecimal.new(1, @@accuracy) + self.monthly_interests_rate) **
-        ((BigDecimal.new(-1, @@accuracy)) *
-        BigDecimal.new(duration, @@accuracy))))
+        ((BigDecimal.new(-1, @@accuracy))
+        .mult(BigDecimal.new(duration, @@accuracy), @@accuracy))))
 
-      BigDecimal.new(amount, @@accuracy) *
-        self.monthly_interests_rate / denominator
+      BigDecimal.new(amount, @@accuracy)
+        .mult(self.monthly_interests_rate, @@accuracy)
+        .div(denominator, @@accuracy)
     end
 
     # total_terms * calc_monthly_payment
     #
     def _total_payment
-      (BigDecimal.new(self.duration_in_months, @@accuracy) *
-        self.calc_monthly_payment).round +
-        (BigDecimal.new(self.deferred_in_months, @@accuracy) *
-        self.monthly_interests(self.amount_in_cents))
+      (BigDecimal.new(self.duration_in_months, @@accuracy)
+        .mult((self.calc_monthly_payment).round, @@accuracy)) +
+        (BigDecimal.new(self.deferred_in_months, @@accuracy)
+        .mult(self.monthly_interests(self.amount_in_cents), @@accuracy))
     end
 
     # calc_total_payment - amount_in_cents
@@ -374,7 +362,8 @@ module LoanCreator
     # Capital (arg) * monthly_interests_rate
     #
     def _monthly_interests(capital)
-      BigDecimal.new(capital, @@accuracy) * self.monthly_interests_rate
+      BigDecimal.new(capital, @@accuracy)
+        .mult(self.monthly_interests_rate, @@accuracy)
     end
 
     # calc_monthly_payment * monthly_interests(capital)

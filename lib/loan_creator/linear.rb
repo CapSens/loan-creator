@@ -87,20 +87,22 @@ module LoanCreator
 
     def lender_time_table_data(borrowed, duration=self.duration_in_months)
       # what should be repaid as capital
-      precise_mth_capital_payment = self.calc_monthly_payment_capital
-      total_precise_capital = precise_mth_capital_payment *
-        BigDecimal.new(duration, @@accuracy)
+      precise_mth_capital_payment = self.calc_monthly_payment_capital(borrowed)
+      total_precise_capital = precise_mth_capital_payment
+        .mult(BigDecimal.new(duration, @@accuracy), @@accuracy)
 
       # what will be paid
       rounded_mth_capital_payment = precise_mth_capital_payment.round
-      total_rounded_capital = rounded_mth_capital_payment *
-        BigDecimal.new(duration, @@accuracy)
+      total_rounded_capital =
+        (BigDecimal.new(rounded_mth_capital_payment, @@accuracy)
+        .mult(BigDecimal.new(duration, @@accuracy), @@accuracy)).round
 
       # total capital difference
       capital_diff = total_rounded_capital - total_precise_capital
 
       # capital financial difference
-      if capital_diff < 0 # not enough paid to lender
+      if (capital_diff < 0) && (capital_diff % capital_diff.truncate != 0)
+        # not enough paid to lender
         capital_diff = capital_diff.truncate - 1
       else # too much paid to lender
         capital_diff = capital_diff.truncate
@@ -109,27 +111,30 @@ module LoanCreator
       # last capital payment includes the financial difference
       last_capital_payment = rounded_mth_capital_payment - capital_diff
 
-      # total interests calculation (including deferred period if any)
-      calc_total_interests = self.total_interests
-
       # calculates actually paid interests
       if self.deferred_in_months > 0
-        rounded_interests = self.rounded_monthly_payment_interests(1) *
-          BigDecimal.new(self.deferred_in_months, @@accuracy)
+        rounded_interests =
+          (BigDecimal.new(self.deferred_in_months, @@accuracy)
+          .mult(self.calc_monthly_payment_interests(borrowed, 1).round,
+          @@accuracy)).round
       else
         rounded_interests = 0
       end
 
+      # sum of paid rounded interests
       i = 0
       while i < self.duration_in_months
         i += 1
-        rounded_interests += self.rounded_monthly_payment_interests(i)
+        rounded_interests +=
+          self.calc_monthly_payment_interests(borrowed, i).round
       end
 
-      int_diff = rounded_interests - calc_total_interests
-
-      # interests financial difference
-      if int_diff < 0 # not enough paid to lender
+      # total interests calculation (including deferred period if any)
+      calc_total_interests = self.total_interests(borrowed)
+      int_diff             = rounded_interests - calc_total_interests
+      # financial interests difference
+      if (int_diff < 0) && (int_diff % int_diff.truncate != 0)
+        # not enough paid to lender
         int_diff = int_diff.truncate - 1
       else # too much paid to lender
         int_diff = int_diff.truncate
@@ -154,6 +159,7 @@ module LoanCreator
       remaining_capital     = borrowed.round
       calc_paid_capital     = 0
       calc_remaining_int    = data[2]
+      p calc_remaining_int
       calc_paid_interests   = 0
       int_diff              = data[3]
 
@@ -161,17 +167,17 @@ module LoanCreator
         # all time table terms during deferred period
         self.deferred_in_months.times do |term|
 
-          def_rounded_monthly_payment =
-            self.rounded_monthly_payment_interests(1)
+          r_monthly_payment =
+            self.rounded_monthly_payment_interests(borrowed, 1)
 
-          calc_remaining_int  -= def_rounded_monthly_payment
-          calc_paid_interests += def_rounded_monthly_payment
+          calc_remaining_int  -= r_monthly_payment
+          calc_paid_interests += r_monthly_payment
 
           time_table << LoanCreator::TimeTable.new(
             term:                            term + 1,
-            monthly_payment:                 def_rounded_monthly_payment,
+            monthly_payment:                 r_monthly_payment,
             monthly_payment_capital_share:   0,
-            monthly_payment_interests_share: def_rounded_monthly_payment,
+            monthly_payment_interests_share: r_monthly_payment,
             remaining_capital:               remaining_capital,
             paid_capital:                    0,
             remaining_interests:             calc_remaining_int,
@@ -183,7 +189,8 @@ module LoanCreator
       # all but last time table terms during normal period
       (self.duration_in_months - 1).times do |term|
 
-        calc_monthly_interests = self.rounded_monthly_payment_interests(term + 1)
+        calc_monthly_interests =
+          self.calc_monthly_payment_interests(borrowed, term + 1).round
         calc_monthly_payment   = r_mth_capital_payment + calc_monthly_interests
         remaining_capital     -= r_mth_capital_payment
         calc_paid_capital     += r_mth_capital_payment
@@ -203,7 +210,7 @@ module LoanCreator
       end
 
       last_interests_payment = - int_diff +
-        self.rounded_monthly_payment_interests(self.duration_in_months)
+        self.calc_monthly_payment_interests(borrowed, self.duration_in_months).round
 
       last_payment = last_capital_payment + last_interests_payment
 
@@ -227,8 +234,8 @@ module LoanCreator
     end
 
     # returns precise monthly payment capital
-    def calc_monthly_payment_capital
-      @calc_monthly_payment_capital ||= _calc_monthly_payment_capital
+    def calc_monthly_payment_capital(amount=self.amount_in_cents)
+      _calc_monthly_payment_capital(amount)
     end
 
     # returns rounded monthly payment capital for financial flow purpose
@@ -236,24 +243,19 @@ module LoanCreator
       self.calc_monthly_payment_capital.round
     end
 
-    # returns precise monthly interests rate
-    def monthly_interests_rate
-      @monthly_interests_rate ||= _monthly_interests_rate
-    end
-
     # returns precise monthly payment interests
-    def calc_monthly_payment_interests(term)
-      _calc_monthly_payment_interests(term)
+    def calc_monthly_payment_interests(amount=self.amount_in_cents, term)
+      _calc_monthly_payment_interests(amount, term)
     end
 
     # returns rounded monthly payment interests for financial flow purpose
-    def rounded_monthly_payment_interests(term)
-      self.calc_monthly_payment_interests(term).round
+    def rounded_monthly_payment_interests(amount=self.amount_in_cents, term)
+      self.calc_monthly_payment_interests(amount, term).round
     end
 
     # returns total interests on the loan including deferred period
-    def total_interests
-      @total_interests ||= _total_interests
+    def total_interests(amount=self.amount_in_cents)
+      _total_interests(amount)
     end
 
     def rounded_total_interests
@@ -280,30 +282,22 @@ module LoanCreator
     # _________________
     #    total_terms
     #
-    def _calc_monthly_payment_capital
-      BigDecimal.new(self.amount_in_cents, @@accuracy)
+    def _calc_monthly_payment_capital(amount)
+      BigDecimal.new(amount, @@accuracy)
         .div(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy)
-    end
-
-    #   annual_interests_rate
-    # ________________________  (div by 100 as percentage and by 12
-    #         1200               for the monthly frequency, so 1200)
-    #
-    def _monthly_interests_rate
-      BigDecimal.new(self.annual_interests_rate, @@accuracy)
-        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
     end
 
     # Capital * (total_terms - passed_terms)
     # ______________________________________ * monthly_interests_rate
     #            total_terms
     #
-    def _calc_monthly_payment_interests(term)
-      (BigDecimal.new(self.amount_in_cents, @@accuracy) *
-        (BigDecimal.new(self.duration_in_months, @@accuracy) -
-        BigDecimal.new(term, @@accuracy) + BigDecimal.new(1, @@accuracy))
-        .div(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy)) *
-        self.monthly_interests_rate
+    def _calc_monthly_payment_interests(amount, term)
+      (BigDecimal.new(amount, @@accuracy)
+        .mult((BigDecimal.new(self.duration_in_months, @@accuracy) -
+        BigDecimal.new(term, @@accuracy) +
+        BigDecimal.new(1, @@accuracy)), @@accuracy)
+        .div(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy))
+        .mult(self.monthly_interests_rate, @@accuracy)
     end
 
     #                                     /                                   \
@@ -311,22 +305,22 @@ module LoanCreator
     # Capital * monthly_interests_rate * | ________________ + total_dif_terms |
     #                                    \       2                            /
     #
-    def _total_interests
-      BigDecimal.new(self.amount_in_cents, @@accuracy) *
-        self.monthly_interests_rate *
-        (
-          (BigDecimal.new(self.duration_in_months, @@accuracy) +
+    def _total_interests(amount)
+      BigDecimal.new(amount, @@accuracy)
+        .mult(self.monthly_interests_rate, @@accuracy)
+        .mult(
+          ((BigDecimal.new(self.duration_in_months, @@accuracy) +
           BigDecimal.new(1, @@accuracy))
           .div(BigDecimal.new(2, @@accuracy), @@accuracy) +
-          BigDecimal.new(self.deferred_in_months, @@accuracy)
+          BigDecimal.new(self.deferred_in_months, @@accuracy)), @@accuracy
         )
     end
 
     # (total_terms * rounded_monthly_payment_capital) - Capital
     #
     def _payments_difference_capital_share
-      (BigDecimal.new(self.duration_in_months, @@accuracy) *
-        self.rounded_monthly_payment_capital) -
+      (BigDecimal.new(self.duration_in_months, @@accuracy)
+        .mult(self.rounded_monthly_payment_capital, @@accuracy)) -
         BigDecimal.new(self.amount_in_cents, @@accuracy)
     end
 

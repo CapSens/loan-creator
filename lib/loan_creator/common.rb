@@ -28,6 +28,15 @@ module LoanCreator
       Date.parse(@starts_at).next_month(@duration_in_months)
     end
 
+    # returns precise monthly interests rate
+    def monthly_interests_rate
+      @monthly_interests_rate ||= _monthly_interests_rate
+    end
+
+    def time_table
+      raise 'NotImplemented'
+    end
+
     def lender_time_table(borrowed)
       raise 'NotImplemented'
     end
@@ -36,12 +45,15 @@ module LoanCreator
       raise 'NotImplemented'
     end
 
-    def time_table
-      raise 'NotImplemented'
-    end
+    private
 
-    def monthly_interests_rate
-      raise 'NotImplemented'
+    #   annual_interests_rate
+    # ________________________  (div by 100 as percentage and by 12
+    #         1200               for the monthly frequency, so 1200)
+    #
+    def _monthly_interests_rate
+      BigDecimal.new(self.annual_interests_rate, @@accuracy)
+        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
     end
   end
 end

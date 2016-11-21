@@ -282,13 +282,13 @@ describe LoanCreator::Standard do
 
     describe '#total_payment' do
       it 'calculates the total to pay' do
-        expect(subject.total_payment).to eql(11_074_782)
+        expect(subject.total_payment).to eql(11_074_776)
       end
     end
 
     describe '#total_interests' do
       it 'calculates the total interests to pay' do
-        expect(subject.total_interests).to eql(1_074_782)
+        expect(subject.total_interests).to eql(1_074_776)
       end
     end
 
@@ -377,7 +377,7 @@ describe LoanCreator::Standard do
     end
   end
 
-  describe "#total_interests (adjusting with payment difference)" do
+  describe "#total_interests" do
     it "has the expected value - example one" do
       loan = described_class.new(
         amount_in_cents:       100_000 * 100,
@@ -387,7 +387,7 @@ describe LoanCreator::Standard do
       )
       total_interests = loan.total_interests.round
 
-      expect(total_interests + loan.payments_difference.round)
+      expect(total_interests)
         .to eql(1_074_776)
     end
 
@@ -400,7 +400,7 @@ describe LoanCreator::Standard do
       )
       total_interests = loan.total_interests.round
 
-      expect(total_interests + loan.payments_difference.round)
+      expect(total_interests)
         .to eql(2_039_377_012)
     end
 
@@ -414,7 +414,7 @@ describe LoanCreator::Standard do
       )
       total_interests = loan.total_interests.round
 
-      expect(total_interests + loan.payments_difference.round)
+      expect(total_interests)
         .to eql(3_116_192)
     end
   end
