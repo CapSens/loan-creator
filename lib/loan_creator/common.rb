@@ -28,6 +28,14 @@ module LoanCreator
       Date.parse(@starts_at).next_month(@duration_in_months)
     end
 
+    def lender_time_table(borrowed)
+      raise 'NotImplemented'
+    end
+
+    def borrower_time_table(*args)
+      raise 'NotImplemented'
+    end
+
     def time_table
       raise 'NotImplemented'
     end
