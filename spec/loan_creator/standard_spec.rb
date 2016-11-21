@@ -180,6 +180,52 @@ describe LoanCreator::Standard do
         expect(lender_four_tt.last.remaining_interests).to eql(0)
       end
     end
+
+    describe '#borrower_time_table(*args)' do
+
+      subject(:borrower_tt) {
+        loan.borrower_time_table(
+          lender_one_tt,
+          lender_two_tt,
+          lender_three_tt
+        )
+      }
+
+      it 'should raise ArgumentError if no arg is given' do
+        expect { loan.borrower_time_table() }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise ArgumentError if one arg does not include only
+      LoanCreator::TimeTable objects' do
+        expect { loan.borrower_time_table([lender_one_tt, 'toto']) }
+          .to raise_error(ArgumentError)
+      end
+
+      it "returns 'duration_in_months' elements" do
+        expect(subject.size).to eql(loan.duration_in_months)
+      end
+
+      it 'has the same monthly payment on each term except last one' do
+        all_tt = subject[0...-1].all? { |tt| tt.monthly_payment == 43_117 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last payment amount' do
+        expect(subject.last.monthly_payment).to eql(43_090)
+      end
+
+      it 'should pay capital in full' do
+        expect(subject.last.paid_capital).to eql(1_700_000)
+      end
+
+      it 'should not have any remaining interests' do
+        expect(subject.last.remaining_interests).to eql(0)
+      end
+
+      it 'calculates total interests to pay' do
+        expect(subject.last.paid_interests).to eql(369_589)
+      end
+    end
   end
 
   describe "#time_table" do

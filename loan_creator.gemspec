@@ -6,8 +6,8 @@ require 'loan_creator/version'
 Gem::Specification.new do |spec|
   spec.name          = "loan_creator"
   spec.version       = LoanCreator::VERSION
-  spec.authors       = ["thibaulth"]
-  spec.email         = ["thibault@capsens.eu"]
+  spec.authors       = ['thibaulth', 'nicob']
+  spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu']
 
   spec.summary       = %q{Create and update time tables from input data}
   spec.homepage      = "TODO: Put your gem's website or public repo URL here."
