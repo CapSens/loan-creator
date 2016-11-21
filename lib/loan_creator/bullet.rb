@@ -32,38 +32,42 @@ module LoanCreator
       time_table
     end
 
-    def total_payment
-      @total_payment ||= _total_payment
+    # def lender_time_table(borrowed)
+    #
+    # end
+
+    def total_payment(amount=self.amount_in_cents)
+      _total_payment(amount)
     end
 
-    def rounded_total_payment
-      self.total_payment.round
+    def rounded_total_payment(amount=self.amount_in_cents)
+      self.total_payment(amount).round
     end
 
-    def total_interests
-      @total_interests ||= _total_interests
+    def total_interests(amount=self.amount_in_cents)
+      _total_interests(amount)
     end
 
-    def rounded_total_interests
-      self.total_interests.round
+    def rounded_total_interests(amount=self.amount_in_cents)
+      self.total_interests(amount).round
     end
 
     private
 
     #   Capital * (monthly_interests_rate ^(total_terms))
     #
-    def _total_payment
-      BigDecimal.new(self.amount_in_cents, @@accuracy) *
-        (
-          BigDecimal.new(1, @@accuracy) +
-          self.monthly_interests_rate
-        ) ** (BigDecimal.new(self.duration_in_months, @@accuracy))
+    def _total_payment(amount)
+      BigDecimal.new(amount, @@accuracy)
+        .mult(
+          (BigDecimal.new(1, @@accuracy) +
+          BigDecimal.new(self.monthly_interests_rate, @@accuracy)) **
+          (BigDecimal.new(self.duration_in_months, @@accuracy)), @@accuracy)
     end
 
-    # total_payment - amount_in_cents
+    # total_payment - Capital
     #
-    def _total_interests
-      self.total_payment - BigDecimal.new(self.amount_in_cents, @@accuracy)
+    def _total_interests(amount)
+      self.total_payment - BigDecimal.new(amount, @@accuracy)
     end
   end
 end
