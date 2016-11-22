@@ -1,8 +1,10 @@
 # LoanCreator
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/loan_creator`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+`loan_creator` gem intends to provide a set of methods to allow automatic
+generation of loan time tables, for simulation, from a lender point of view
+and from a borrower point of view, regarding financial rounding differences.
+As of today, the gem makes the borrower support any rounding issue. In a
+later work, an option should be provided to decide who supports such issues.
 
 ## Installation
 
@@ -43,7 +45,7 @@ Each instance of one of the previous classes has the following attributes:
     :deferred_in_months (default to zero)
 ```
 
-There is alos a `TimeTable` class dedicated to record the data of the loans' terms.
+There is also a `TimeTable` class dedicated to record the data of the loans' terms.
 Each instance of `LoanCreator::TimeTable` has the following attributes:
 ```ruby
     :term
@@ -56,7 +58,31 @@ Each instance of `LoanCreator::TimeTable` has the following attributes:
     :paid_interests
 ```
 
-TODO: Write usage instructions here
+`end_date` common method intends to render loan end date based on two inputs:
+`starts_at` and `duration_in_months`
+
+`monthly_interests_rate` common method intends to render a precise calculation
+of the loan monthly rate based on one input: `annual_interests_rate`, which is
+the rate usually given when creating a loan or asking for a loan.
+
+`time_table` should be defined in each loan class. It renders an array of
+`LoanCreator::TimeTable` ordered from first loan term to last one. This method
+does not take into account the number of lenders or any rule regarding who
+should support financial rounding differences. It should be user for simulation
+only.
+
+`lender_time_table(borrowed)` should be defined in each loan class. It renders
+an array of `LoanCreator::TimeTable` ordered from first loan term to last one
+based on a provided amount. It should be used for any lender of a loan.
+It takes into account financial rounding differences and makes the borrower
+support all those differences.
+
+`borrower_time_table(*args)` common method intends to sum each attribute of
+each provided `lender_time_table` on each term and thus to provide an array of
+`LoanCreator::TimeTable` ordered from first loan term to last one. It should
+be used for the borrower of a loan, once all lenders and their lending amounts
+are known. Based on `lender_time_table` method, it makes the borrower support
+all financial rounding differences.
 
 ## Explanation
 

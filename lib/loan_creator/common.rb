@@ -4,6 +4,7 @@ require 'bigdecimal'
 # equidistant, in which case round towards the even neighbor
 # (Banker’s rounding)
 # usage of BigDecimal method: div(value, digits)
+# usage of BigDecimal method: mult(value, digits)
 BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
 
 module LoanCreator
@@ -40,10 +41,6 @@ module LoanCreator
     def lender_time_table(borrowed)
       raise 'NotImplemented'
     end
-
-    # def borrower_time_table(*args)
-    #   raise 'NotImplemented'
-    # end
 
     def borrower_time_table(*args) # each arg sould be an array of time tables
       if args.length <= 0
