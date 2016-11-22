@@ -45,27 +45,23 @@ module LoanCreator
       calc_remaining_int      = data[3]
       calc_paid_interests     = 0
 
-      if self.deferred_in_months > 0
-        # all time table terms during deferred period
-        self.deferred_in_months.times do |term|
+      # starts with deferred time tables if any
+      defer_r_mth_pay = self.rounded_monthly_interests(amount)
 
-          def_rounded_monthly_payment = (self.monthly_interests_rate *
-            BigDecimal.new(amount, @@accuracy)).round
+      self.deferred_in_months.times do |term|
+        calc_remaining_int  -= defer_r_mth_pay
+        calc_paid_interests += defer_r_mth_pay
 
-          calc_remaining_int  -= def_rounded_monthly_payment
-          calc_paid_interests += def_rounded_monthly_payment
-
-          time_table << LoanCreator::TimeTable.new(
-            term:                            term + 1,
-            monthly_payment:                 def_rounded_monthly_payment,
-            monthly_payment_capital_share:   0,
-            monthly_payment_interests_share: def_rounded_monthly_payment,
-            remaining_capital:               remaining_capital,
-            paid_capital:                    0,
-            remaining_interests:             calc_remaining_int,
-            paid_interests:                  calc_paid_interests
-          )
-        end
+        time_table << LoanCreator::TimeTable.new(
+          term:                            term + 1,
+          monthly_payment:                 defer_r_mth_pay,
+          monthly_payment_capital_share:   0,
+          monthly_payment_interests_share: defer_r_mth_pay,
+          remaining_capital:               remaining_capital,
+          paid_capital:                    0,
+          remaining_interests:             calc_remaining_int,
+          paid_interests:                  calc_paid_interests
+        )
       end
 
       # all but last time table terms during normal period
