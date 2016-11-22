@@ -1,7 +1,9 @@
 module LoanCreator
   class Bullet < LoanCreator::Common
-    def time_table
-      time_table = []
+
+    def time_table(amount=self.amount_in_cents)
+      time_table  = []
+      r_total_interests = self.rounded_total_interests(amount)
 
       (self.duration_in_months - 1).times do |term|
         time_table << LoanCreator::TimeTable.new(
@@ -9,39 +11,37 @@ module LoanCreator
           monthly_payment:                 0,
           monthly_payment_capital_share:   0,
           monthly_payment_interests_share: 0,
-          remaining_capital:               self.amount_in_cents,
+          remaining_capital:               amount,
           paid_capital:                    0,
-          remaining_interests:             self.rounded_total_interests,
+          remaining_interests:             r_total_interests,
           paid_interests:                  0
         )
       end
 
-      last_time_table =  LoanCreator::TimeTable.new(
+      time_table << LoanCreator::TimeTable.new(
         term:                            self.duration_in_months,
-        monthly_payment:                 self.rounded_total_payment,
-        monthly_payment_capital_share:   self.amount_in_cents,
-        monthly_payment_interests_share: self.rounded_total_interests,
+        monthly_payment:                 amount + r_total_interests,
+        monthly_payment_capital_share:   amount,
+        monthly_payment_interests_share: r_total_interests,
         remaining_capital:               0,
-        paid_capital:                    self.amount_in_cents,
+        paid_capital:                    amount,
         remaining_interests:             0,
-        paid_interests:                  self.rounded_total_interests
+        paid_interests:                  r_total_interests
       )
-
-      time_table << last_time_table
 
       time_table
     end
 
-    # def lender_time_table(borrowed)
-    #
-    # end
+    def lender_time_table(amount)
+      self.time_table(amount)
+    end
 
     def total_payment(amount=self.amount_in_cents)
       _total_payment(amount)
     end
 
     def rounded_total_payment(amount=self.amount_in_cents)
-      self.total_payment(amount).round
+      self.total_payment(amount).ceil
     end
 
     def total_interests(amount=self.amount_in_cents)
@@ -49,7 +49,7 @@ module LoanCreator
     end
 
     def rounded_total_interests(amount=self.amount_in_cents)
-      self.total_interests(amount).round
+      self.total_interests(amount).ceil
     end
 
     private
@@ -67,7 +67,7 @@ module LoanCreator
     # total_payment - Capital
     #
     def _total_interests(amount)
-      self.total_payment - BigDecimal.new(amount, @@accuracy)
+      self.total_payment(amount) - BigDecimal.new(amount, @@accuracy)
     end
   end
 end

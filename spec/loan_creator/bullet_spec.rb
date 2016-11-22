@@ -1,6 +1,176 @@
 require "spec_helper"
 
 describe LoanCreator::Bullet do
+  describe '#lender_time_table(borrowed)' do
+
+    loan = described_class.new(
+      amount_in_cents:       100_000 * 100,
+      annual_interests_rate: 10,
+      starts_at:             '2016-01-15',
+      duration_in_months:    48
+    )
+
+    lender_one_tt   = loan.lender_time_table(10_000 * 100)
+    lender_two_tt   = loan.lender_time_table(6_547 * 100)
+    lender_three_tt = loan.lender_time_table(453 * 100)
+
+    context 'lender_one_tt' do
+      it 'does not pay interests before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.monthly_payment_interests_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'does not repay capital before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.monthly_payment_capital_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all capital remaining before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.remaining_capital == 1_000_000 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all interests remaining before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.remaining_interests == 489_355 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have repaid any capital before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.paid_capital == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have paid any interests before last term' do
+        all_tt = lender_one_tt[0...-1].all? { |tt|
+          tt.paid_interests == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last interests payment amount' do
+        expect(lender_one_tt.last.monthly_payment_interests_share)
+          .to eql(489_355)
+      end
+
+      it 'should pay capital in full' do
+        expect(lender_one_tt.last.paid_capital).to eql(1_000_000)
+      end
+
+      it 'pays the capital in full on last term' do
+        expect(lender_one_tt.last.monthly_payment_capital_share)
+          .to eql(1_000_000)
+      end
+    end
+
+    context 'lender_two_tt' do
+      it 'does not pay interests before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.monthly_payment_interests_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'does not repay capital before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.monthly_payment_capital_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all capital remaining before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.remaining_capital == 654_700 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all interests remaining before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.remaining_interests == 320_381 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have repaid any capital before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.paid_capital == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have paid any interests before last term' do
+        all_tt = lender_two_tt[0...-1].all? { |tt|
+          tt.paid_interests == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last interests payment amount' do
+        expect(lender_two_tt.last.monthly_payment_interests_share)
+          .to eql(320_381)
+      end
+
+      it 'should pay capital in full' do
+        expect(lender_two_tt.last.paid_capital).to eql(654_700)
+      end
+
+      it 'pays the capital in full on last term' do
+        expect(lender_two_tt.last.monthly_payment_capital_share)
+          .to eql(654_700)
+      end
+    end
+
+    context 'lender_three_tt' do
+      it 'does not pay interests before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.monthly_payment_interests_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'does not repay capital before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.monthly_payment_capital_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all capital remaining before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.remaining_capital == 45_300 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all interests remaining before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.remaining_interests == 22_168 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have repaid any capital before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.paid_capital == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have paid any interests before last term' do
+        all_tt = lender_three_tt[0...-1].all? { |tt|
+          tt.paid_interests == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last interests payment amount' do
+        expect(lender_three_tt.last.monthly_payment_interests_share)
+          .to eql(22_168)
+      end
+
+      it 'should pay capital in full' do
+        expect(lender_three_tt.last.paid_capital).to eql(45_300)
+      end
+
+      it 'pays the capital in full on last term' do
+        expect(lender_three_tt.last.monthly_payment_capital_share)
+          .to eql(45_300)
+      end
+    end
+  end
+
   describe "#time_table" do
 
     # The loan
@@ -129,7 +299,7 @@ describe LoanCreator::Bullet do
         duration_in_months:    17
       ).rounded_total_interests
 
-      expect(rounded_total_interests).to eql(3_987_096_997)
+      expect(rounded_total_interests).to eql(3_987_096_998)
     end
   end
 end
