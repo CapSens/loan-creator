@@ -1,58 +1,41 @@
 module LoanCreator
   class Standard < LoanCreator::Common
 
-    def lender_time_table_data(amount, duration=self.duration_in_months)
-      if self.deferred_in_months > 0
-        # what should be paid
-        defer_precise_mth_pay   = self.monthly_interests(amount)
-        defer_precise_total_pay = self.deferred_total_interests(amount)
-
-        # what will be paid
-        defer_r_mth_pay   = self.rounded_monthly_interests(amount)
-        defer_r_total_pay = self.deferred_total_rounded_interests(amount)
-
-        # difference in cents
-        precise_difference = self.defer_period_difference(amount)
-      end
+    def lender_time_table_data(amount)
+      # deferred period data
+      defer_r_total_pay  = self.deferred_total_rounded_interests(amount)
+      precise_difference = self.defer_period_difference(amount)
 
       # what should be paid
-      precise_monthly_payment = self.calc_monthly_payment(amount, duration)
+      precise_monthly_payment =
+        self.calc_monthly_payment(amount, self.duration_in_months)
       total_precise = precise_monthly_payment *
-        BigDecimal.new(duration, @@accuracy)
+        BigDecimal.new(self.duration_in_months, @@accuracy)
 
       # what will be paid
       rounded_monthly_payment = precise_monthly_payment.round
       total_rounded = rounded_monthly_payment *
-        BigDecimal.new(duration, @@accuracy)
+        BigDecimal.new(self.duration_in_months, @@accuracy)
 
-      # total difference with or without deferred period
-      if self.deferred_in_months > 0
-        precise_difference += total_rounded - total_precise
-      else
-        precise_difference = total_rounded - total_precise
-      end
+      precise_difference += total_rounded - total_precise
 
-      # financial difference
-      difference = self.financial_diff(precise_difference)
+      financial_difference = self.financial_diff(precise_difference)
 
       # last payment includes the financial difference
-      last_payment = rounded_monthly_payment - difference
+      last_pay = rounded_monthly_payment - financial_difference
 
       # total payment including the financial difference
-      if self.deferred_in_months > 0
-        total_payment = (total_rounded + defer_r_total_pay - difference).round
-      else
-        total_payment = (total_rounded - difference).round
-      end
+      total_pay =
+        (total_rounded + defer_r_total_pay - financial_difference).round
 
       # total interests based on total payment
-      total_interests = total_payment - amount.round
+      total_interests = total_pay - amount.round
 
-      [rounded_monthly_payment, last_payment, total_payment, total_interests]
+      [rounded_monthly_payment, last_pay, total_pay, total_interests]
     end
 
     def lender_time_table(amount)
-      data = lender_time_table_data(amount, self.duration_in_months)
+      data = lender_time_table_data(amount)
       rounded_monthly_payment = data[0]
       last_payment            = data[1]
       total_payment           = data[2]
