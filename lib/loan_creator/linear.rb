@@ -98,15 +98,10 @@ module LoanCreator
         .mult(BigDecimal.new(duration, @@accuracy), @@accuracy)).round
 
       # total capital difference
-      capital_diff = total_rounded_capital - total_precise_capital
+      precise_capital_diff = total_rounded_capital - total_precise_capital
 
       # capital financial difference
-      if (capital_diff < 0) && (capital_diff % capital_diff.truncate != 0)
-        # not enough paid to lender
-        capital_diff = capital_diff.truncate - 1
-      else # too much paid to lender
-        capital_diff = capital_diff.truncate
-      end
+      capital_diff = self.financial_diff(precise_capital_diff)
 
       # last capital payment includes the financial difference
       last_capital_payment = rounded_mth_capital_payment - capital_diff
@@ -131,14 +126,9 @@ module LoanCreator
 
       # total interests calculation (including deferred period if any)
       calc_total_interests = self.total_interests(borrowed)
-      int_diff             = rounded_interests - calc_total_interests
+      precise_int_diff     = rounded_interests - calc_total_interests
       # financial interests difference
-      if (int_diff < 0) && (int_diff % int_diff.truncate != 0)
-        # not enough paid to lender
-        int_diff = int_diff.truncate - 1
-      else # too much paid to lender
-        int_diff = int_diff.truncate
-      end
+      int_diff = self.financial_diff(precise_int_diff)
 
       # interests to be paid include the financial difference
       remaining_interests = rounded_interests - int_diff

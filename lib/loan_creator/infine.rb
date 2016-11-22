@@ -45,12 +45,9 @@ module LoanCreator
     def lender_time_table(borrowed)
       precise_interests = self.total_interests(borrowed)
       r_interests       = self.total_rounded_interests(borrowed)
-      diff              = r_interests - precise_interests
-      if (diff < 0) && (diff % diff.truncate != 0)
-        diff = diff.truncate - 1
-      else
-        diff = diff.truncate
-      end
+      precise_diff      = r_interests - precise_interests
+
+      diff = self.financial_diff(precise_diff)
 
       time_table          = []
       calc_paid_interests = 0

@@ -94,6 +94,15 @@ module LoanCreator
       time_table
     end
 
+    def financial_diff(value)
+      if (value < 0) && (value % value.truncate != 0)
+        new_value = value.truncate - 1
+      else
+        new_value = value.truncate
+      end
+      new_value
+    end
+
     private
 
     #   annual_interests_rate

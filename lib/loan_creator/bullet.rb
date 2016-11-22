@@ -1,7 +1,7 @@
 module LoanCreator
   class Bullet < LoanCreator::Common
 
-    def time_table(amount=self.amount_in_cents)
+    def lender_time_table(amount)
       time_table  = []
       r_total_interests = self.rounded_total_interests(amount)
 
@@ -32,8 +32,8 @@ module LoanCreator
       time_table
     end
 
-    def lender_time_table(amount)
-      self.time_table(amount)
+    def time_table
+      self.lender_time_table(self.amount_in_cents)
     end
 
     def total_payment(amount=self.amount_in_cents)

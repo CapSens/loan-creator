@@ -103,7 +103,7 @@ module LoanCreator
           BigDecimal.new(self.deferred_in_months, @@accuracy)
 
         # difference in cents
-        difference = def_total_rounded - def_total_precise
+        precise_difference = def_total_rounded - def_total_precise
       end
 
       # what should be paid
@@ -118,18 +118,13 @@ module LoanCreator
 
       # total difference with or without deferred period
       if self.deferred_in_months > 0
-        difference += total_rounded - total_precise
+        precise_difference += total_rounded - total_precise
       else
-        difference = total_rounded - total_precise
+        precise_difference = total_rounded - total_precise
       end
 
       # financial difference
-      if difference < 0 && (difference % difference.truncate != 0)
-        # not enough paid to lender
-        difference = difference.truncate - 1
-      else # too much paid to lender
-        difference = difference.truncate
-      end
+      difference = self.financial_diff(precise_difference)
 
       # last payment includes the financial difference
       last_payment = rounded_monthly_payment - difference
