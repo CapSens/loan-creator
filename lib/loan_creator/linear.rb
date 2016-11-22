@@ -139,10 +139,6 @@ module LoanCreator
       time_table
     end
 
-    def time_table
-      self.lender_time_table(self.amount_in_cents)
-    end
-
     # returns precise monthly payment capital
     def calc_monthly_payment_capital(amount=self.amount_in_cents)
       _calc_monthly_payment_capital(amount)

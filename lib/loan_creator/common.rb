@@ -34,12 +34,12 @@ module LoanCreator
       @monthly_interests_rate ||= _monthly_interests_rate
     end
 
-    def time_table
+    def lender_time_table(amount)
       raise 'NotImplemented'
     end
 
-    def lender_time_table(amount)
-      raise 'NotImplemented'
+    def time_table
+      self.lender_time_table(self.amount_in_cents)
     end
 
     def borrower_time_table(*args) # each arg sould be an array of time tables
@@ -93,7 +93,7 @@ module LoanCreator
 
       time_table
     end
-    
+
     def financial_diff(value)
       _financial_diff(value)
     end

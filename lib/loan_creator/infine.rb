@@ -48,10 +48,6 @@ module LoanCreator
       time_table
     end
 
-    def time_table
-      self.lender_time_table(self.amount_in_cents)
-    end
-
     def monthly_interests(amount=self.amount_in_cents)
       _monthly_interests(amount)
     end

@@ -1,6 +1,6 @@
 module LoanCreator
   class Standard < LoanCreator::Common
-    
+
     def lender_time_table_data(amount, duration=self.duration_in_months)
       if self.deferred_in_months > 0
         # what should be paid
@@ -143,10 +143,6 @@ module LoanCreator
       )
 
       time_table
-    end
-
-    def time_table
-      self.lender_time_table(self.amount_in_cents)
     end
 
     def calc_monthly_payment(amount=self.amount_in_cents,
