@@ -12,7 +12,7 @@ module LoanCreator
         defer_r_total_pay = self.deferred_total_rounded_interests(amount)
 
         # difference in cents
-        precise_difference = defer_r_total_pay - defer_precise_total_pay
+        precise_difference = self.defer_period_difference(amount)
       end
 
       # what should be paid
@@ -175,6 +175,10 @@ module LoanCreator
       _deferred_total_rounded_interests(amount)
     end
 
+    def defer_period_difference(amount)
+      _defer_period_difference(amount)
+    end
+
     def monthly_capital_share(amount)
       _monthly_capital_share(amount)
     end
@@ -239,6 +243,13 @@ module LoanCreator
     def _deferred_total_rounded_interests(amount)
       return 0 unless self.deferred_in_months > 0
       self.rounded_monthly_interests(amount) * deferred_in_months
+    end
+
+    # calculates the cumulated differece during deferred period
+    #
+    def _defer_period_difference(amount)
+      self.deferred_total_rounded_interests(amount) -
+        self.deferred_total_interests(amount)
     end
 
     # calc_monthly_payment * monthly_interests(capital)
