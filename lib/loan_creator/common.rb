@@ -41,8 +41,60 @@ module LoanCreator
       raise 'NotImplemented'
     end
 
-    def borrower_time_table(*args)
-      raise 'NotImplemented'
+    # def borrower_time_table(*args)
+    #   raise 'NotImplemented'
+    # end
+
+    def borrower_time_table(*args) # each arg sould be an array of time tables
+      if args.length <= 0
+        raise ArgumentError,
+        'borrower_time_table method expects at least one argument'
+        return
+      end
+
+      args.each do |arg|
+        check = arg.all? { |tt| tt.is_a?(LoanCreator::TimeTable) }
+        if !check
+          raise ArgumentError, 'wrong type of argument'
+          return
+        end
+      end
+
+      # group each element regarding its position (the term number)
+      # first array has now each first time table, etc.
+      transposed_args = args.transpose
+      time_table      = []
+
+      # for each array of time tables, sum each required element
+      transposed_args.each do |arr|
+        total_monthly_pay       =
+          arr.inject(0) { |sum, tt| sum += tt.monthly_payment }
+        mth_pay_capital_share   =
+          arr.inject(0) { |sum, tt| sum += tt.monthly_payment_capital_share }
+        mth_pay_interests_share =
+          arr.inject(0) { |sum, tt| sum += tt.monthly_payment_interests_share }
+        remaining_capital       =
+          arr.inject(0) { |sum, tt| sum += tt.remaining_capital }
+        paid_capital            =
+          arr.inject(0) { |sum, tt| sum += tt.paid_capital }
+        remaining_interests     =
+          arr.inject(0) { |sum, tt| sum += tt.remaining_interests }
+        paid_interests          =
+          arr.inject(0) { |sum, tt| sum += tt.paid_interests }
+
+        time_table << LoanCreator::TimeTable.new(
+          term:                            arr.first.term,
+          monthly_payment:                 total_monthly_pay,
+          monthly_payment_capital_share:   mth_pay_capital_share,
+          monthly_payment_interests_share: mth_pay_interests_share,
+          remaining_capital:               remaining_capital,
+          paid_capital:                    paid_capital,
+          remaining_interests:             remaining_interests,
+          paid_interests:                  paid_interests
+        )
+      end
+
+      time_table
     end
 
     private

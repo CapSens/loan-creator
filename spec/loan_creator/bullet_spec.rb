@@ -169,6 +169,77 @@ describe LoanCreator::Bullet do
           .to eql(45_300)
       end
     end
+
+    describe '#borrower_time_table(*args)' do
+
+      subject(:borrower_tt) {
+        loan.borrower_time_table(
+          lender_one_tt,
+          lender_two_tt,
+          lender_three_tt
+        )
+      }
+
+      it 'should raise ArgumentError if no arg is given' do
+        expect { loan.borrower_time_table() }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise ArgumentError if one arg does not include only
+      LoanCreator::TimeTable objects' do
+        expect { loan.borrower_time_table([lender_one_tt, 'toto']) }
+          .to raise_error(ArgumentError)
+      end
+
+      it 'does not pay interests before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.monthly_payment_interests_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'does not repay capital before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.monthly_payment_capital_share == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all capital remaining before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.remaining_capital == 1_700_000 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should have all interests remaining before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.remaining_interests == 831_904 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have repaid any capital before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.paid_capital == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'should not have paid any interests before last term' do
+        all_tt = subject[0...-1].all? { |tt|
+          tt.paid_interests == 0 }
+        expect(all_tt).to eql(true)
+      end
+
+      it 'calculates the last interests payment amount' do
+        expect(subject.last.monthly_payment_interests_share)
+          .to eql(831_904)
+      end
+
+      it 'should pay capital in full' do
+        expect(subject.last.paid_capital).to eql(1_700_000)
+      end
+
+      it 'pays the capital in full on last term' do
+        expect(subject.last.monthly_payment_capital_share)
+          .to eql(1_700_000)
+      end
+    end
   end
 
   describe "#time_table" do
