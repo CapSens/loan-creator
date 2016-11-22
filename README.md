@@ -65,17 +65,15 @@ Each instance of `LoanCreator::TimeTable` has the following attributes:
 of the loan monthly rate based on one input: `annual_interests_rate`, which is
 the rate usually given when creating a loan or asking for a loan.
 
-`time_table` should be defined in each loan class. It renders an array of
-`LoanCreator::TimeTable` ordered from first loan term to last one. This method
-does not take into account the number of lenders or any rule regarding who
-should support financial rounding differences. It should be user for simulation
-only.
-
-`lender_time_table(borrowed)` should be defined in each loan class. It renders
+`lender_time_table(amount)` should be defined in each loan class. It renders
 an array of `LoanCreator::TimeTable` ordered from first loan term to last one
 based on a provided amount. It should be used for any lender of a loan.
 It takes into account financial rounding differences and makes the borrower
 support all those differences.
+
+`time_table` is a specific use of `lender_time_table(amount)` with
+amount defined as the whole loan amount (as if there were only one lender
+for the full loan). It should be used for borrower simulation purpose.
 
 `borrower_time_table(*args)` common method intends to sum each attribute of
 each provided `lender_time_table` on each term and thus to provide an array of

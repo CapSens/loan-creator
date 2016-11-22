@@ -10,18 +10,9 @@ describe LoanCreator::Linear do
       duration_in_months:    48
     )
 
-    deferred_loan = described_class.new(
-      amount_in_cents:       100_000 * 100,
-      annual_interests_rate: 10,
-      starts_at:             '2016-01-15',
-      duration_in_months:    48,
-      deferred_in_months:    18
-    )
-
     lender_one_tt   = loan.lender_time_table(10_000 * 100)
     lender_two_tt   = loan.lender_time_table(6_547 * 100)
     lender_three_tt = loan.lender_time_table(453 * 100)
-    lender_four_tt  = deferred_loan.lender_time_table(68_633 * 100)
 
     context 'lender_one_tt' do
       it 'has the same mth capital payment on each term except last one' do
@@ -147,6 +138,16 @@ describe LoanCreator::Linear do
     end
 
     context 'lender_four_tt (deferred)' do
+      deferred_loan = described_class.new(
+        amount_in_cents:       100_000 * 100,
+        annual_interests_rate: 10,
+        starts_at:             '2016-01-15',
+        duration_in_months:    48,
+        deferred_in_months:    18
+      )
+
+      lender_four_tt  = deferred_loan.lender_time_table(68_633 * 100)
+
       it 'has the same monthly payment on each deferred term' do
         all_tt = lender_four_tt[0...(deferred_loan.deferred_in_months - 1)]
           .all? { |tt| tt.monthly_payment == 57_194 }

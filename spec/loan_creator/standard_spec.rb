@@ -10,18 +10,9 @@ describe LoanCreator::Standard do
       duration_in_months:    48
     )
 
-    deferred_loan = described_class.new(
-      amount_in_cents:       100_000 * 100,
-      annual_interests_rate: 10,
-      starts_at:             '2016-01-15',
-      duration_in_months:    48,
-      deferred_in_months:    18
-    )
-
     lender_one_tt   = loan.lender_time_table(10_000 * 100)
     lender_two_tt   = loan.lender_time_table(6_547 * 100)
     lender_three_tt = loan.lender_time_table(453 * 100)
-    lender_four_tt  = deferred_loan.lender_time_table(68_633 * 100)
 
     context 'lender_one_tt' do
       it 'has the same monthly payment on each term except last one' do
@@ -142,6 +133,16 @@ describe LoanCreator::Standard do
     end
 
     context 'lender_four_tt (deferred)' do
+      deferred_loan = described_class.new(
+        amount_in_cents:       100_000 * 100,
+        annual_interests_rate: 10,
+        starts_at:             '2016-01-15',
+        duration_in_months:    48,
+        deferred_in_months:    18
+      )
+
+      lender_four_tt  = deferred_loan.lender_time_table(68_633 * 100)
+
       it 'has the same monthly payment on each deferred term' do
         all_tt = lender_four_tt[0...(deferred_loan.deferred_in_months - 1)]
           .all? { |tt| tt.monthly_payment == 57_194 }
@@ -294,16 +295,13 @@ describe LoanCreator::Standard do
 
     describe '#rounded_monthly_interests(capital)' do
       it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(8_856_173))
-          .to eql(73_801)
+        expect(subject.rounded_monthly_interests(8_856_173)).to eql(73_801)
       end
       it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(6_481_288))
-          .to eql(54_011)
+        expect(subject.rounded_monthly_interests(6_481_288)).to eql(54_011)
       end
       it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(2_250_668))
-          .to eql(18_756)
+        expect(subject.rounded_monthly_interests(2_250_668)).to eql(18_756)
       end
     end
 
@@ -322,11 +320,11 @@ describe LoanCreator::Standard do
       end
     end
 
-    describe '#payments_difference' do
-      it "has a difference on payments due to roundings" do
-         expect(subject.payments_difference.round).to eql(-6)
-      end
-    end
+    # describe '#payments_difference' do
+    #   it "has a difference on payments due to roundings" do
+    #      expect(subject.payments_difference.round).to eql(-6)
+    #   end
+    # end
 
     it 'has the same equal monthly payment on each term except last one' do
       all_tt = all_except_last_term.all? { |tt|
@@ -334,10 +332,8 @@ describe LoanCreator::Standard do
       expect(all_tt).to eql(true)
     end
 
-    it 'has a last monthly payment capital share that includes
-    the payment difference' do
-      check = (monthly_payment - subject.payments_difference.truncate).round
-      expect(time_tables.last.monthly_payment).to eql(check)
+    it 'calculates the last monthly payment capital share' do
+      expect(time_tables.last.monthly_payment).to eql(461_456)
     end
   end
 

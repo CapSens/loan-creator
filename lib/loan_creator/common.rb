@@ -38,7 +38,7 @@ module LoanCreator
       raise 'NotImplemented'
     end
 
-    def lender_time_table(borrowed)
+    def lender_time_table(amount)
       raise 'NotImplemented'
     end
 
@@ -93,17 +93,30 @@ module LoanCreator
 
       time_table
     end
-
+    
     def financial_diff(value)
-      if (value < 0) && (value % value.truncate != 0)
-        new_value = value.truncate - 1
-      else
-        new_value = value.truncate
-      end
-      new_value
+      _financial_diff(value)
     end
 
     private
+
+    # calculate financial difference, i.e. as integer in cents, if positive,
+    # it is truncated, if negative, it is truncated and 1 more cent is
+    # subastracted. We want the borrower to get back the difference but
+    # the lender should always get AT LEAST what he lended.
+    def _financial_diff(value)
+      if value >= 0
+        value.truncate
+      elsif value > -1
+        -1
+      else
+        if value % value.truncate == 0
+          value.truncate
+        else
+          value.truncate - 1
+        end
+      end
+    end
 
     #   annual_interests_rate
     # ________________________  (div by 100 as percentage and by 12
