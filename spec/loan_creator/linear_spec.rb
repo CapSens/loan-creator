@@ -306,12 +306,6 @@ describe LoanCreator::Linear do
       end
     end
 
-    describe '#monthly_interests_rate' do
-      it 'calculates the monthly interests rate' do
-        expect(subject.monthly_interests_rate.round(7)).to eql(0.0083333)
-      end
-    end
-
     describe '#rounded_monthly_payment_interests(term)' do
       it 'calculates the monthly payment interests share - example one' do
         expect(subject.rounded_monthly_payment_interests(4)).to eql(72_917)

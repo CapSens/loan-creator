@@ -68,7 +68,7 @@ describe LoanCreator::Standard do
       end
 
       it 'calculates the last payment amount' do
-        expect(lender_two_tt.last.monthly_payment).to eql(16_600)
+        expect(loan.last_payment(6_547 * 100)).to eql(16_600)
       end
 
       it 'should pay capital in full' do
@@ -264,67 +264,44 @@ describe LoanCreator::Standard do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
-    describe '#monthly_interests_rate' do
-      it 'calculates the monthly interests rate' do
-        expect(subject.monthly_interests_rate.round(7)).to eql(0.0083333)
-      end
-    end
-
-    describe '#calc_monthly_payment' do
+    describe '#calc_monthly_payment(amount, duration)' do
       it 'calculates the precise monthly payment' do
-        expect(subject.calc_monthly_payment.round(7)).to eql(461_449.2633752)
+        expect(subject.calc_monthly_payment(amount_in_cents).round(7))
+          .to eql(461_449.2633752)
       end
     end
 
-    describe '#rounded_monthly_payment' do
+    describe '#calc_total_payment(amount)' do
+      it 'calculates the precise total payment' do
+        expect(subject.calc_total_payment(amount_in_cents).round(7))
+          .to eql(11_074_782.3210040)
+      end
+    end
+
+    describe '#rounded_monthly_payment(amount)' do
       it 'calculates the rounded monthly payment' do
         expect(subject.rounded_monthly_payment(amount_in_cents))
-            .to eql(461_449)
+          .to eql(461_449)
       end
     end
 
-    describe '#total_payment' do
-      it 'calculates the total to pay' do
-        expect(subject.total_payment).to eql(11_074_776)
+    describe '#total_rounded_payment(amount)' do
+      it 'calculates the rounded monthly payment' do
+        expect(subject.total_rounded_payment(amount_in_cents))
+          .to eql(11_074_776)
       end
     end
 
-    describe '#total_interests' do
-      it 'calculates the total interests to pay' do
-        expect(subject.total_interests).to eql(1_074_776)
-      end
-    end
-
-    describe '#rounded_monthly_interests(capital)' do
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(8_856_173)).to eql(73_801)
-      end
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(6_481_288)).to eql(54_011)
-      end
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_interests(2_250_668)).to eql(18_756)
-      end
-    end
-
-    describe '#rounded_monthly_capital_share(capital)' do
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_capital_share(8_856_173))
-          .to eql(387_648)
-      end
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_capital_share(6_481_288))
-          .to eql(407_439)
-      end
-      it 'calculates the monthly interests - example one' do
-        expect(subject.rounded_monthly_capital_share(2_250_668))
-          .to eql(442_694)
+    describe '#total_adjusted_interests(amount)' do
+      it 'calculates the total interests to pay, including rounding diff' do
+        expect(subject.total_adjusted_interests(amount_in_cents))
+          .to eql(1_074_783)
       end
     end
 
     describe '#precise_difference(amount)' do
       it "has a difference on payments due to roundings" do
-         expect(subject.precise_difference(amount_in_cents).round(3))
+        expect(subject.precise_difference(amount_in_cents).round(3))
           .to eql(-6.321)
       end
     end
@@ -376,7 +353,7 @@ describe LoanCreator::Standard do
     end
   end
 
-  describe "#total_interests" do
+  describe "#total_adjusted_interests" do
     it "has the expected value - example one" do
       loan = described_class.new(
         amount_in_cents:       100_000 * 100,
@@ -384,10 +361,9 @@ describe LoanCreator::Standard do
         starts_at:             '2016-01-15',
         duration_in_months:    24
       )
-      total_interests = loan.total_interests.round
 
-      expect(total_interests)
-        .to eql(1_074_776)
+      expect(loan.total_adjusted_interests(loan.amount_in_cents))
+        .to eql(1_074_783)
     end
 
     it "has the expected value - example two" do
@@ -397,10 +373,9 @@ describe LoanCreator::Standard do
         starts_at:             '2016-01-15',
         duration_in_months:    17
       )
-      total_interests = loan.total_interests.round
 
-      expect(total_interests)
-        .to eql(2_039_377_012)
+      expect(loan.total_adjusted_interests(loan.amount_in_cents))
+        .to eql(2_039_377_006)
     end
 
     it "has the expected value - example three - deferred period" do
@@ -411,10 +386,9 @@ describe LoanCreator::Standard do
         duration_in_months:    36,
         deferred_in_months:    18
       )
-      total_interests = loan.total_interests.round
 
-      expect(total_interests)
-        .to eql(3_116_192)
+      expect(loan.total_adjusted_interests(loan.amount_in_cents))
+        .to eql(3_116_188)
     end
   end
 end

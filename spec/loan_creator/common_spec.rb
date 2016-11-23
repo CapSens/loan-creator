@@ -16,6 +16,12 @@ describe LoanCreator::Common do
     end
   end
 
+  describe '#monthly_interests_rate' do
+    it 'calculates the monthly interests rate' do
+      expect(loan.monthly_interests_rate.round(7)).to eql(0.0083333)
+    end
+  end
+
   describe '#financial_diff(value)' do
 
     it 'should give a Fixnum as result' do

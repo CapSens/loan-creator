@@ -273,12 +273,6 @@ describe LoanCreator::Bullet do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
-    describe '#monthly_interests_rate' do
-      it 'calculates the monthly interests rate' do
-        expect(subject.monthly_interests_rate.round(7)).to eql(0.0083333)
-      end
-    end
-
     describe "all but last time table" do
       [ :monthly_payment,
         :monthly_payment_capital_share,
