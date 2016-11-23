@@ -2,28 +2,19 @@ module LoanCreator
   class Standard < LoanCreator::Common
 
     def lender_time_table_data(amount)
-      # deferred period data
       defer_r_total_pay  = self.deferred_total_rounded_interests(amount)
-      precise_difference = self.defer_period_difference(amount)
 
-      # what should be paid
-      precise_monthly_payment = self.calc_monthly_payment(amount)
-      total_precise = self.calc_total_payment(amount)
-
-      # what will be paid
       rounded_monthly_payment = self.rounded_monthly_payment(amount)
       total_rounded = self.total_rounded_payment(amount)
 
-      precise_difference += total_rounded - total_precise
-
-      financial_difference = self.financial_diff(precise_difference)
+      difference = self.financial_diff(self.precise_difference(amount))
 
       # last payment includes the financial difference
-      last_pay = rounded_monthly_payment - financial_difference
+      last_pay = rounded_monthly_payment - difference
 
       # total payment including the financial difference
       total_pay =
-        (total_rounded + defer_r_total_pay - financial_difference).round
+        (total_rounded + defer_r_total_pay - difference).round
 
       # total interests based on total payment
       total_interests = total_pay - amount.round
@@ -173,9 +164,9 @@ module LoanCreator
       self.monthly_capital_share(amount).round
     end
 
-    # def payments_difference
-    #   @payments_difference ||= _payments_difference
-    # end
+    def precise_difference(amount)
+      _precise_difference(amount)
+    end
 
     private
 
@@ -244,21 +235,22 @@ module LoanCreator
       self.calc_monthly_payment - self.monthly_interests(amount)
     end
 
-    # difference between sum of precise monthly payments and
-    # sum of rounded monthly payments (required for financial flows)
+    # difference between sum of precise mth pay and rounded ones
     #
-    def _payments_difference
-      sum         = 0
-      rounded_sum = 0
-      term        = 1
+    def _precise_difference(amount)
+      # deferred period data
+      defer_r_total_pay  = self.deferred_total_rounded_interests(amount)
+      precise_difference = self.defer_period_difference(amount)
 
-      while term < (self.duration_in_months + 1)
-        sum         += self.calc_monthly_payment
-        rounded_sum += self.rounded_monthly_payment
-        term        += 1
-      end
+      # what should be paid
+      precise_monthly_payment = self.calc_monthly_payment(amount)
+      total_precise = self.calc_total_payment(amount)
 
-      rounded_sum - sum
+      # what will be paid
+      rounded_monthly_payment = self.rounded_monthly_payment(amount)
+      total_rounded = self.total_rounded_payment(amount)
+
+      precise_difference += total_rounded - total_precise
     end
   end
 end

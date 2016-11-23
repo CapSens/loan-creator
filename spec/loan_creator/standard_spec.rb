@@ -321,11 +321,12 @@ describe LoanCreator::Standard do
       end
     end
 
-    # describe '#payments_difference' do
-    #   it "has a difference on payments due to roundings" do
-    #      expect(subject.payments_difference.round).to eql(-6)
-    #   end
-    # end
+    describe '#precise_difference(amount)' do
+      it "has a difference on payments due to roundings" do
+         expect(subject.precise_difference(amount_in_cents).round(3))
+          .to eql(-6.321)
+      end
+    end
 
     it 'has the same equal monthly payment on each term except last one' do
       all_tt = all_except_last_term.all? { |tt|
