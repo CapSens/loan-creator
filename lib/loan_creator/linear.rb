@@ -79,7 +79,7 @@ module LoanCreator
     end
 
     # returns precise monthly payment capital
-    def calc_monthly_payment_capital(amount=self.amount_in_cents)
+    def calc_monthly_payment_capital(amount)
       _calc_monthly_payment_capital(amount)
     end
 
@@ -89,13 +89,32 @@ module LoanCreator
     end
 
     # returns rounded monthly payment capital for financial flow purpose
-    def rounded_monthly_payment_capital(amount=self.amount_in_cents)
+    def rounded_monthly_payment_capital(amount)
       self.calc_monthly_payment_capital(amount).round
     end
 
     def rounded_total_payment_capital(amount)
       (self.rounded_monthly_payment_capital(amount) *
         BigDecimal.new(self.duration_in_months, @@accuracy)).round
+    end
+
+    def precise_capital_difference(amount)
+      self.rounded_total_payment_capital(amount) -
+        self.calc_total_payment_capital(amount)
+    end
+
+    def financial_capital_difference(amount)
+      self.financial_diff(self.precise_capital_difference(amount))
+    end
+
+    def adjusted_total_payment_capital(amount)
+      self.rounded_total_payment_capital(amount) -
+        financial_capital_difference(amount)
+    end
+
+    def last_capital_payment(amount)
+      self.rounded_monthly_payment_capital(amount) -
+        financial_capital_difference(amount)
     end
 
     # returns precise monthly payment interests
@@ -117,11 +136,6 @@ module LoanCreator
       self.total_interests.round
     end
 
-    def payments_difference_capital_share
-      @payments_difference_capital_share ||=
-        _payments_difference_capital_share
-    end
-
     def payments_difference_interests_share
       @payments_difference_interests_share ||=
         _payments_difference_interests_share
@@ -131,22 +145,12 @@ module LoanCreator
       @payments_difference ||= _payments_difference
     end
 
-    def precise_capital_difference(amount)
-      self.rounded_total_payment_capital(amount) -
-        self.calc_total_payment_capital(amount)
-    end
-
     def deferred_period_interests(amount)
       return 0 unless self.deferred_in_months > 0
 
       (BigDecimal.new(self.deferred_in_months, @@accuracy)
         .mult(self.calc_monthly_payment_interests(amount, 1).round,
         @@accuracy)).round
-    end
-
-    def last_capital_payment(amount)
-      self.rounded_monthly_payment_capital(amount) -
-        self.financial_diff(self.precise_capital_difference(amount))
     end
 
     def rounded_interests_sum(amount)
@@ -216,14 +220,6 @@ module LoanCreator
           .div(BigDecimal.new(2, @@accuracy), @@accuracy) +
           BigDecimal.new(self.deferred_in_months, @@accuracy)), @@accuracy
         )
-    end
-
-    # (total_terms * rounded_monthly_payment_capital) - Capital
-    #
-    def _payments_difference_capital_share
-      (BigDecimal.new(self.duration_in_months, @@accuracy)
-        .mult(self.rounded_monthly_payment_capital(self.amount_in_cents), @@accuracy)) -
-        BigDecimal.new(self.amount_in_cents, @@accuracy)
     end
 
     def _payments_difference_interests_share

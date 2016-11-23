@@ -283,27 +283,37 @@ describe LoanCreator::Linear do
       expect(all_tt).to eql(true)
     end
 
-    it 'has a last monthly payment capital share that includes
-    the payment difference (plus or minus)' do
-      if subject.payments_difference_capital_share >= 0
-        check = monthly_payment_capital -
-                subject.payments_difference_capital_share.truncate
-      else
-        check = monthly_payment_capital +
-                subject.payments_difference_capital_share.truncate
-      end
-      expect(time_tables.last.monthly_payment_capital_share).to eql(check)
-    end
-
-    it 'should have a final difference below 1' do
-      sum = time_tables.inject(0) { |sum, tt|
-        sum += tt.monthly_payment_capital_share }
-      expect(sum - amount_in_cents < 1).to eql(true)
-    end
-
-    describe '#rounded_monthly_payment_capital' do
+    describe '#rounded_monthly_payment_capital(amount)' do
       it 'calculates the monthly payment capital share' do
-        expect(subject.rounded_monthly_payment_capital).to eql(416_667)
+        expect(monthly_payment_capital).to eql(416_667)
+      end
+    end
+
+    describe '#rounded_total_payment_capital(amount)' do
+      it 'calculates total capital payment' do
+        expect(subject.rounded_total_payment_capital(amount_in_cents))
+          .to eql(10_000_008)
+      end
+    end
+
+    describe '#financial_capital_difference(amount)' do
+      it "has a difference of capital payment due to rounded amounts" do
+         expect(subject.financial_capital_difference(amount_in_cents))
+          .to eql(8)
+      end
+    end
+
+    describe '#adjusted_total_payment_capital(amount)' do
+      it 'calculates total capital payment including difference' do
+        expect(subject.adjusted_total_payment_capital(amount_in_cents))
+          .to eql(10_000_000)
+      end
+    end
+
+    describe '#last_capital_payment(amount)' do
+      it 'calculates last mth payment capital including difference' do
+        expect(time_tables.last.monthly_payment_capital_share)
+          .to eql(416_659)
       end
     end
 
@@ -352,12 +362,6 @@ describe LoanCreator::Linear do
         ).rounded_total_interests
 
         expect(total_interests).to eql(3_041_667)
-      end
-    end
-
-    describe '#payments_difference_capital_share' do
-      it "has a difference of capital payment due to rounded amounts" do
-         expect(subject.payments_difference_capital_share).to eql(8)
       end
     end
 
