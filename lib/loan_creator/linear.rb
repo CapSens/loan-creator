@@ -1,6 +1,11 @@
 module LoanCreator
   class Linear < LoanCreator::Common
 
+    def last_capital_payment(amount)
+      self.rounded_monthly_payment_capital(amount) -
+        self.financial_diff(self.precise_capital_difference(amount))
+    end
+
     def lender_time_table_data(amount, duration=self.duration_in_months)
       # what should be repaid as capital
       precise_mth_capital_payment = self.calc_monthly_payment_capital(amount)
@@ -15,7 +20,7 @@ module LoanCreator
         self.financial_diff(self.precise_capital_difference(amount))
 
       # last capital payment includes the financial difference
-      last_capital_payment = round_mth_capital_payment - capital_diff
+      # last_capital_payment = round_mth_capital_payment - capital_diff
 
       # returns 0 if no deferred period, else calculates paid interests
       rounded_interests = self.deferred_period_interests(amount)
@@ -39,7 +44,6 @@ module LoanCreator
 
       [
         round_mth_capital_payment,
-        last_capital_payment,
         remaining_interests,
         int_diff
       ]
@@ -48,14 +52,13 @@ module LoanCreator
     def lender_time_table(amount)
       data = lender_time_table_data(amount)
       r_mth_capital_payment = data[0]
-      last_capital_payment  = data[1]
+      last_capital_payment  = self.last_capital_payment(amount)
       time_table            = []
       remaining_capital     = amount.round
       calc_paid_capital     = 0
-      calc_remaining_int    = data[2]
-      p calc_remaining_int
+      calc_remaining_int    = data[1]
       calc_paid_interests   = 0
-      int_diff              = data[3]
+      int_diff              = data[2]
 
       if self.deferred_in_months > 0
         # all time table terms during deferred period
