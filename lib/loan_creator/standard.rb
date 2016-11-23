@@ -7,15 +7,12 @@ module LoanCreator
       precise_difference = self.defer_period_difference(amount)
 
       # what should be paid
-      precise_monthly_payment =
-        self.calc_monthly_payment(amount, self.duration_in_months)
-      total_precise = precise_monthly_payment *
-        BigDecimal.new(self.duration_in_months, @@accuracy)
+      precise_monthly_payment = self.calc_monthly_payment(amount)
+      total_precise = self.calc_total_payment(amount)
 
       # what will be paid
-      rounded_monthly_payment = precise_monthly_payment.round
-      total_rounded = rounded_monthly_payment *
-        BigDecimal.new(self.duration_in_months, @@accuracy)
+      rounded_monthly_payment = self.rounded_monthly_payment(amount)
+      total_rounded = self.total_rounded_payment(amount)
 
       precise_difference += total_rounded - total_precise
 
@@ -126,8 +123,18 @@ module LoanCreator
       _calc_monthly_payment(amount, duration)
     end
 
-    def rounded_monthly_payment
-      self.calc_monthly_payment.round
+    def calc_total_payment(amount)
+      self.calc_monthly_payment(amount)
+        .mult(BigDecimal.new(self.duration_in_months, @@accuracy), @@accuracy)
+    end
+
+    def rounded_monthly_payment(amount)
+      self.calc_monthly_payment(amount).round
+    end
+
+    def total_rounded_payment(amount)
+      (self.rounded_monthly_payment(amount) *
+        BigDecimal.new(self.duration_in_months, @@accuracy)).round
     end
 
     def total_payment

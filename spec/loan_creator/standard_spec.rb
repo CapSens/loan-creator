@@ -248,7 +248,7 @@ describe LoanCreator::Standard do
     let(:amount_in_cents) { 100_000 * 100 }
 
     # Loan monthly payment calculation's result
-    let(:monthly_payment) { subject.rounded_monthly_payment }
+    let(:monthly_payment) { subject.rounded_monthly_payment(amount_in_cents) }
 
     # Loan total interests calculation's result
     let(:total_interests) { subject.total_interests }
@@ -277,7 +277,8 @@ describe LoanCreator::Standard do
 
     describe '#rounded_monthly_payment' do
       it 'calculates the rounded monthly payment' do
-        expect(subject.rounded_monthly_payment).to eql(461_449)
+        expect(subject.rounded_monthly_payment(amount_in_cents))
+            .to eql(461_449)
       end
     end
 
