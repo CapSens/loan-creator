@@ -1,64 +1,15 @@
 module LoanCreator
   class Linear < LoanCreator::Common
 
-    def last_capital_payment(amount)
-      self.rounded_monthly_payment_capital(amount) -
-        self.financial_diff(self.precise_capital_difference(amount))
-    end
-
-    def lender_time_table_data(amount, duration=self.duration_in_months)
-      # what should be repaid as capital
-      precise_mth_capital_payment = self.calc_monthly_payment_capital(amount)
-      total_precise_capital       = self.calc_total_payment_capital(amount)
-
-      # what will be paid
-      round_mth_capital_payment = self.rounded_monthly_payment_capital(amount)
-      total_rounded_capital     = self.rounded_total_payment_capital(amount)
-
-      # capital financial difference
-      capital_diff =
-        self.financial_diff(self.precise_capital_difference(amount))
-
-      # last capital payment includes the financial difference
-      # last_capital_payment = round_mth_capital_payment - capital_diff
-
-      # returns 0 if no deferred period, else calculates paid interests
-      rounded_interests = self.deferred_period_interests(amount)
-
-      # sum of paid rounded interests
-      i = 0
-      while i < self.duration_in_months
-        i += 1
-        rounded_interests +=
-          self.calc_monthly_payment_interests(amount, i).round
-      end
-
-      # total interests calculation (including deferred period if any)
-      calc_total_interests = self.total_interests(amount)
-      precise_int_diff     = rounded_interests - calc_total_interests
-      # financial interests difference
-      int_diff = self.financial_diff(precise_int_diff)
-
-      # interests to be paid include the financial difference
-      remaining_interests = rounded_interests - int_diff
-
-      [
-        round_mth_capital_payment,
-        remaining_interests,
-        int_diff
-      ]
-    end
-
     def lender_time_table(amount)
-      data = lender_time_table_data(amount)
-      r_mth_capital_payment = data[0]
+      r_mth_capital_payment = self.rounded_monthly_payment_capital(amount)
       last_capital_payment  = self.last_capital_payment(amount)
       time_table            = []
       remaining_capital     = amount.round
       calc_paid_capital     = 0
-      calc_remaining_int    = data[1]
+      calc_remaining_int    = self.calc_total_interests(amount)
       calc_paid_interests   = 0
-      int_diff              = data[2]
+      int_diff              = self.financial_interests_difference(amount)
 
       if self.deferred_in_months > 0
         # all time table terms during deferred period
@@ -194,6 +145,40 @@ module LoanCreator
       (BigDecimal.new(self.deferred_in_months, @@accuracy)
         .mult(self.calc_monthly_payment_interests(amount, 1).round,
         @@accuracy)).round
+    end
+
+    def last_capital_payment(amount)
+      self.rounded_monthly_payment_capital(amount) -
+        self.financial_diff(self.precise_capital_difference(amount))
+    end
+
+    def rounded_interests_sum(amount)
+      # returns 0 if no deferred period, else calculates paid interests
+      rounded_interests = self.deferred_period_interests(amount)
+
+      # sum of paid rounded interests
+      i = 0
+      while i < self.duration_in_months
+        i += 1
+        rounded_interests +=
+          self.calc_monthly_payment_interests(amount, i).round
+      end
+
+      rounded_interests
+    end
+
+    def precise_interests_difference(amount)
+      self.rounded_interests_sum(amount) -
+        self.total_interests(amount)
+    end
+
+    def financial_interests_difference(amount)
+      self.financial_diff(self.precise_interests_difference(amount))
+    end
+
+    def calc_total_interests(amount)
+      self.rounded_interests_sum(amount) -
+        self.financial_interests_difference(amount)
     end
 
     private
