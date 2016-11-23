@@ -260,7 +260,8 @@ describe LoanCreator::Linear do
     let(:amount_in_cents) { 100_000 * 100 }
 
     # Loan monthly payment calculation's result
-    let(:monthly_payment_capital) { subject.rounded_monthly_payment_capital }
+    let(:monthly_payment_capital) {
+      subject.rounded_monthly_payment_capital(amount_in_cents) }
 
     # Loan total interests calculation's result
     let(:total_interests) { subject.total_interests }
