@@ -170,7 +170,8 @@ describe LoanCreator::Standard do
       end
 
       it 'calculates the last payment amount' do
-        expect(lender_four_tt.last.monthly_payment).to eql(174_075)
+        expect(deferred_loan.last_payment(68_633 * 100))
+          .to eql(174_075)
       end
 
       it 'should pay capital in full' do
