@@ -1,6 +1,6 @@
 module LoanCreator
   class TimeTable
-    attr_reader :term,
+    attr_accessor :term,
       :monthly_payment,
       :monthly_payment_capital_share,
       :monthly_payment_interests_share,
@@ -29,4 +29,3 @@ module LoanCreator
     end
   end
 end
-
