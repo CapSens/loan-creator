@@ -9,7 +9,7 @@ BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
 
 module LoanCreator
   class Common
-    attr_reader :amount_in_cents,
+    attr_accessor :amount_in_cents,
       :annual_interests_rate,
       :starts_at,
       :duration_in_months,
