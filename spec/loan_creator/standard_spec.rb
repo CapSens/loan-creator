@@ -236,7 +236,7 @@ describe LoanCreator::Standard do
     subject(:loan) {
       described_class.new(
         amount_in_cents:       amount_in_cents,
-        annual_interests_rate: 10,
+        annual_interests_rate: annual_interests_rate,
         starts_at:             '2016-01-15',
         duration_in_months:    duration_in_months
       )
@@ -247,6 +247,8 @@ describe LoanCreator::Standard do
 
     # Loan amount
     let(:amount_in_cents) { 100_000 * 100 }
+
+    let(:annual_interests_rate) { 10 }
 
     # Loan monthly payment calculation's result
     let(:monthly_payment) { subject.rounded_monthly_payment(amount_in_cents) }
@@ -268,6 +270,15 @@ describe LoanCreator::Standard do
       it 'calculates the precise monthly payment' do
         expect(subject.calc_monthly_payment(amount_in_cents).round(7))
           .to eql(461_449.2633752)
+      end
+
+      context 'with zero interest rate' do
+        let(:annual_interests_rate) { 0 }
+
+        it 'calculates the precise monthly payment' do
+          expect(subject.calc_monthly_payment(amount_in_cents).round(7))
+            .to eql(416666.6666667)
+        end
       end
     end
 
