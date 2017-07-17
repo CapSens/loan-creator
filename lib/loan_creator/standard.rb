@@ -161,6 +161,10 @@ module LoanCreator
     #  (1 - ((1 + monthly_interests_rate)^(-total_terms)))
     #
     def _calc_monthly_payment(amount, duration)
+      if self.monthly_interests_rate.zero?
+        return BigDecimal.new(amount, @@accuracy).div(BigDecimal.new(duration, @@accuracy), @@accuracy)
+      end
+
       denominator = (BigDecimal.new(1, @@accuracy) -
         ((BigDecimal.new(1, @@accuracy) + self.monthly_interests_rate) **
         ((BigDecimal.new(-1, @@accuracy))
