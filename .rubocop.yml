@@ -1,0 +1,37 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - 'db/**/*'
+    - 'vendor/**/*'
+  DisplayCopNames: true
+
+Documentation:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 20
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Style/NumericPredicate:
+  EnforcedStyle: comparison
+
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+
+Lint/UnifiedInteger:
+  Enabled: false

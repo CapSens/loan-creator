@@ -1,19 +1,18 @@
 module LoanCreator
   class Infine < LoanCreator::Common
-
     def lender_time_table(amount)
-      precise_interests = self.total_interests(amount)
-      r_interests       = self.total_rounded_interests(amount)
+      precise_interests = total_interests(amount)
+      r_interests       = total_rounded_interests(amount)
       precise_diff      = r_interests - precise_interests
 
-      diff = self.financial_diff(precise_diff)
+      diff = financial_diff(precise_diff)
 
       time_table          = []
       calc_paid_interests = 0
-      r_monthly_interests = self.rounded_monthly_interests(amount)
+      r_monthly_interests = rounded_monthly_interests(amount)
       r_interests        -= diff
 
-      (self.duration_in_months - 1).times do |term|
+      (duration_in_months - 1).times do |term|
         calc_paid_interests += r_monthly_interests
         r_interests         -= r_monthly_interests
 
@@ -35,7 +34,7 @@ module LoanCreator
       last_payment           = last_interests_payment + amount
 
       time_table << LoanCreator::TimeTable.new(
-        term:                            self.duration_in_months,
+        term:                            duration_in_months,
         monthly_payment:                 last_payment,
         monthly_payment_capital_share:   amount,
         monthly_payment_interests_share: last_interests_payment,
@@ -48,23 +47,23 @@ module LoanCreator
       time_table
     end
 
-    def monthly_interests(amount=self.amount_in_cents)
+    def monthly_interests(amount = amount_in_cents)
       _monthly_interests(amount)
     end
 
-    def rounded_monthly_interests(amount=self.amount_in_cents)
+    def rounded_monthly_interests(amount = amount_in_cents)
       self.monthly_interests(amount).round
     end
 
-    def total_interests(amount=self.amount_in_cents)
+    def total_interests(amount = amount_in_cents)
       _total_interests(amount)
     end
 
-    def total_rounded_interests(amount=self.amount_in_cents)
+    def total_rounded_interests(amount = amount_in_cents)
       _total_rounded_interests(amount)
     end
 
-    def interests_difference(amount=self.amount_in_cents)
+    def interests_difference(amount = amount_in_cents)
       _interests_difference(amount)
     end
 
@@ -74,27 +73,27 @@ module LoanCreator
     #
     def _monthly_interests(amount)
       BigDecimal.new(amount, @@accuracy)
-        .mult(self.monthly_interests_rate, @@accuracy)
+                .mult(monthly_interests_rate, @@accuracy)
     end
 
     # total_terms * monthly_interests
     #
     def _total_interests(amount)
-      BigDecimal.new(self.duration_in_months, @@accuracy)
-        .mult(self.monthly_interests(amount), @@accuracy)
+      BigDecimal.new(duration_in_months, @@accuracy)
+                .mult(monthly_interests(amount), @@accuracy)
     end
 
     # total_terms * rounded_monthly_interests
     #
     def _total_rounded_interests(amount)
-      (BigDecimal.new(self.duration_in_months, @@accuracy)
-        .mult(self.rounded_monthly_interests(amount), @@accuracy)).round
+      (BigDecimal.new(duration_in_months, @@accuracy)
+        .mult(rounded_monthly_interests(amount), @@accuracy)).round
     end
 
     # total_rounded_interests - total_interests
     #
     def _interests_difference(amount)
-      self.total_rounded_interests(amount) - self.total_interests(amount)
+      total_rounded_interests(amount) - total_interests(amount)
     end
   end
 end

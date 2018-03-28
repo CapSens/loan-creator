@@ -1,14 +1,14 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe LoanCreator::Common do
-  let(:loan) {
+  let(:loan) do
     LoanCreator::Common.new(
       amount_in_cents:       100_000,
       annual_interests_rate: 10,
       starts_at:             '2016-01-15',
       duration_in_months:    4
     )
-  }
+  end
 
   describe '#end_date' do
     it 'should give the end date of the loan' do
@@ -23,7 +23,6 @@ describe LoanCreator::Common do
   end
 
   describe '#financial_diff(value)' do
-
     it 'should give a Fixnum as result' do
       result = loan.financial_diff(2.6516541648186484)
       expect(result.class).to eql(Fixnum)
