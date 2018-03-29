@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu']
 
   spec.summary       = 'Create and update time tables from input data'
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = 'https://capsens.githost.io/capsens/loan-creator'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
