@@ -2,7 +2,7 @@ require 'date'
 require 'bigdecimal'
 # round towards the nearest neighbor, unless both neighbors are
 # equidistant, in which case round towards the even neighbor
-# (Banker’s rounding)
+# (Bank rounding)
 # usage of BigDecimal method: div(value, digits)
 # usage of BigDecimal method: mult(value, digits)
 BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
@@ -10,10 +10,10 @@ BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
 module LoanCreator
   class Common
     attr_accessor :amount_in_cents,
-      :annual_interests_rate,
-      :starts_at,
-      :duration_in_months,
-      :deferred_in_months
+                  :annual_interests_rate,
+                  :starts_at,
+                  :duration_in_months,
+                  :deferred_in_months
 
     def initialize(amount_in_cents:, annual_interests_rate:,
       starts_at:, duration_in_months:, deferred_in_months: 0)
@@ -34,27 +34,20 @@ module LoanCreator
       @monthly_interests_rate ||= _monthly_interests_rate
     end
 
-    def lender_time_table(amount)
+    def lender_time_table(_amount)
       raise 'NotImplemented'
     end
 
     def time_table
-      self.lender_time_table(self.amount_in_cents)
+      lender_time_table(amount_in_cents)
     end
 
     def borrower_time_table(*args) # each arg sould be an array of time tables
-      if args.length <= 0
-        raise ArgumentError,
-        'borrower_time_table method expects at least one argument'
-        return
-      end
+      return raise ArgumentError, 'borrower_time_table method expects at least one argument' if args.length <= 0
 
       args.each do |arg|
         check = arg.all? { |tt| tt.is_a?(LoanCreator::TimeTable) }
-        if !check
-          raise ArgumentError, 'wrong type of argument'
-          return
-        end
+        return raise ArgumentError, 'wrong type of argument' unless check
       end
 
       # group each element regarding its position (the term number)
@@ -64,20 +57,13 @@ module LoanCreator
 
       # for each array of time tables, sum each required element
       transposed_args.each do |arr|
-        total_monthly_pay       =
-          arr.inject(0) { |sum, tt| sum += tt.monthly_payment }
-        mth_pay_capital_share   =
-          arr.inject(0) { |sum, tt| sum += tt.monthly_payment_capital_share }
-        mth_pay_interests_share =
-          arr.inject(0) { |sum, tt| sum += tt.monthly_payment_interests_share }
-        remaining_capital       =
-          arr.inject(0) { |sum, tt| sum += tt.remaining_capital }
-        paid_capital            =
-          arr.inject(0) { |sum, tt| sum += tt.paid_capital }
-        remaining_interests     =
-          arr.inject(0) { |sum, tt| sum += tt.remaining_interests }
-        paid_interests          =
-          arr.inject(0) { |sum, tt| sum += tt.paid_interests }
+        total_monthly_pay       = arr.inject(0) { |sum, tt| sum + tt.monthly_payment }
+        mth_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_capital_share }
+        mth_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_interests_share }
+        remaining_capital       = arr.inject(0) { |sum, tt| sum + tt.remaining_capital }
+        paid_capital            = arr.inject(0) { |sum, tt| sum + tt.paid_capital }
+        remaining_interests     = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
+        paid_interests          = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
 
         time_table << LoanCreator::TimeTable.new(
           term:                            arr.first.term,
@@ -123,8 +109,8 @@ module LoanCreator
     #         1200               for the monthly frequency, so 1200)
     #
     def _monthly_interests_rate
-      BigDecimal.new(self.annual_interests_rate, @@accuracy)
-        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
+      BigDecimal(annual_interests_rate, @@accuracy)
+                .div(BigDecimal(1200, @@accuracy), @@accuracy)
     end
   end
 end

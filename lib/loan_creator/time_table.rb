@@ -1,23 +1,24 @@
 module LoanCreator
   class TimeTable
     attr_accessor :term,
-      :monthly_payment,
-      :monthly_payment_capital_share,
-      :monthly_payment_interests_share,
-      :remaining_capital,
-      :paid_capital,
-      :remaining_interests,
-      :paid_interests
+                  :monthly_payment,
+                  :monthly_payment_capital_share,
+                  :monthly_payment_interests_share,
+                  :remaining_capital,
+                  :paid_capital,
+                  :remaining_interests,
+                  :paid_interests
 
     def initialize(
       term:,
-        monthly_payment:,
-        monthly_payment_capital_share:,
-        monthly_payment_interests_share:,
-        remaining_capital:,
-        paid_capital:,
-        remaining_interests:,
-        paid_interests:)
+      monthly_payment:,
+      monthly_payment_capital_share:,
+      monthly_payment_interests_share:,
+      remaining_capital:,
+      paid_capital:,
+      remaining_interests:,
+      paid_interests:
+    )
       @term                            = term
       @monthly_payment                 = monthly_payment
       @monthly_payment_capital_share   = monthly_payment_capital_share

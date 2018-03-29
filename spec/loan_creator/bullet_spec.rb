@@ -1,8 +1,7 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe LoanCreator::Bullet do
   describe '#lender_time_table(borrowed)' do
-
     loan = described_class.new(
       amount_in_cents:       100_000 * 100,
       annual_interests_rate: 10,
@@ -16,38 +15,32 @@ describe LoanCreator::Bullet do
 
     context 'lender_one_tt' do
       it 'does not pay interests before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.monthly_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.monthly_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all capital remaining before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.remaining_capital == 1_000_000 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.remaining_capital == 1_000_000 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all interests remaining before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.remaining_interests == 489_355 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.remaining_interests == 489_355 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have repaid any capital before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.paid_capital == 0 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.paid_capital == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have paid any interests before last term' do
-        all_tt = lender_one_tt[0...-1].all? { |tt|
-          tt.paid_interests == 0 }
+        all_tt = lender_one_tt[0...-1].all? { |tt| tt.paid_interests == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -68,38 +61,32 @@ describe LoanCreator::Bullet do
 
     context 'lender_two_tt' do
       it 'does not pay interests before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.monthly_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.monthly_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all capital remaining before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.remaining_capital == 654_700 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.remaining_capital == 654_700 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all interests remaining before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.remaining_interests == 320_381 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.remaining_interests == 320_381 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have repaid any capital before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.paid_capital == 0 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.paid_capital == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have paid any interests before last term' do
-        all_tt = lender_two_tt[0...-1].all? { |tt|
-          tt.paid_interests == 0 }
+        all_tt = lender_two_tt[0...-1].all? { |tt| tt.paid_interests == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -120,38 +107,32 @@ describe LoanCreator::Bullet do
 
     context 'lender_three_tt' do
       it 'does not pay interests before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.monthly_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.monthly_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all capital remaining before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.remaining_capital == 45_300 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.remaining_capital == 45_300 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all interests remaining before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.remaining_interests == 22_168 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.remaining_interests == 22_168 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have repaid any capital before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.paid_capital == 0 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.paid_capital == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have paid any interests before last term' do
-        all_tt = lender_three_tt[0...-1].all? { |tt|
-          tt.paid_interests == 0 }
+        all_tt = lender_three_tt[0...-1].all? { |tt| tt.paid_interests == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -171,17 +152,16 @@ describe LoanCreator::Bullet do
     end
 
     describe '#borrower_time_table(*args)' do
-
-      subject(:borrower_tt) {
+      subject(:borrower_tt) do
         loan.borrower_time_table(
           lender_one_tt,
           lender_two_tt,
           lender_three_tt
         )
-      }
+      end
 
       it 'should raise ArgumentError if no arg is given' do
-        expect { loan.borrower_time_table() }.to raise_error(ArgumentError)
+        expect { loan.borrower_time_table }.to raise_error(ArgumentError)
       end
 
       it 'should raise ArgumentError if one arg does not include only
@@ -191,38 +171,32 @@ describe LoanCreator::Bullet do
       end
 
       it 'does not pay interests before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.monthly_payment_interests_share == 0 }
+        all_tt = subject[0...-1].all? { |tt| tt.monthly_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.monthly_payment_capital_share == 0 }
+        all_tt = subject[0...-1].all? { |tt| tt.monthly_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all capital remaining before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.remaining_capital == 1_700_000 }
+        all_tt = subject[0...-1].all? { |tt| tt.remaining_capital == 1_700_000 }
         expect(all_tt).to eql(true)
       end
 
       it 'should have all interests remaining before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.remaining_interests == 831_904 }
+        all_tt = subject[0...-1].all? { |tt| tt.remaining_interests == 831_904 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have repaid any capital before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.paid_capital == 0 }
+        all_tt = subject[0...-1].all? { |tt| tt.paid_capital == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'should not have paid any interests before last term' do
-        all_tt = subject[0...-1].all? { |tt|
-          tt.paid_interests == 0 }
+        all_tt = subject[0...-1].all? { |tt| tt.paid_interests == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -242,17 +216,16 @@ describe LoanCreator::Bullet do
     end
   end
 
-  describe "#time_table" do
-
+  describe '#time_table' do
     # The loan
-    subject(:loan) {
+    subject(:loan) do
       described_class.new(
         amount_in_cents:       amount_in_cents,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
         duration_in_months:    duration_in_months
       )
-    }
+    end
 
     # Duration of the loan
     let(:duration_in_months) { 24 }
@@ -273,38 +246,30 @@ describe LoanCreator::Bullet do
       expect(time_tables.size).to eql(duration_in_months)
     end
 
-    describe "all but last time table" do
-      [ :monthly_payment,
-        :monthly_payment_capital_share,
-        :monthly_payment_interests_share,
-        :paid_capital,
-        :paid_interests
-      ].each do |arg|
-        it "has the same amount equal to zero for #{arg.to_s}" do
-          all_zero = all_except_last_term.all? { |tt|
-            tt.send(arg) == 0 }
+    describe 'all but last time table' do
+      %i[monthly_payment monthly_payment_capital_share
+         monthly_payment_interests_share paid_capital paid_interests].each do |arg|
+        it "has the same amount equal to zero for #{arg}" do
+          all_zero = all_except_last_term.all? { |tt| tt.send(arg) == 0 }
           expect(all_zero).to eql(true)
         end
       end
 
       it 'has same remaining capital equal to loan amount' do
-        all_zero = all_except_last_term.all? { |tt|
-          tt.remaining_capital == amount_in_cents }
+        all_zero = all_except_last_term.all? { |tt| tt.remaining_capital == amount_in_cents }
         expect(all_zero).to eql(true)
       end
 
       it 'has same remaining interests equal to total interests' do
-        all_zero = all_except_last_term.all? { |tt|
-          tt.remaining_interests == total_interests }
+        all_zero = all_except_last_term.all? { |tt| tt.remaining_interests == total_interests }
         expect(all_zero).to eql(true)
       end
     end
 
-    describe "last time table" do
-
+    describe 'last time table' do
       let(:last_time_table) { loan.time_table.last }
 
-      it "is the last term" do
+      it 'is the last term' do
         expect(last_time_table.term).to eql(duration_in_months)
       end
 
@@ -315,13 +280,11 @@ describe LoanCreator::Bullet do
       end
 
       it 'has a monthly payment capital share equal to loan amount' do
-        expect(last_time_table.monthly_payment_capital_share)
-        .to eql(amount_in_cents)
+        expect(last_time_table.monthly_payment_capital_share).to eql(amount_in_cents)
       end
 
       it 'has a monthly payment interests share equal to total interests' do
-        expect(last_time_table.monthly_payment_interests_share)
-        .to eql(total_interests)
+        expect(last_time_table.monthly_payment_interests_share).to eql(total_interests)
       end
 
       it 'has a remaining capital equal to zero' do
@@ -329,8 +292,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'has paid capital in full, equal to loan amount' do
-        expect(last_time_table.paid_capital)
-        .to eql(amount_in_cents)
+        expect(last_time_table.paid_capital).to eql(amount_in_cents)
       end
 
       it 'has remaining interests equal to zero' do
@@ -338,14 +300,13 @@ describe LoanCreator::Bullet do
       end
 
       it 'has paid interests in full, equal to total loan interests' do
-        expect(last_time_table.paid_interests)
-        .to eql(total_interests)
+        expect(last_time_table.paid_interests).to eql(total_interests)
       end
     end
   end
 
-  describe "#rounded_total_interests" do
-    it "has the expected value - example one" do
+  describe '#rounded_total_interests' do
+    it 'has the expected value - example one' do
       rounded_total_interests = described_class.new(
         amount_in_cents:       100_000 * 100,
         annual_interests_rate: 10,
@@ -356,7 +317,7 @@ describe LoanCreator::Bullet do
       expect(rounded_total_interests).to eql(2_203_910)
     end
 
-    it "has the expected value - example two" do
+    it 'has the expected value - example two' do
       rounded_total_interests = described_class.new(
         amount_in_cents:       350_456_459 * 100,
         annual_interests_rate: 7.63,
