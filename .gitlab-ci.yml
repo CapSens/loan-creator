@@ -1,23 +1,11 @@
 rspec:
   image: "ruby:2.3"
-  # services:
-  #   - postgres:latest
-  # variables:
-  #   POSTGRES_DB: agrilend_test
-  #   POSTGRES_USER: runner
-  #   POSTGRES_PASSWORD: ""
   before_script:
-    # LIB INSTALLS
-    # - apt-get update -qq && apt-get install -y -qq postgresql postgresql-contrib libpq-dev cmake nodejs
     # COMMANDS
     - ruby -v
     - which ruby
     # BUNDLER
     - gem install bundler --no-ri --no-rdoc
     - bundle install --jobs $(nproc) "${FLAGS[@]}"
-    # DATABASE
-    # - cp config/database.yml.gitlab config/database.yml
-    # - RAILS_ENV=test bundle exec rake db:create
-    # - RAILS_ENV=test bundle exec rake db:migrate
   script:
     - bundle exec rspec --color --format documentation
