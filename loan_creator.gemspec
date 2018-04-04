@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'loan_creator/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'loan-creator'
+  spec.name          = 'loan_creator'
   spec.version       = LoanCreator::VERSION
   spec.authors       = %w[thibaulth nicob]
   spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu']
