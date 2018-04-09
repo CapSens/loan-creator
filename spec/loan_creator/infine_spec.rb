@@ -1,6 +1,30 @@
 require 'spec_helper'
 
 describe LoanCreator::Infine do
+  describe "Arbitrary cases" do
+    let(:default_date) { '2016-01-15' }
+    let(:cases) do
+      [
+        # Add as many edge cases as you wish here:
+        # [amount_in_cents, annual_interests_rate, starts_at, duration_in_months, expected_last_paid_interests]
+        [2_000, 10, default_date, 24, 400]
+      ]
+    end
+
+    it do
+      cases.each do |c|
+        lend = described_class.new(
+          amount_in_cents:       c[0],
+          annual_interests_rate: c[1],
+          starts_at:             c[2],
+          duration_in_months:    c[3]
+        )
+        lender = lend.lender_time_table(c[0])
+        expect(lender.last.paid_interests).to eq(c[4])
+      end
+    end
+  end
+
   describe '#lender_time_table(borrowed)' do
     loan = described_class.new(
       amount_in_cents:       100_000 * 100,
