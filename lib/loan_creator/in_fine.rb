@@ -1,23 +1,25 @@
 module LoanCreator
-  class Infine < LoanCreator::Common
-    def lender_time_table(amount)
+  class InFine < LoanCreator::Common
+    def lender_timetable(amount)
       precise_total_interests = total_interests(amount)
       rounded_total_interests = total_rounded_interests(amount)
       precise_diff = rounded_total_interests - precise_total_interests
 
       diff = precise_diff.round
 
-      time_table_terms = []
+      timetable = LoanCreator::Timetable.new(
+        starts_at: @starts_at,
+        period: { months: 1 }
+      )
       calc_paid_interests = 0
       r_monthly_interests = rounded_monthly_interests(amount)
       rounded_total_interests -= diff
 
-      (duration_in_months - 1).times do |term_idx|
+      (duration_in_months - 1).times do
         calc_paid_interests += r_monthly_interests
         rounded_total_interests -= r_monthly_interests
 
-        time_table_terms << LoanCreator::TimeTable.new(
-          term:                            term_idx + 1,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 r_monthly_interests,
           monthly_payment_capital_share:   0,
           monthly_payment_interests_share: r_monthly_interests,
@@ -33,8 +35,7 @@ module LoanCreator
       rounded_total_interests -= last_interests_payment
       last_payment = last_interests_payment + amount
 
-      time_table_terms << LoanCreator::TimeTable.new(
-        term:                            duration_in_months,
+      timetable << LoanCreator::Term.new(
         monthly_payment:                 last_payment,
         monthly_payment_capital_share:   amount,
         monthly_payment_interests_share: last_interests_payment,
@@ -44,7 +45,7 @@ module LoanCreator
         paid_interests:                  calc_paid_interests
       )
 
-      time_table_terms
+      timetable
     end
 
     def monthly_interests(amount = amount_in_cents)

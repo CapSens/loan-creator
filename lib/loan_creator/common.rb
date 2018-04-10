@@ -44,7 +44,7 @@ module LoanCreator
       raise NotImplementedError
     end
 
-    def timetable
+    def timetable # TODO: remove this alias method (and directly call #lender_timetable instead)
       lender_timetable(amount_in_cents)
     end
 
