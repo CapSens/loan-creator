@@ -241,7 +241,7 @@ describe LoanCreator::Linear do
     end
   end
 
-  describe '#timetable' do
+  describe '#lender_timetable' do
     # The loan
     subject(:loan) do
       described_class.new(
@@ -265,7 +265,7 @@ describe LoanCreator::Linear do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:terms) { subject.timetable.terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     # Time tables array except last term
     let(:all_except_last_term) { terms[0...-1] }
@@ -406,7 +406,7 @@ describe LoanCreator::Linear do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:terms) { subject.timetable.terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     it "returns 'duration_in_months + deferred_in_months' elements" do
       expect(terms.size).to eql(duration_in_months + deferred_in_months)

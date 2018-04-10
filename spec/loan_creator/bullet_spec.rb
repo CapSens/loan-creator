@@ -227,7 +227,7 @@ describe LoanCreator::Bullet do
     end
   end
 
-  describe '#timetable' do
+  describe '#lender_timetable' do
     # The loan
     subject(:loan) do
       described_class.new(
@@ -248,7 +248,7 @@ describe LoanCreator::Bullet do
     let(:total_interests) { subject.rounded_total_interests }
 
     # Time tables array (full loan)
-    let(:terms) { subject.timetable.terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     # Time tables array except last term
     let(:all_except_last_term) { terms[0...-1] }
@@ -278,7 +278,7 @@ describe LoanCreator::Bullet do
     end
 
     describe 'last term' do
-      let(:last_term) { loan.timetable.terms.last }
+      let(:last_term) { loan.lender_timetable.terms.last }
 
       it 'is the last term' do
         expect(last_term.index).to eql(duration_in_months)

@@ -1,6 +1,6 @@
 module LoanCreator
   class Standard < LoanCreator::Common
-    def lender_timetable(amount)
+    def lender_timetable(amount = amount_in_cents)
       round_mth_payment   = rounded_monthly_payment(amount)
       last_payment        = last_payment(amount)
       timetable          = LoanCreator::Timetable.new(

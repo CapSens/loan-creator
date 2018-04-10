@@ -1,6 +1,6 @@
 module LoanCreator
   class InFine < LoanCreator::Common
-    def lender_timetable(amount)
+    def lender_timetable(amount = amount_in_cents)
       precise_total_interests = total_interests(amount)
       rounded_total_interests = total_rounded_interests(amount)
       precise_diff = rounded_total_interests - precise_total_interests

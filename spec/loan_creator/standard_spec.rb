@@ -261,7 +261,7 @@ describe LoanCreator::Standard do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:terms) { subject.lender_timetable(amount_in_cents).terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     # Time tables array except last term
     let(:all_except_last_term) { terms[0...-1] }
@@ -353,7 +353,7 @@ describe LoanCreator::Standard do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:terms) { subject.lender_timetable(amount_in_cents).terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     it "returns 'duration_in_months + deferred_in_months' elements" do
       expect(terms.size).to eql(duration_in_months + deferred_in_months)
