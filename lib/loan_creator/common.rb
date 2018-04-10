@@ -35,7 +35,7 @@ module LoanCreator
     end
 
     def lender_time_table(_amount)
-      raise 'NotImplemented'
+      raise NotImplementedError
     end
 
     def time_table
@@ -43,11 +43,11 @@ module LoanCreator
     end
 
     def borrower_time_table(*args) # each arg sould be an array of time tables
-      return raise ArgumentError, 'borrower_time_table method expects at least one argument' if args.length <= 0
+      raise ArgumentError, 'borrower_time_table method expects at least one argument' if args.length <= 0
 
       args.each do |arg|
         check = arg.all? { |tt| tt.is_a?(LoanCreator::TimeTable) }
-        return raise ArgumentError, 'wrong type of argument' unless check
+        raise ArgumentError, 'wrong type of argument' unless check
       end
 
       # group each element regarding its position (the term number)
