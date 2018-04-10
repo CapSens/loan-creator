@@ -1,6 +1,7 @@
 module LoanCreator
-  class TimeTable
-    attr_accessor :term,
+  class Term
+    attr_accessor :index,
+                  :date,
                   :monthly_payment,
                   :monthly_payment_capital_share,
                   :monthly_payment_interests_share,
@@ -10,9 +11,6 @@ module LoanCreator
                   :paid_interests
 
     def initialize(
-          # Term number (1..x)
-          term:,
-
           # Amount to pay this term (capital + interests)
           monthly_payment:,
 
@@ -34,7 +32,6 @@ module LoanCreator
           # By the end of this term, how much interests have been paid
           paid_interests:
         )
-      @term                            = term
       @monthly_payment                 = monthly_payment
       @monthly_payment_capital_share   = monthly_payment_capital_share
       @monthly_payment_interests_share = monthly_payment_interests_share

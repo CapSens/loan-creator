@@ -1,9 +1,12 @@
 module LoanCreator
   class Linear < LoanCreator::Common
-    def lender_time_table(amount)
+    def lender_timetable(amount = amount_in_cents)
       r_mth_capital_payment = rounded_monthly_payment_capital(amount)
       last_capital_payment  = last_capital_payment(amount)
-      time_table            = []
+      timetable            = LoanCreator::Timetable.new(
+        starts_at: @starts_at,
+        period: { months: 1 }
+      )
       remaining_capital     = amount.round
       calc_paid_capital     = 0
       calc_remaining_int    = calc_total_interests(amount)
@@ -17,8 +20,7 @@ module LoanCreator
         calc_remaining_int  -= r_monthly_payment
         calc_paid_interests += r_monthly_payment
 
-        time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 r_monthly_payment,
           monthly_payment_capital_share:   0,
           monthly_payment_interests_share: r_monthly_payment,
@@ -38,8 +40,7 @@ module LoanCreator
         calc_remaining_int    -= calc_monthly_interests
         calc_paid_interests   += calc_monthly_interests
 
-        time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1 + deferred_in_months,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 calc_monthly_payment,
           monthly_payment_capital_share:   r_mth_capital_payment,
           monthly_payment_interests_share: calc_monthly_interests,
@@ -59,8 +60,7 @@ module LoanCreator
       calc_paid_interests += last_interests_payment
 
       # last time table term
-      time_table << LoanCreator::TimeTable.new(
-        term:                            duration_in_months,
+      timetable << LoanCreator::Term.new(
         monthly_payment:                 last_payment,
         monthly_payment_capital_share:   last_capital_payment,
         monthly_payment_interests_share: last_interests_payment,
@@ -70,7 +70,7 @@ module LoanCreator
         paid_interests:                  calc_paid_interests
       )
 
-      time_table
+      timetable
     end
 
     # returns precise monthly payment capital

@@ -11,7 +11,7 @@ describe LoanCreator::Common do
   end
 
   describe '#end_date' do
-    it 'should give the end date of the loan' do
+    it 'should give the end date of the loan' do # TODO: change this using .period
       expect(loan.end_date).to eql(Date.parse('2016-05-15'))
     end
   end

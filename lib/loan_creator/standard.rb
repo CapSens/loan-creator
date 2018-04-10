@@ -1,9 +1,12 @@
 module LoanCreator
   class Standard < LoanCreator::Common
-    def lender_time_table(amount)
+    def lender_timetable(amount = amount_in_cents)
       round_mth_payment   = rounded_monthly_payment(amount)
       last_payment        = last_payment(amount)
-      time_table          = []
+      timetable          = LoanCreator::Timetable.new(
+        starts_at: @starts_at,
+        period: { months: 1 }
+      )
       remaining_capital   = amount.round
       calc_paid_capital   = 0
       calc_remaining_int  = total_adjusted_interests(amount)
@@ -12,12 +15,11 @@ module LoanCreator
       # starts with deferred time tables if any
       defer_r_mth_pay = rounded_monthly_interests(amount)
 
-      deferred_in_months.times do |term|
+      deferred_in_months.times do
         calc_remaining_int  -= defer_r_mth_pay
         calc_paid_interests += defer_r_mth_pay
 
-        time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 defer_r_mth_pay,
           monthly_payment_capital_share:   0,
           monthly_payment_interests_share: defer_r_mth_pay,
@@ -29,7 +31,7 @@ module LoanCreator
       end
 
       # all but last time table terms during normal period
-      (duration_in_months - 1).times do |term|
+      (duration_in_months - 1).times do
         # monthly payment interests share
         calc_monthly_interests =
           (remaining_capital * monthly_interests_rate).round
@@ -43,8 +45,7 @@ module LoanCreator
         calc_remaining_int  -= calc_monthly_interests
         calc_paid_interests += calc_monthly_interests
 
-        time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1 + deferred_in_months,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 round_mth_payment,
           monthly_payment_capital_share:   calc_monthly_capital,
           monthly_payment_interests_share: calc_monthly_interests,
@@ -71,8 +72,7 @@ module LoanCreator
       calc_paid_interests += last_interests_payment
 
       # last time table term
-      time_table << LoanCreator::TimeTable.new(
-        term:                            duration_in_months,
+      timetable << LoanCreator::Term.new(
         monthly_payment:                 last_payment,
         monthly_payment_capital_share:   last_capital_payment,
         monthly_payment_interests_share: last_interests_payment,
@@ -82,7 +82,7 @@ module LoanCreator
         paid_interests:                  calc_paid_interests
       )
 
-      time_table
+      timetable
     end
 
     def calc_monthly_payment(amount, duration = duration_in_months)

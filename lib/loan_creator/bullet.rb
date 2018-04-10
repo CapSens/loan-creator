@@ -1,13 +1,15 @@
 module LoanCreator
   class Bullet < LoanCreator::Common
 
-    def lender_time_table(amount)
-      time_table        = []
+    def lender_timetable(amount = amount_in_cents)
+      timetable = LoanCreator::Timetable.new(
+        starts_at: @starts_at,
+        period: { months: 1 }
+      )
       r_total_interests = rounded_total_interests(amount)
 
-      (duration_in_months - 1).times do |term|
-        time_table << LoanCreator::TimeTable.new(
-          term:                            term + 1,
+      (duration_in_months - 1).times do |term_idx|
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 0,
           monthly_payment_capital_share:   0,
           monthly_payment_interests_share: 0,
@@ -18,8 +20,7 @@ module LoanCreator
         )
       end
 
-      time_table << LoanCreator::TimeTable.new(
-        term:                            duration_in_months,
+      timetable << LoanCreator::Term.new(
         monthly_payment:                 amount + r_total_interests,
         monthly_payment_capital_share:   amount,
         monthly_payment_interests_share: r_total_interests,
@@ -29,7 +30,7 @@ module LoanCreator
         paid_interests:                  r_total_interests
       )
 
-      time_table
+      timetable
     end
 
     def total_payment(amount = amount_in_cents)
@@ -54,10 +55,10 @@ module LoanCreator
     #
     def _total_payment(amount)
       BigDecimal(amount, @@accuracy)
-                .mult(
-                  (BigDecimal(1, @@accuracy) +
-                  BigDecimal(monthly_interests_rate, @@accuracy)) **
-                  (BigDecimal(duration_in_months, @@accuracy)), @@accuracy)
+        .mult(
+          (BigDecimal(1, @@accuracy) +
+           BigDecimal(monthly_interests_rate, @@accuracy)) **
+          (BigDecimal(duration_in_months, @@accuracy)), @@accuracy)
     end
 
     # total_payment - Capital

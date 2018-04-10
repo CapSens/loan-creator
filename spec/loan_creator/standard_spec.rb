@@ -1,62 +1,72 @@
 require 'spec_helper'
 
 describe LoanCreator::Standard do
-  describe '#lender_time_table(borrowed)' do
-    loan = described_class.new(
-      amount_in_cents:       100_000 * 100,
-      annual_interests_rate: 10,
-      starts_at:             '2016-01-15',
-      duration_in_months:    48
-    )
+  describe '#lender_timetable(borrowed)' do
+    let!(:loan) do
+      described_class.new(
+        amount_in_cents:       100_000 * 100,
+        annual_interests_rate: 10,
+        starts_at:             '2016-01-15',
+        duration_in_months:    48
+      )
+    end
 
-    lender_one_tt   = loan.lender_time_table(10_000 * 100)
-    lender_two_tt   = loan.lender_time_table(6_547 * 100)
-    lender_three_tt = loan.lender_time_table(453 * 100)
+    let!(:lender_one) { loan.lender_timetable(10_000 * 100) }
+    let!(:lender_two) { loan.lender_timetable(6_547 * 100) }
+    let!(:lender_three) { loan.lender_timetable(453 * 100) }
 
-    context 'lender_one_tt' do
+    let!(:lender_one_terms) { lender_one.terms }
+    let!(:lender_two_terms) { lender_two.terms }
+    let!(:lender_three_terms) { lender_three.terms }
+
+    let!(:lender_one_all_except_last_term) { lender_one.terms[0...-1] }
+    let!(:lender_two_all_except_last_term) { lender_two.terms[0...-1] }
+    let!(:lender_three_all_except_last_term) { lender_three.terms[0...-1] }
+
+    context 'lender_one' do
       it 'has the same monthly payment on each term except last one' do
-        all_tt = lender_one_tt[0...-1].all? { |tt| tt.monthly_payment == 25_363 }
+        all_tt = lender_one_all_except_last_term.all? { |tt| tt.monthly_payment == 25_363 }
         expect(all_tt).to eql(true)
       end
 
       it 'calculates the last payment amount' do
-        expect(lender_one_tt.last.monthly_payment).to eql(25_344)
+        expect(lender_one_terms.last.monthly_payment).to eql(25_344)
       end
 
       it 'calculates the last payment capital share amount' do
-        expect(lender_one_tt.last.monthly_payment_capital_share).to eql(25_130)
+        expect(lender_one_terms.last.monthly_payment_capital_share).to eql(25_130)
       end
 
       it 'calculates the last payment interests share amount' do
-        expect(lender_one_tt.last.monthly_payment_interests_share).to eql(214)
+        expect(lender_one_terms.last.monthly_payment_interests_share).to eql(214)
       end
 
       it 'should pay capital in full' do
-        expect(lender_one_tt.last.paid_capital).to eql(1_000_000)
+        expect(lender_one_terms.last.paid_capital).to eql(1_000_000)
       end
 
       it 'should not have any remaining interests' do
-        expect(lender_one_tt.last.remaining_interests).to eql(0)
+        expect(lender_one_terms.last.remaining_interests).to eql(0)
       end
 
       it 'calculates total interests to pay' do
-        expect(lender_one_tt.last.paid_interests).to eql(217_405)
+        expect(lender_one_terms.last.paid_interests).to eql(217_405)
       end
 
       context 'pick 25th term' do
         it 'calculates the payment capital share amount' do
-          expect(lender_one_tt[24].monthly_payment_capital_share).to eql(20_783)
+          expect(lender_one_terms[24].monthly_payment_capital_share).to eql(20_783)
         end
 
         it 'calculates the payment interests share amount' do
-          expect(lender_one_tt[24].monthly_payment_interests_share).to eql(4_580)
+          expect(lender_one_terms[24].monthly_payment_interests_share).to eql(4_580)
         end
       end
     end
 
-    context 'lender_two_tt' do
+    context 'lender_two' do
       it 'has the same monthly payment on each term except last one' do
-        all_tt = lender_two_tt[0...-1].all? { |tt| tt.monthly_payment == 16_605 }
+        all_tt = lender_two_all_except_last_term.all? { |tt| tt.monthly_payment == 16_605 }
         expect(all_tt).to eql(true)
       end
 
@@ -65,95 +75,99 @@ describe LoanCreator::Standard do
       end
 
       it 'should pay capital in full' do
-        expect(lender_two_tt.last.paid_capital).to eql(654_700)
+        expect(lender_two_terms.last.paid_capital).to eql(654_700)
       end
 
       it 'should not have any remaining interests' do
-        expect(lender_two_tt.last.remaining_interests).to eql(0)
+        expect(lender_two_terms.last.remaining_interests).to eql(0)
       end
 
       it 'calculates total interests to pay' do
-        expect(lender_two_tt.last.paid_interests).to eql(142_335)
+        expect(lender_two_terms.last.paid_interests).to eql(142_335)
       end
 
       context 'pick 34th term' do
         it 'calculates the payment capital share amount' do
-          expect(lender_two_tt[33].monthly_payment_capital_share).to eql(14_661)
+          expect(lender_two_terms[33].monthly_payment_capital_share).to eql(14_661)
         end
 
         it 'calculates the payment interests share amount' do
-          expect(lender_two_tt[33].monthly_payment_interests_share).to eql(1_944)
+          expect(lender_two_terms[33].monthly_payment_interests_share).to eql(1_944)
         end
       end
     end
 
-    context 'lender_three_tt' do
+    context 'lender_three' do
       it 'has the same monthly payment on each term except last one' do
-        all_tt = lender_three_tt[0...-1].all? { |tt| tt.monthly_payment == 1_149 }
+        all_tt = lender_three_all_except_last_term.all? { |tt| tt.monthly_payment == 1_149 }
         expect(all_tt).to eql(true)
       end
 
       it 'calculates the last payment amount' do
-        expect(lender_three_tt.last.monthly_payment).to eql(1_146)
+        expect(lender_three_terms.last.monthly_payment).to eql(1_146)
       end
 
       it 'should pay capital in full' do
-        expect(lender_three_tt.last.paid_capital).to eql(45_300)
+        expect(lender_three_terms.last.paid_capital).to eql(45_300)
       end
 
       it 'should not have any remaining interests' do
-        expect(lender_three_tt.last.remaining_interests).to eql(0)
+        expect(lender_three_terms.last.remaining_interests).to eql(0)
       end
 
       it 'calculates total interests to pay' do
-        expect(lender_three_tt.last.paid_interests).to eql(9_849)
+        expect(lender_three_terms.last.paid_interests).to eql(9_849)
       end
 
       context 'pick 7th term' do
         it 'calculates the payment capital share amount' do
-          expect(lender_three_tt[6].monthly_payment_capital_share).to eql(811)
+          expect(lender_three_terms[6].monthly_payment_capital_share).to eql(811)
         end
 
         it 'calculates the payment interests share amount' do
-          expect(lender_three_tt[6].monthly_payment_interests_share).to eql(338)
+          expect(lender_three_terms[6].monthly_payment_interests_share).to eql(338)
         end
       end
     end
 
-    context 'lender_four_tt (deferred)' do
-      deferred_loan = described_class.new(
-        amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
-        starts_at:             '2016-01-15',
-        duration_in_months:    48,
-        deferred_in_months:    18
-      )
+    context 'lender_four (deferred)' do
+      let!(:deferred_loan) do
+        described_class.new(
+          amount_in_cents:       100_000 * 100,
+          annual_interests_rate: 10,
+          starts_at:             '2016-01-15',
+          duration_in_months:    48,
+          deferred_in_months:    18
+        )
+      end
 
-      lender_four_tt = deferred_loan.lender_time_table(68_633 * 100)
+      let!(:lender_four) { deferred_loan.lender_timetable(68_633 * 100) }
+      let!(:lender_four_terms) { lender_four.terms }
+
 
       it 'has the same monthly payment on each deferred term' do
-        all_tt = lender_four_tt[0...(deferred_loan.deferred_in_months - 1)].all? do |tt|
+        all_tt = lender_four_terms[0...(deferred_loan.deferred_in_months - 1)].all? do |tt|
           tt.monthly_payment == 57_194
         end
         expect(all_tt).to eql(true)
       end
 
       it 'should not pay any capital share during deferred period' do
-        expect(lender_four_tt[(deferred_loan.deferred_in_months - 1)]
+        expect(lender_four_terms[(deferred_loan.deferred_in_months - 1)]
           .remaining_capital).to eql(6_863_300)
       end
 
       it 'calculates paid interests at the end of the deferred period' do
-        expect(lender_four_tt[deferred_loan.deferred_in_months - 1]
+        expect(lender_four_terms[deferred_loan.deferred_in_months - 1]
           .paid_interests).to eql(1_029_492)
       end
 
       it 'calculates total interests to pay' do
-        expect(lender_four_tt.last.paid_interests).to eql(2_521_604)
+        expect(lender_four_terms.last.paid_interests).to eql(2_521_604)
       end
 
       it 'has the same monthly payment on each normal term except last one' do
-        all_tt = lender_four_tt[deferred_loan.deferred_in_months...-1].all? do |tt|
+        all_tt = lender_four_terms[deferred_loan.deferred_in_months...-1].all? do |tt|
           tt.monthly_payment == 174_071
         end
         expect(all_tt).to eql(true)
@@ -165,61 +179,63 @@ describe LoanCreator::Standard do
       end
 
       it 'should pay capital in full' do
-        expect(lender_four_tt.last.paid_capital).to eql(6_863_300)
+        expect(lender_four_terms.last.paid_capital).to eql(6_863_300)
       end
 
       it 'should not have any remaining interests' do
-        expect(lender_four_tt.last.remaining_interests).to eql(0)
+        expect(lender_four_terms.last.remaining_interests).to eql(0)
       end
     end
 
-    describe '#borrower_time_table(*args)' do
-      subject(:borrower_tt) do
-        loan.borrower_time_table(
-          lender_one_tt,
-          lender_two_tt,
-          lender_three_tt
+    describe '#borrower_timetable(*args)' do
+      subject do
+        loan.borrower_timetable(
+          lender_one,
+          lender_two,
+          lender_three
         )
       end
 
+      let(:terms) { subject.terms }
+
       it 'should raise ArgumentError if no arg is given' do
-        expect { loan.borrower_time_table }.to raise_error(ArgumentError)
+        expect { loan.borrower_timetable }.to raise_error(ArgumentError)
       end
 
       it 'should raise ArgumentError if one arg does not include only
-      LoanCreator::TimeTable objects' do
-        expect { loan.borrower_time_table([lender_one_tt, 'toto']) }
+      LoanCreator::Term objects' do
+        expect { loan.borrower_timetable([lender_one, 'toto']) }
           .to raise_error(ArgumentError)
       end
 
       it "returns 'duration_in_months' elements" do
-        expect(subject.size).to eql(loan.duration_in_months)
+        expect(terms.size).to eql(loan.duration_in_months)
       end
 
       it 'has the same monthly payment on each term except last one' do
-        all_tt = subject[0...-1].all? { |tt| tt.monthly_payment == 43_117 }
+        all_tt = terms[0...-1].all? { |tt| tt.monthly_payment == 43_117 }
         expect(all_tt).to eql(true)
       end
 
       it 'calculates the last payment amount' do
-        expect(subject.last.monthly_payment).to eql(43_090)
+        expect(terms.last.monthly_payment).to eql(43_090)
       end
 
       it 'should pay capital in full' do
-        expect(subject.last.paid_capital).to eql(1_700_000)
+        expect(terms.last.paid_capital).to eql(1_700_000)
       end
 
       it 'should not have any remaining interests' do
-        expect(subject.last.remaining_interests).to eql(0)
+        expect(terms.last.remaining_interests).to eql(0)
       end
 
       it 'calculates total interests to pay' do
-        expect(subject.last.paid_interests).to eql(369_589)
+        expect(terms.last.paid_interests).to eql(369_589)
       end
     end
   end
 
-  describe '#time_table' do
+  describe '#lender_timetable' do
     # The loan
     subject(:loan) do
       described_class.new(
@@ -245,13 +261,13 @@ describe LoanCreator::Standard do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:time_tables) { subject.time_table }
+    let(:terms) { subject.lender_timetable.terms }
 
     # Time tables array except last term
-    let(:all_except_last_term) { time_tables[0...-1] }
+    let(:all_except_last_term) { terms[0...-1] }
 
     it "returns 'duration_in_months' elements" do
-      expect(time_tables.size).to eql(duration_in_months)
+      expect(terms.size).to eql(duration_in_months)
     end
 
     describe '#calc_monthly_payment(amount, duration)' do
@@ -305,7 +321,7 @@ describe LoanCreator::Standard do
     end
 
     it 'calculates the last monthly payment capital share' do
-      expect(time_tables.last.monthly_payment).to eql(461_456)
+      expect(terms.last.monthly_payment).to eql(461_456)
     end
   end
 
@@ -337,10 +353,10 @@ describe LoanCreator::Standard do
     let(:total_interests) { subject.total_interests }
 
     # Time tables array (full loan)
-    let(:time_tables) { subject.time_table }
+    let(:terms) { subject.lender_timetable.terms }
 
     it "returns 'duration_in_months + deferred_in_months' elements" do
-      expect(time_tables.size).to eql(duration_in_months + deferred_in_months)
+      expect(terms.size).to eql(duration_in_months + deferred_in_months)
     end
   end
 

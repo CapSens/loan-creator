@@ -1,5 +1,6 @@
 require 'date'
 require 'bigdecimal'
+
 # round towards the nearest neighbor, unless both neighbors are
 # equidistant, in which case round towards the even neighbor
 # (Bank rounding)
@@ -15,8 +16,13 @@ module LoanCreator
                   :duration_in_months,
                   :deferred_in_months
 
-    def initialize(amount_in_cents:, annual_interests_rate:,
-      starts_at:, duration_in_months:, deferred_in_months: 0)
+    def initialize(
+          amount_in_cents:,
+          annual_interests_rate:,
+          starts_at:,
+          duration_in_months:,
+          deferred_in_months: 0
+        )
       @amount_in_cents       = amount_in_cents
       @annual_interests_rate = annual_interests_rate
       @starts_at             = starts_at
@@ -34,29 +40,27 @@ module LoanCreator
       @monthly_interests_rate ||= _monthly_interests_rate
     end
 
-    def lender_time_table(_amount)
+    def lender_timetable(_amount = amount_in_cents)
       raise NotImplementedError
     end
 
-    def time_table
-      lender_time_table(amount_in_cents)
-    end
+    def borrower_timetable(*timetables)
+      raise ArgumentError.new('At least one LoanCreator::Timetable expected') unless timetables.length > 0
 
-    def borrower_time_table(*args) # each arg sould be an array of time tables
-      raise ArgumentError, 'borrower_time_table method expects at least one argument' if args.length <= 0
-
-      args.each do |arg|
-        check = arg.all? { |tt| tt.is_a?(LoanCreator::TimeTable) }
-        raise ArgumentError, 'wrong type of argument' unless check
+      timetables.each do |timetable|
+        raise ArgumentError.new('Array of LoanCreator::Timetable expected') unless LoanCreator::Timetable === timetable
       end
 
       # group each element regarding its position (the term number)
       # first array has now each first time table, etc.
-      transposed_args = args.transpose
-      time_table      = []
+      transposed_timetables = timetables.map(&:terms).transpose
+      timetable = LoanCreator::Timetable.new(
+        starts_at: @starts_at,
+        period: { months: 1 }
+      )
 
       # for each array of time tables, sum each required element
-      transposed_args.each do |arr|
+      transposed_timetables.each do |arr|
         total_monthly_pay       = arr.inject(0) { |sum, tt| sum + tt.monthly_payment }
         mth_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_capital_share }
         mth_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_interests_share }
@@ -65,8 +69,7 @@ module LoanCreator
         remaining_interests     = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
         paid_interests          = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
 
-        time_table << LoanCreator::TimeTable.new(
-          term:                            arr.first.term,
+        timetable << LoanCreator::Term.new(
           monthly_payment:                 total_monthly_pay,
           monthly_payment_capital_share:   mth_pay_capital_share,
           monthly_payment_interests_share: mth_pay_interests_share,
@@ -77,7 +80,7 @@ module LoanCreator
         )
       end
 
-      time_table
+      timetable
     end
 
     def financial_diff(value)
@@ -110,7 +113,7 @@ module LoanCreator
     #
     def _monthly_interests_rate
       BigDecimal(annual_interests_rate, @@accuracy)
-                .div(BigDecimal(1200, @@accuracy), @@accuracy)
+        .div(BigDecimal(1200, @@accuracy), @@accuracy)
     end
   end
 end
