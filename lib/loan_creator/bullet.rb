@@ -1,7 +1,7 @@
 module LoanCreator
   class Bullet < LoanCreator::Common
 
-    def lender_timetable(amount)
+    def lender_timetable(amount = amount_in_cents)
       timetable = LoanCreator::Timetable.new(
         starts_at: @starts_at,
         period: { months: 1 }

@@ -203,7 +203,7 @@ describe LoanCreator::InFine do
     let(:total_interests) { subject.total_interests.round }
 
     # Time tables array (full loan)
-    let(:terms) { subject.lender_timetable(amount_in_cents).terms }
+    let(:terms) { subject.lender_timetable.terms }
 
     # Time tables array except last term
     let(:all_except_last_term) { terms[0...-1] }
