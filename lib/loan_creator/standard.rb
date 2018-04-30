@@ -60,13 +60,13 @@ module LoanCreator
       last_interests_payment =
         (remaining_capital * self.monthly_interests_rate).round
 
-      last_capital_payment =
-        (last_payment - last_interests_payment).round
+      # last_capital_payment =
+      #   (last_payment - last_interests_payment).round
 
-      remaining_capital -= last_capital_payment
+      # remaining_capital -= last_capital_payment
 
-      last_interests_payment -= remaining_capital
-      last_capital_payment   += remaining_capital
+      # last_interests_payment -= remaining_capital
+      last_capital_payment   = remaining_capital
 
       calc_paid_capital   += last_capital_payment
       calc_remaining_int  -= last_interests_payment
