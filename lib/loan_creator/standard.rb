@@ -3,7 +3,6 @@ module LoanCreator
 
     def lender_time_table(amount)
       round_mth_payment   = self.rounded_monthly_payment(amount)
-      last_payment        = self.last_payment(amount)
       total_payment       = self.total_adjusted_payment(amount)
       time_table          = []
       remaining_capital   = amount.round
@@ -12,7 +11,7 @@ module LoanCreator
       calc_paid_interests = 0
 
       # starts with deferred time tables if any
-      defer_r_mth_pay = self.rounded_monthly_interests(amount)
+      defer_r_mth_pay = self.rounded_monthly_interests(amount).freeze
 
       self.deferred_in_months.times do |term|
         calc_remaining_int  -= defer_r_mth_pay
@@ -59,6 +58,8 @@ module LoanCreator
 
       last_interests_payment =
         (remaining_capital * self.monthly_interests_rate).round
+
+      last_payment = last_interests_payment + remaining_capital
 
       # last_capital_payment =
       #   (last_payment - last_interests_payment).round
