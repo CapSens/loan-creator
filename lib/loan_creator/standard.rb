@@ -91,7 +91,7 @@ module LoanCreator
 
     def calc_total_payment(amount)
       calc_periodic_payment(amount)
-        .mult(BigDecimal(duration_in_periods, @@accuracy), @@accuracy)
+        .mult(BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS), BIG_DECIMAL_DIGITS)
     end
 
     def rounded_periodic_payment(amount)
@@ -100,7 +100,7 @@ module LoanCreator
 
     def total_rounded_payment(amount)
       (rounded_periodic_payment(amount) *
-        BigDecimal(duration_in_periods, @@accuracy)).round
+        BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)).round
     end
 
     def total_adjusted_interests(amount)
@@ -160,39 +160,39 @@ module LoanCreator
     #
     def _calc_periodic_payment(amount, duration)
       if periodic_interests_rate == 0
-        return BigDecimal(amount, @@accuracy).div(BigDecimal(duration, @@accuracy), @@accuracy)
+        return BigDecimal(amount, BIG_DECIMAL_DIGITS).div(BigDecimal(duration, BIG_DECIMAL_DIGITS), BIG_DECIMAL_DIGITS)
       end
 
-      denominator = (BigDecimal(1, @@accuracy) -
-        ((BigDecimal(1, @@accuracy) + periodic_interests_rate) **
-        ((BigDecimal(-1, @@accuracy))
-        .mult(BigDecimal(duration, @@accuracy), @@accuracy))))
+      denominator = (BigDecimal(1, BIG_DECIMAL_DIGITS) -
+        ((BigDecimal(1, BIG_DECIMAL_DIGITS) + periodic_interests_rate) **
+        ((BigDecimal(-1, BIG_DECIMAL_DIGITS))
+        .mult(BigDecimal(duration, BIG_DECIMAL_DIGITS), BIG_DECIMAL_DIGITS))))
 
-      BigDecimal(amount, @@accuracy)
-        .mult(periodic_interests_rate, @@accuracy)
-        .div(denominator, @@accuracy)
+      BigDecimal(amount, BIG_DECIMAL_DIGITS)
+        .mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
+        .div(denominator, BIG_DECIMAL_DIGITS)
     end
 
     # total_terms * calc_periodic_payment
     #
     def _total_payment
-      BigDecimal(duration_in_periods, @@accuracy)
-        .mult((calc_periodic_payment).round, @@accuracy) +
-        BigDecimal(deferred_in_periods, @@accuracy)
-        .mult(periodic_interests(amount_in_cents), @@accuracy)
+      BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)
+        .mult((calc_periodic_payment).round, BIG_DECIMAL_DIGITS) +
+        BigDecimal(deferred_in_periods, BIG_DECIMAL_DIGITS)
+        .mult(periodic_interests(amount_in_cents), BIG_DECIMAL_DIGITS)
     end
 
     # calc_total_payment - amount_in_cents
     #
     def _total_interests
-      total_payment - BigDecimal(amount_in_cents, @@accuracy)
+      total_payment - BigDecimal(amount_in_cents, BIG_DECIMAL_DIGITS)
     end
 
     # Capital (arg) * periodic_interests_rate
     #
     def _periodic_interests(amount)
-      BigDecimal(amount, @@accuracy)
-        .mult(periodic_interests_rate, @@accuracy)
+      BigDecimal(amount, BIG_DECIMAL_DIGITS)
+        .mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
     end
 
     # periodic_interests * deferred_in_periods
@@ -200,7 +200,7 @@ module LoanCreator
     def _deferred_total_interests(amount)
       return 0 unless deferred_in_periods > 0
       periodic_interests(amount)
-        .mult(BigDecimal(deferred_in_periods, @@accuracy), @@accuracy)
+        .mult(BigDecimal(deferred_in_periods, BIG_DECIMAL_DIGITS), BIG_DECIMAL_DIGITS)
     end
 
     # rounded_periodic_interests * deferred_in_periods
