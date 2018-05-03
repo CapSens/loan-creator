@@ -73,22 +73,22 @@ module LoanCreator
     # Capital * periodic_interests_rate
     #
     def _periodic_interests(amount)
-      BigDecimal(amount, @@accuracy)
-        .mult(periodic_interests_rate, @@accuracy)
+      BigDecimal(amount, BIG_DECIMAL_DIGITS)
+        .mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
     end
 
     # total_terms * periodic_interests
     #
     def _total_interests(amount)
-      BigDecimal(duration_in_periods, @@accuracy)
-        .mult(periodic_interests(amount), @@accuracy)
+      BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)
+        .mult(periodic_interests(amount), BIG_DECIMAL_DIGITS)
     end
 
     # total_terms * rounded_periodic_interests
     #
     def _total_rounded_interests(amount)
-      BigDecimal(duration_in_periods, @@accuracy)
-        .mult(rounded_periodic_interests(amount), @@accuracy).round
+      BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)
+        .mult(rounded_periodic_interests(amount), BIG_DECIMAL_DIGITS).round
     end
 
     # total_rounded_interests - total_interests
