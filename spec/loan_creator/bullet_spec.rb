@@ -7,7 +7,7 @@ describe LoanCreator::Bullet do
         amount_in_cents:       100_000 * 100,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
-        duration_in_months:    48
+        duration_in_periods:    48
       )
     end
 
@@ -25,12 +25,12 @@ describe LoanCreator::Bullet do
 
     context 'lender_one_terms' do
       it 'does not pay interests before last term' do
-        all_tt = lender_one_all_except_last_term.all? { |tt| tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_one_all_except_last_term.all? { |tt| tt.periodic_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_one_all_except_last_term.all? { |tt| tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_one_all_except_last_term.all? { |tt| tt.periodic_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -55,7 +55,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'calculates the last interests payment amount' do
-        expect(lender_one_terms.last.monthly_payment_interests_share)
+        expect(lender_one_terms.last.periodic_payment_interests_share)
           .to eql(489_355)
       end
 
@@ -64,19 +64,19 @@ describe LoanCreator::Bullet do
       end
 
       it 'pays the capital in full on last term' do
-        expect(lender_one_terms.last.monthly_payment_capital_share)
+        expect(lender_one_terms.last.periodic_payment_capital_share)
           .to eql(1_000_000)
       end
     end
 
     context 'lender_two_terms' do
       it 'does not pay interests before last term' do
-        all_tt = lender_two_all_except_last_term.all? { |tt| tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_two_all_except_last_term.all? { |tt| tt.periodic_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_two_all_except_last_term.all? { |tt| tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_two_all_except_last_term.all? { |tt| tt.periodic_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -101,7 +101,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'calculates the last interests payment amount' do
-        expect(lender_two_terms.last.monthly_payment_interests_share)
+        expect(lender_two_terms.last.periodic_payment_interests_share)
           .to eql(320_381)
       end
 
@@ -110,19 +110,19 @@ describe LoanCreator::Bullet do
       end
 
       it 'pays the capital in full on last term' do
-        expect(lender_two_terms.last.monthly_payment_capital_share)
+        expect(lender_two_terms.last.periodic_payment_capital_share)
           .to eql(654_700)
       end
     end
 
     context 'lender_three_terms' do
       it 'does not pay interests before last term' do
-        all_tt = lender_three_all_except_last_term.all? { |tt| tt.monthly_payment_interests_share == 0 }
+        all_tt = lender_three_all_except_last_term.all? { |tt| tt.periodic_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = lender_three_all_except_last_term.all? { |tt| tt.monthly_payment_capital_share == 0 }
+        all_tt = lender_three_all_except_last_term.all? { |tt| tt.periodic_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -147,7 +147,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'calculates the last interests payment amount' do
-        expect(lender_three_terms.last.monthly_payment_interests_share)
+        expect(lender_three_terms.last.periodic_payment_interests_share)
           .to eql(22_168)
       end
 
@@ -156,7 +156,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'pays the capital in full on last term' do
-        expect(lender_three_terms.last.monthly_payment_capital_share)
+        expect(lender_three_terms.last.periodic_payment_capital_share)
           .to eql(45_300)
       end
     end
@@ -182,12 +182,12 @@ describe LoanCreator::Bullet do
       end
 
       it 'does not pay interests before last term' do
-        all_tt = all_but_last_term.all? { |tt| tt.monthly_payment_interests_share == 0 }
+        all_tt = all_but_last_term.all? { |tt| tt.periodic_payment_interests_share == 0 }
         expect(all_tt).to eql(true)
       end
 
       it 'does not repay capital before last term' do
-        all_tt = all_but_last_term.all? { |tt| tt.monthly_payment_capital_share == 0 }
+        all_tt = all_but_last_term.all? { |tt| tt.periodic_payment_capital_share == 0 }
         expect(all_tt).to eql(true)
       end
 
@@ -212,7 +212,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'calculates the last interests payment amount' do
-        expect(subject.terms.last.monthly_payment_interests_share)
+        expect(subject.terms.last.periodic_payment_interests_share)
           .to eql(831_904)
       end
 
@@ -221,7 +221,7 @@ describe LoanCreator::Bullet do
       end
 
       it 'pays the capital in full on last term' do
-        expect(subject.terms.last.monthly_payment_capital_share)
+        expect(subject.terms.last.periodic_payment_capital_share)
           .to eql(1_700_000)
       end
     end
@@ -234,12 +234,12 @@ describe LoanCreator::Bullet do
         amount_in_cents:       amount_in_cents,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
-        duration_in_months:    duration_in_months
+        duration_in_periods:    duration_in_periods
       )
     end
 
     # Duration of the loan
-    let(:duration_in_months) { 24 }
+    let(:duration_in_periods) { 24 }
 
     # Loan amount
     let(:amount_in_cents) { 100_000 * 100 }
@@ -253,13 +253,13 @@ describe LoanCreator::Bullet do
     # Time tables array except last term
     let(:all_except_last_term) { terms[0...-1] }
 
-    it "returns 'duration_in_months' elements" do
-      expect(terms.size).to eql(duration_in_months)
+    it "returns 'duration_in_periods' elements" do
+      expect(terms.size).to eql(duration_in_periods)
     end
 
     describe 'all but last time table' do
-      %i[monthly_payment monthly_payment_capital_share
-         monthly_payment_interests_share paid_capital paid_interests].each do |arg|
+      %i[periodic_payment periodic_payment_capital_share
+         periodic_payment_interests_share paid_capital paid_interests].each do |arg|
         it "has the same amount equal to zero for #{arg}" do
           all_zero = all_except_last_term.all? { |tt| tt.send(arg) == 0 }
           expect(all_zero).to eql(true)
@@ -281,21 +281,21 @@ describe LoanCreator::Bullet do
       let(:last_term) { loan.lender_timetable.terms.last }
 
       it 'is the last term' do
-        expect(last_term.index).to eql(duration_in_months)
+        expect(last_term.index).to eql(duration_in_periods)
       end
 
-      it 'has a monthly payment which is the sum of the
+      it 'has a periodic payment which is the sum of the
       remaining interests + the capital' do
-        expect(last_term.monthly_payment)
+        expect(last_term.periodic_payment)
           .to eql(total_interests + amount_in_cents)
       end
 
-      it 'has a monthly payment capital share equal to loan amount' do
-        expect(last_term.monthly_payment_capital_share).to eql(amount_in_cents)
+      it 'has a periodic payment capital share equal to loan amount' do
+        expect(last_term.periodic_payment_capital_share).to eql(amount_in_cents)
       end
 
-      it 'has a monthly payment interests share equal to total interests' do
-        expect(last_term.monthly_payment_interests_share).to eql(total_interests)
+      it 'has a periodic payment interests share equal to total interests' do
+        expect(last_term.periodic_payment_interests_share).to eql(total_interests)
       end
 
       it 'has a remaining capital equal to zero' do
@@ -322,7 +322,7 @@ describe LoanCreator::Bullet do
         amount_in_cents:       100_000 * 100,
         annual_interests_rate: 10,
         starts_at:             '2016-01-15',
-        duration_in_months:    24
+        duration_in_periods:    24
       ).rounded_total_interests
 
       expect(rounded_total_interests).to eql(2_203_910)
@@ -333,7 +333,7 @@ describe LoanCreator::Bullet do
         amount_in_cents:       350_456_459 * 100,
         annual_interests_rate: 7.63,
         starts_at:             '2016-01-15',
-        duration_in_months:    17
+        duration_in_periods:    17
       ).rounded_total_interests
 
       expect(rounded_total_interests).to eql(3_987_096_998)

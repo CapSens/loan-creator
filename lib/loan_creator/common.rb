@@ -13,31 +13,33 @@ module LoanCreator
     attr_accessor :amount_in_cents,
                   :annual_interests_rate,
                   :starts_at,
-                  :duration_in_months,
-                  :deferred_in_months
+                  :duration_in_periods,
+                  :deferred_in_periods
 
     def initialize(
           amount_in_cents:,
           annual_interests_rate:,
           starts_at:,
-          duration_in_months:,
-          deferred_in_months: 0
+          duration_in_periods:,
+          deferred_in_periods: 0
         )
       @amount_in_cents       = amount_in_cents
       @annual_interests_rate = annual_interests_rate
       @starts_at             = starts_at
-      @duration_in_months    = duration_in_months
-      @deferred_in_months    = deferred_in_months
+      @duration_in_periods   = duration_in_periods
+      @deferred_in_periods   = deferred_in_periods
       @@accuracy             = 14
     end
 
-    def end_date
-      Date.parse(@starts_at).next_month(@duration_in_months)
-    end
+    # def end_date # TODO: should get timetable.terms.last.date instead
+    #   d = Date.parse(@starts_at)
+    #   @duration_in_periods.times { d = d.advance(@period) }
+    #   d
+    # end
 
-    # returns precise monthly interests rate
-    def monthly_interests_rate
-      @monthly_interests_rate ||= _monthly_interests_rate
+    # returns precise periodic interests rate
+    def periodic_interests_rate
+      @periodic_interests_rate ||= _periodic_interests_rate
     end
 
     def lender_timetable(_amount = amount_in_cents)
@@ -61,22 +63,22 @@ module LoanCreator
 
       # for each array of time tables, sum each required element
       transposed_timetables.each do |arr|
-        total_monthly_pay       = arr.inject(0) { |sum, tt| sum + tt.monthly_payment }
-        mth_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_capital_share }
-        mth_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.monthly_payment_interests_share }
-        remaining_capital       = arr.inject(0) { |sum, tt| sum + tt.remaining_capital }
-        paid_capital            = arr.inject(0) { |sum, tt| sum + tt.paid_capital }
-        remaining_interests     = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
-        paid_interests          = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
+        total_periodic_pay         = arr.inject(0) { |sum, tt| sum + tt.periodic_payment }
+        period_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_capital_share }
+        period_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_interests_share }
+        remaining_capital          = arr.inject(0) { |sum, tt| sum + tt.remaining_capital }
+        paid_capital               = arr.inject(0) { |sum, tt| sum + tt.paid_capital }
+        remaining_interests        = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
+        paid_interests             = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
 
         timetable << LoanCreator::Term.new(
-          monthly_payment:                 total_monthly_pay,
-          monthly_payment_capital_share:   mth_pay_capital_share,
-          monthly_payment_interests_share: mth_pay_interests_share,
-          remaining_capital:               remaining_capital,
-          paid_capital:                    paid_capital,
-          remaining_interests:             remaining_interests,
-          paid_interests:                  paid_interests
+          periodic_payment:                 total_periodic_pay,
+          periodic_payment_capital_share:   period_pay_capital_share,
+          periodic_payment_interests_share: period_pay_interests_share,
+          remaining_capital:                remaining_capital,
+          paid_capital:                     paid_capital,
+          remaining_interests:              remaining_interests,
+          paid_interests:                   paid_interests
         )
       end
 
@@ -109,9 +111,9 @@ module LoanCreator
 
     #   annual_interests_rate
     # ________________________  (div by 100 as percentage and by 12
-    #         1200               for the monthly frequency, so 1200)
+    #         1200               for the periodic frequency, so 1200)
     #
-    def _monthly_interests_rate
+    def _periodic_interests_rate
       BigDecimal(annual_interests_rate, @@accuracy)
         .div(BigDecimal(1200, @@accuracy), @@accuracy)
     end
