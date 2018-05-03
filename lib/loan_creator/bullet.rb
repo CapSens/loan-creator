@@ -8,26 +8,26 @@ module LoanCreator
       )
       r_total_interests = rounded_total_interests(amount)
 
-      (duration_in_months - 1).times do |term_idx|
+      (duration_in_periods - 1).times do |term_idx|
         timetable << LoanCreator::Term.new(
-          monthly_payment:                 0,
-          monthly_payment_capital_share:   0,
-          monthly_payment_interests_share: 0,
-          remaining_capital:               amount,
-          paid_capital:                    0,
-          remaining_interests:             r_total_interests,
-          paid_interests:                  0
+          periodic_payment:                 0,
+          periodic_payment_capital_share:   0,
+          periodic_payment_interests_share: 0,
+          remaining_capital:                amount,
+          paid_capital:                     0,
+          remaining_interests:              r_total_interests,
+          paid_interests:                   0
         )
       end
 
       timetable << LoanCreator::Term.new(
-        monthly_payment:                 amount + r_total_interests,
-        monthly_payment_capital_share:   amount,
-        monthly_payment_interests_share: r_total_interests,
-        remaining_capital:               0,
-        paid_capital:                    amount,
-        remaining_interests:             0,
-        paid_interests:                  r_total_interests
+        periodic_payment:                 amount + r_total_interests,
+        periodic_payment_capital_share:   amount,
+        periodic_payment_interests_share: r_total_interests,
+        remaining_capital:                0,
+        paid_capital:                     amount,
+        remaining_interests:              0,
+        paid_interests:                   r_total_interests
       )
 
       timetable
@@ -51,14 +51,14 @@ module LoanCreator
 
     private
 
-    #   Capital * (monthly_interests_rate ^(total_terms))
+    #   Capital * (periodic_interests_rate ^(total_terms))
     #
     def _total_payment(amount)
       BigDecimal(amount, @@accuracy)
         .mult(
           (BigDecimal(1, @@accuracy) +
-           BigDecimal(monthly_interests_rate, @@accuracy)) **
-          (BigDecimal(duration_in_months, @@accuracy)), @@accuracy)
+           BigDecimal(periodic_interests_rate, @@accuracy)) **
+          (BigDecimal(duration_in_periods, @@accuracy)), @@accuracy)
     end
 
     # total_payment - Capital

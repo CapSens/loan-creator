@@ -1,8 +1,11 @@
+# coding: utf-8
 module LoanCreator
   class Timetable
     DEFAULT_PERIOD = { months: 1 }.freeze
 
     attr_reader :terms, :starts_at, :period
+
+    #TODO: assert nb_periods/periodicité (si annuel, forcément multiple de 12 mois)
 
     def initialize(starts_at:, period: DEFAULT_PERIOD)
       @terms = []
@@ -31,7 +34,7 @@ module LoanCreator
 
     private
 
-    ACTIVESUPPORT_DATE_ADVANCE_KEYS_WHITELIST = %i[days weeks months years].freeze
+    ACTIVESUPPORT_DATE_ADVANCE_KEYS_WHITELIST = %i[months].freeze
 
     # First term index of a timetable term is 1
     def autoincrement_index

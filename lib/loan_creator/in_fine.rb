@@ -12,48 +12,48 @@ module LoanCreator
         period: { months: 1 }
       )
       calc_paid_interests = 0
-      r_monthly_interests = rounded_monthly_interests(amount)
+      r_periodic_interests = rounded_periodic_interests(amount)
       rounded_total_interests -= diff
 
-      (duration_in_months - 1).times do
-        calc_paid_interests += r_monthly_interests
-        rounded_total_interests -= r_monthly_interests
+      (duration_in_periods - 1).times do
+        calc_paid_interests += r_periodic_interests
+        rounded_total_interests -= r_periodic_interests
 
         timetable << LoanCreator::Term.new(
-          monthly_payment:                 r_monthly_interests,
-          monthly_payment_capital_share:   0,
-          monthly_payment_interests_share: r_monthly_interests,
-          remaining_capital:               amount,
-          paid_capital:                    0,
-          remaining_interests:             rounded_total_interests,
-          paid_interests:                  calc_paid_interests
+          periodic_payment:                 r_periodic_interests,
+          periodic_payment_capital_share:   0,
+          periodic_payment_interests_share: r_periodic_interests,
+          remaining_capital:                amount,
+          paid_capital:                     0,
+          remaining_interests:              rounded_total_interests,
+          paid_interests:                   calc_paid_interests
         )
       end
 
-      last_interests_payment = r_monthly_interests - diff
+      last_interests_payment = r_periodic_interests - diff
       calc_paid_interests += last_interests_payment
       rounded_total_interests -= last_interests_payment
       last_payment = last_interests_payment + amount
 
       timetable << LoanCreator::Term.new(
-        monthly_payment:                 last_payment,
-        monthly_payment_capital_share:   amount,
-        monthly_payment_interests_share: last_interests_payment,
-        remaining_capital:               0,
-        paid_capital:                    amount,
-        remaining_interests:             rounded_total_interests,
-        paid_interests:                  calc_paid_interests
+        periodic_payment:                 last_payment,
+        periodic_payment_capital_share:   amount,
+        periodic_payment_interests_share: last_interests_payment,
+        remaining_capital:                0,
+        paid_capital:                     amount,
+        remaining_interests:              rounded_total_interests,
+        paid_interests:                   calc_paid_interests
       )
 
       timetable
     end
 
-    def monthly_interests(amount = amount_in_cents)
-      _monthly_interests(amount)
+    def periodic_interests(amount = amount_in_cents)
+      _periodic_interests(amount)
     end
 
-    def rounded_monthly_interests(amount = amount_in_cents)
-      monthly_interests(amount).round
+    def rounded_periodic_interests(amount = amount_in_cents)
+      periodic_interests(amount).round
     end
 
     def total_interests(amount = amount_in_cents)
@@ -70,25 +70,25 @@ module LoanCreator
 
     private
 
-    # Capital * monthly_interests_rate
+    # Capital * periodic_interests_rate
     #
-    def _monthly_interests(amount)
+    def _periodic_interests(amount)
       BigDecimal(amount, @@accuracy)
-        .mult(monthly_interests_rate, @@accuracy)
+        .mult(periodic_interests_rate, @@accuracy)
     end
 
-    # total_terms * monthly_interests
+    # total_terms * periodic_interests
     #
     def _total_interests(amount)
-      BigDecimal(duration_in_months, @@accuracy)
-        .mult(monthly_interests(amount), @@accuracy)
+      BigDecimal(duration_in_periods, @@accuracy)
+        .mult(periodic_interests(amount), @@accuracy)
     end
 
-    # total_terms * rounded_monthly_interests
+    # total_terms * rounded_periodic_interests
     #
     def _total_rounded_interests(amount)
-      BigDecimal(duration_in_months, @@accuracy)
-        .mult(rounded_monthly_interests(amount), @@accuracy).round
+      BigDecimal(duration_in_periods, @@accuracy)
+        .mult(rounded_periodic_interests(amount), @@accuracy).round
     end
 
     # total_rounded_interests - total_interests
