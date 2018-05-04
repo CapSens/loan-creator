@@ -8,8 +8,8 @@ module LoanCreator
       diff = precise_diff.round
 
       timetable = LoanCreator::Timetable.new(
-        starts_at: @starts_at,
-        period: { months: 1 }
+        starts_at: starts_at,
+        period: period
       )
       calc_paid_interests = 0
       r_periodic_interests = rounded_periodic_interests(amount)

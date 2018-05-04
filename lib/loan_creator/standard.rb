@@ -4,8 +4,8 @@ module LoanCreator
       round_periodic_payment = rounded_periodic_payment(amount)
       last_payment = last_payment(amount)
       timetable = LoanCreator::Timetable.new(
-        starts_at: @starts_at,
-        period: { months: 1 }
+        starts_at: starts_at,
+        period: period
       )
       remaining_capital   = amount.round
       calc_paid_capital   = 0

@@ -14,8 +14,9 @@ describe LoanCreator::InFine do
     it do
       cases.each do |c|
         lend = described_class.new(
+          period:                :month,
           amount_in_cents:       c[0],
-          annual_interests_rate: c[1],
+          annual_interests_rate: BigDecimal.new(c[1]),
           starts_at:             c[2],
           duration_in_periods:    c[3]
         )
@@ -28,8 +29,9 @@ describe LoanCreator::InFine do
   describe '#lender_timetable(borrowed)' do
     let!(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    48
       )
@@ -183,8 +185,9 @@ describe LoanCreator::InFine do
     # The loan
     subject(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       amount_in_cents,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    duration_in_periods
       )
@@ -227,8 +230,9 @@ describe LoanCreator::InFine do
     describe '#total_interests' do
       it 'has the expected value - example one' do
         total_interests = described_class.new(
+          period:                :month,
           amount_in_cents:       100_000 * 100,
-          annual_interests_rate: 10,
+          annual_interests_rate: BigDecimal.new(10),
           starts_at:             '2016-01-15',
           duration_in_periods:    24
         ).total_interests.round
@@ -238,8 +242,9 @@ describe LoanCreator::InFine do
 
       it 'has the expected value - example two' do
         total_interests = described_class.new(
+          period:                :month,
           amount_in_cents:       350_456_459 * 100,
-          annual_interests_rate: 7.63,
+          annual_interests_rate: BigDecimal.new(7.63, LoanCreator::BIG_DECIMAL_DIGITS),
           starts_at:             '2016-01-15',
           duration_in_periods:    17
         ).total_interests.round
@@ -251,8 +256,9 @@ describe LoanCreator::InFine do
     describe '#total_rounded_interests' do
       it 'has a predicted difference - example one' do
         total_interests = described_class.new(
+          period:                :month,
           amount_in_cents:       100_000 * 100,
-          annual_interests_rate: 10,
+          annual_interests_rate: BigDecimal.new(10),
           starts_at:             '2016-01-15',
           duration_in_periods:    24
         ).total_rounded_interests
@@ -262,8 +268,9 @@ describe LoanCreator::InFine do
 
       it 'has a predicted difference - example two' do
         total_interests = described_class.new(
+          period:                :month,
           amount_in_cents:       350_456_459 * 100,
-          annual_interests_rate: 7.63,
+          annual_interests_rate: BigDecimal.new(7.63, LoanCreator::BIG_DECIMAL_DIGITS),
           starts_at:             '2016-01-15',
           duration_in_periods:    17
         ).total_rounded_interests
