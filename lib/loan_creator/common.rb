@@ -18,6 +18,7 @@ module LoanCreator
     ].freeze
 
     OPTIONAL_ATTRIBUTES = {
+      # attribute: default_value
       deferred_in_periods: 0
     }.freeze
 
