@@ -1,101 +1,83 @@
-require 'date'
-require 'bigdecimal'
-
-# round towards the nearest neighbor, unless both neighbors are
-# equidistant, in which case round towards the even neighbor
-# (Bank rounding)
-# usage of BigDecimal method: div(value, digits)
-# usage of BigDecimal method: mult(value, digits)
-BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
-
 module LoanCreator
   class Common
-    attr_accessor :amount_in_cents,
-                  :annual_interests_rate,
-                  :starts_at,
-                  :duration_in_periods,
-                  :deferred_in_periods
+    include BorrowerTimetable
 
-    def initialize(
-          amount_in_cents:,
-          annual_interests_rate:,
-          starts_at:,
-          duration_in_periods:,
-          deferred_in_periods: 0
-        )
-      @amount_in_cents       = amount_in_cents
-      @annual_interests_rate = annual_interests_rate
-      @starts_at             = starts_at
-      @duration_in_periods   = duration_in_periods
-      @deferred_in_periods   = deferred_in_periods
-      @@accuracy             = 14
+    PERIODS_IN_MONTHS = {
+      month: 1,
+      quarter: 4,
+      semester: 2,
+      annual: 12
+    }.freeze
+
+    REQUIRED_ATTRIBUTES = [
+      :period,
+      :amount_in_cents,
+      :annual_interests_rate,
+      :starts_at,
+      :duration_in_periods
+    ].freeze
+
+    OPTIONAL_ATTRIBUTES = {
+      deferred_in_periods: 0
+    }.freeze
+
+    attr_reader *REQUIRED_ATTRIBUTES
+    attr_reader *OPTIONAL_ATTRIBUTES.keys
+
+    def initialize(**options)
+      @options = options
+      require_attributes
+      set_attributes
+      validate_attributes
     end
 
-    # def end_date # TODO: should get timetable.terms.last.date instead
-    #   d = Date.parse(@starts_at)
-    #   @duration_in_periods.times { d = d.advance(@period) }
-    #   d
-    # end
+    def periodic_interests_rate_percentage
+      @periodic_interests_rate_percentage ||=
+        annual_interests_rate.div((12 / PERIODS_IN_MONTHS[period]), BIG_DECIMAL_DIGITS)
+    end
 
-    # returns precise periodic interests rate
     def periodic_interests_rate
-      @periodic_interests_rate ||= _periodic_interests_rate
+      @periodic_interests_rate ||=
+        periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
     end
 
     def lender_timetable(_amount = amount_in_cents)
       raise NotImplementedError
     end
 
-    def borrower_timetable(*timetables)
-      raise ArgumentError.new('At least one LoanCreator::Timetable expected') unless timetables.length > 0
-
-      timetables.each do |timetable|
-        raise ArgumentError.new('Array of LoanCreator::Timetable expected') unless LoanCreator::Timetable === timetable
-      end
-
-      # group each element regarding its position (the term number)
-      # first array has now each first time table, etc.
-      transposed_timetables = timetables.map(&:terms).transpose
-      timetable = LoanCreator::Timetable.new(
-        starts_at: @starts_at,
-        period: { months: 1 }
-      )
-
-      # for each array of time tables, sum each required element
-      transposed_timetables.each do |arr|
-        total_periodic_pay         = arr.inject(0) { |sum, tt| sum + tt.periodic_payment }
-        period_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_capital_share }
-        period_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_interests_share }
-        remaining_capital          = arr.inject(0) { |sum, tt| sum + tt.remaining_capital }
-        paid_capital               = arr.inject(0) { |sum, tt| sum + tt.paid_capital }
-        remaining_interests        = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
-        paid_interests             = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
-
-        timetable << LoanCreator::Term.new(
-          periodic_payment:                 total_periodic_pay,
-          periodic_payment_capital_share:   period_pay_capital_share,
-          periodic_payment_interests_share: period_pay_interests_share,
-          remaining_capital:                remaining_capital,
-          paid_capital:                     paid_capital,
-          remaining_interests:              remaining_interests,
-          paid_interests:                   paid_interests
-        )
-      end
-
-      timetable
-    end
-
-    def financial_diff(value)
-      _financial_diff(value)
-    end
-
     private
 
-    # calculate financial difference, i.e. as integer in cents, if positive,
+    def require_attributes
+      REQUIRED_ATTRIBUTES.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
+    end
+
+    def set_attributes
+      REQUIRED_ATTRIBUTES.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
+      OPTIONAL_ATTRIBUTES.each { |k,v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
+    end
+
+    def validate(key, &block)
+      raise unless block.call(instance_variable_get(:"@#{key}"))
+    rescue
+      raise ArgumentError.new(key)
+    end
+
+    def validate_attributes
+      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
+      validate(:amount_in_cents) { |v| v.is_a?(Integer) && v > 0 }
+      validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
+      validate(:starts_at) { |v| !!Date.parse(v) }
+      validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
+      validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 }
+    end
+
+    public
+
+    # Calculate financial difference, i.e. as integer in cents, if positive,
     # it is truncated, if negative, it is truncated and 1 more cent is
     # subastracted. We want the borrower to get back the difference but
     # the lender should always get AT LEAST what he lended.
-    def _financial_diff(value)
+    def financial_diff(value)
       if value >= 0
         value.truncate
       elsif value > -1
@@ -107,15 +89,6 @@ module LoanCreator
           value.truncate - 1
         end
       end
-    end
-
-    #   annual_interests_rate
-    # ________________________  (div by 100 as percentage and by 12
-    #         1200               for the periodic frequency, so 1200)
-    #
-    def _periodic_interests_rate
-      BigDecimal(annual_interests_rate, @@accuracy)
-        .div(BigDecimal(1200, @@accuracy), @@accuracy)
     end
   end
 end

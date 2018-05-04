@@ -4,8 +4,9 @@ describe LoanCreator::Bullet do
   describe '#lender_timetable(borrowed)' do
     let!(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    48
       )
@@ -231,8 +232,9 @@ describe LoanCreator::Bullet do
     # The loan
     subject(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       amount_in_cents,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    duration_in_periods
       )
@@ -319,8 +321,9 @@ describe LoanCreator::Bullet do
   describe '#rounded_total_interests' do
     it 'has the expected value - example one' do
       rounded_total_interests = described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    24
       ).rounded_total_interests
@@ -330,8 +333,9 @@ describe LoanCreator::Bullet do
 
     it 'has the expected value - example two' do
       rounded_total_interests = described_class.new(
+        period:                :month,
         amount_in_cents:       350_456_459 * 100,
-        annual_interests_rate: 7.63,
+        annual_interests_rate: BigDecimal.new(7.63, LoanCreator::BIG_DECIMAL_DIGITS),
         starts_at:             '2016-01-15',
         duration_in_periods:    17
       ).rounded_total_interests

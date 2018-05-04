@@ -3,10 +3,11 @@ require 'spec_helper'
 describe LoanCreator::Common do
   let(:loan) do
     LoanCreator::Common.new(
+      period:                :month,
       amount_in_cents:       100_000,
-      annual_interests_rate: 10,
+      annual_interests_rate: BigDecimal.new(10),
       starts_at:             '2016-01-15',
-      duration_in_periods:    4
+      duration_in_periods:   4
     )
   end
 
@@ -18,7 +19,7 @@ describe LoanCreator::Common do
 
   describe '#periodic_interests_rate' do
     it 'calculates the periodic interests rate' do
-      expect(loan.periodic_interests_rate.round(7)).to eql(0.0083333)
+      expect(loan.periodic_interests_rate.round(7)).to eql(BigDecimal.new(0.0083333, LoanCreator::BIG_DECIMAL_DIGITS))
     end
   end
 

@@ -3,8 +3,8 @@ module LoanCreator
 
     def lender_timetable(amount = amount_in_cents)
       timetable = LoanCreator::Timetable.new(
-        starts_at: @starts_at,
-        period: { months: 1 }
+        starts_at: starts_at,
+        period: period
       )
       r_total_interests = rounded_total_interests(amount)
 

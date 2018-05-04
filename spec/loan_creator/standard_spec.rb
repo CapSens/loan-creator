@@ -4,8 +4,9 @@ describe LoanCreator::Standard do
   describe '#lender_timetable(borrowed)' do
     let!(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    48
       )
@@ -133,8 +134,9 @@ describe LoanCreator::Standard do
     context 'lender_four (deferred)' do
       let!(:deferred_loan) do
         described_class.new(
+          period:                :month,
           amount_in_cents:       100_000 * 100,
-          annual_interests_rate: 10,
+          annual_interests_rate: BigDecimal.new(10),
           starts_at:             '2016-01-15',
           duration_in_periods:    48,
           deferred_in_periods:    18
@@ -239,6 +241,7 @@ describe LoanCreator::Standard do
     # The loan
     subject(:loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       amount_in_cents,
         annual_interests_rate: annual_interests_rate,
         starts_at:             '2016-01-15',
@@ -252,7 +255,7 @@ describe LoanCreator::Standard do
     # Loan amount
     let(:amount_in_cents) { 100_000 * 100 }
 
-    let(:annual_interests_rate) { 10 }
+    let(:annual_interests_rate) { BigDecimal.new(10) }
 
     # Loan periodic payment calculation's result
     let(:periodic_payment) { subject.rounded_periodic_payment(amount_in_cents) }
@@ -277,7 +280,7 @@ describe LoanCreator::Standard do
       end
 
       context 'with zero interest rate' do
-        let(:annual_interests_rate) { 0 }
+        let(:annual_interests_rate) { BigDecimal.new(0) }
 
         it 'calculates the precise periodic payment' do
           expect(subject.calc_periodic_payment(amount_in_cents).round(7)).to eql(416_666.6666667)
@@ -329,8 +332,9 @@ describe LoanCreator::Standard do
     # The loan
     subject(:deferred_loan) do
       described_class.new(
+        period:                :month,
         amount_in_cents:       amount_in_cents,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    duration_in_periods,
         deferred_in_periods:    deferred_in_periods
@@ -363,8 +367,9 @@ describe LoanCreator::Standard do
   describe '#total_adjusted_interests' do
     it 'has the expected value - example one' do
       loan = described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    24
       )
@@ -374,8 +379,9 @@ describe LoanCreator::Standard do
 
     it 'has the expected value - example two' do
       loan = described_class.new(
+        period:                :month,
         amount_in_cents:       350_456_459 * 100,
-        annual_interests_rate: 7.63,
+        annual_interests_rate: BigDecimal.new(7.63, LoanCreator::BIG_DECIMAL_DIGITS),
         starts_at:             '2016-01-15',
         duration_in_periods:    17
       )
@@ -386,8 +392,9 @@ describe LoanCreator::Standard do
 
     it 'has the expected value - example three - deferred period' do
       loan = described_class.new(
+        period:                :month,
         amount_in_cents:       100_000 * 100,
-        annual_interests_rate: 10,
+        annual_interests_rate: BigDecimal.new(10),
         starts_at:             '2016-01-15',
         duration_in_periods:    36,
         deferred_in_periods:    18
