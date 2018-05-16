@@ -3,8 +3,8 @@ module LoanCreator
   class Timetable
     PERIODS = {
       month: { months: 1 },
-      quarter: { months: 4 },
-      semester: { months: 2 },
+      quarter: { months: 3 },
+      semester: { months: 6 },
       annual: { years: 1 }
     }
 
