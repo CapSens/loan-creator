@@ -4,8 +4,8 @@ module LoanCreator
 
     PERIODS_IN_MONTHS = {
       month: 1,
-      quarter: 4,
-      semester: 2,
+      quarter: 3,
+      semester: 6,
       annual: 12
     }.freeze
 
@@ -34,7 +34,7 @@ module LoanCreator
 
     def periodic_interests_rate_percentage
       @periodic_interests_rate_percentage ||=
-        annual_interests_rate.div((12 / PERIODS_IN_MONTHS[period]), BIG_DECIMAL_DIGITS)
+        annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
     end
 
     def periodic_interests_rate
