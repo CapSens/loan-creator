@@ -6,6 +6,8 @@ and from a borrower point of view, regarding financial rounding differences.
 As of today, the gem makes the borrower support any rounding issue. In a
 later work, an option should be provided to decide who supports such issues.
 
+Link to Loan_Creator excel simulator [Link] (Excel CapSens Loan)
+
 ## Installation
 
 Add this line to your application's Gemfile:
