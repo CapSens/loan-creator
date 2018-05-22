@@ -5,7 +5,7 @@ module LoanCreator
       month: { months: 1 },
       quarter: { months: 3 },
       semester: { months: 6 },
-      annual: { years: 1 }
+      year: { years: 1 }
     }
 
     attr_reader :terms, :starts_at, :period
@@ -33,6 +33,13 @@ module LoanCreator
         term[:date] = autoincrement_date
       end
       self
+    end
+
+    def to_csv(header: true)
+      output = []
+      output << terms.first.to_h.keys.join(',') if header
+      terms.each { |t| output << t.to_csv }
+      output
     end
 
     private

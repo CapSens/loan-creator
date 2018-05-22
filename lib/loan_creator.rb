@@ -7,6 +7,7 @@ require 'loan_creator/version'
 module LoanCreator
   BIG_DECIMAL_DIGITS = 14
 
+  autoload :ExcelFormulas,     'loan_creator/excel_formulas'
   autoload :BorrowerTimetable, 'loan_creator/borrower_timetable'
   autoload :Common,            'loan_creator/common'
   autoload :Standard,          'loan_creator/standard'

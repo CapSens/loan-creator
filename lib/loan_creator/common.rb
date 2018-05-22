@@ -6,7 +6,7 @@ module LoanCreator
       month: 1,
       quarter: 3,
       semester: 6,
-      annual: 12
+      year: 12
     }.freeze
 
     REQUIRED_ATTRIBUTES = [
@@ -69,27 +69,13 @@ module LoanCreator
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
       validate(:starts_at) { |v| !!Date.parse(v) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
-      validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 }
+      validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
 
     public
 
-    # Calculate financial difference, i.e. as integer in cents, if positive,
-    # it is truncated, if negative, it is truncated and 1 more cent is
-    # subastracted. We want the borrower to get back the difference but
-    # the lender should always get AT LEAST what he lended.
-    def financial_diff(value)
-      if value >= 0
-        value.truncate
-      elsif value > -1
-        -1
-      else
-        if value % value.truncate == 0
-          value.truncate
-        else
-          value.truncate - 1
-        end
-      end
+    def bigd(value)
+      BigDecimal.new(value, BIG_DECIMAL_DIGITS)
     end
   end
 end
