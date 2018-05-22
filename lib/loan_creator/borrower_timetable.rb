@@ -7,35 +7,21 @@ module LoanCreator
         raise ArgumentError.new('Array of LoanCreator::Timetable expected') unless LoanCreator::Timetable === lender_timetable
       end
 
-      # group each element regarding its position (the term number)
-      # first array has now each first time table, etc.
-      transposed_timetables = lenders_timetables.map(&:terms).transpose
       borrower_timetable = LoanCreator::Timetable.new(
         starts_at: lenders_timetables.first.starts_at,
         period: lenders_timetables.first.period
       )
 
-      # for each array of time tables, sum each required element
-      transposed_timetables.each do |arr|
-        total_periodic_pay         = arr.inject(0) { |sum, tt| sum + tt.periodic_payment }
-        period_pay_capital_share   = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_capital_share }
-        period_pay_interests_share = arr.inject(0) { |sum, tt| sum + tt.periodic_payment_interests_share }
-        remaining_capital          = arr.inject(0) { |sum, tt| sum + tt.remaining_capital }
-        paid_capital               = arr.inject(0) { |sum, tt| sum + tt.paid_capital }
-        remaining_interests        = arr.inject(0) { |sum, tt| sum + tt.remaining_interests }
-        paid_interests             = arr.inject(0) { |sum, tt| sum + tt.paid_interests }
-
-        borrower_timetable << LoanCreator::Term.new(
-          periodic_payment:                 total_periodic_pay,
-          periodic_payment_capital_share:   period_pay_capital_share,
-          periodic_payment_interests_share: period_pay_interests_share,
-          remaining_capital:                remaining_capital,
-          paid_capital:                     paid_capital,
-          remaining_interests:              remaining_interests,
-          paid_interests:                   paid_interests
-        )
+      # Group lenders' terms by index
+      transposed_terms = lenders_timetables.map(&:terms).transpose
+      # For each term, sum each required element
+      # First borrower's term contains the sums of lenders' first terms' elements (LoanCreator::Term::ARGUMENT), etc.
+      transposed_terms.each do |arr|
+        term = LoanCreator::Term::ARGUMENTS.each_with_object({}) do |k, h|
+          h[k] = arr.inject(0) { |sum, tt| sum + tt.send(k) }
+        end
+        borrower_timetable << LoanCreator::Term.new(term)
       end
-
       borrower_timetable
     end
   end

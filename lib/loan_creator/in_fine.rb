@@ -1,100 +1,12 @@
 module LoanCreator
   class InFine < LoanCreator::Common
+    # InFine is the same as a Linear loan with (duration - 1) deferred periods.
+    # Thus we're generating a Linear loan instead of rewriting already existing code.
     def lender_timetable(amount = amount_in_cents)
-      precise_total_interests = total_interests(amount)
-      rounded_total_interests = total_rounded_interests(amount)
-      precise_diff = rounded_total_interests - precise_total_interests
-
-      diff = precise_diff.round
-
-      timetable = LoanCreator::Timetable.new(
-        starts_at: starts_at,
-        period: period
-      )
-      calc_paid_interests = 0
-      r_periodic_interests = rounded_periodic_interests(amount)
-      rounded_total_interests -= diff
-
-      (duration_in_periods - 1).times do
-        calc_paid_interests += r_periodic_interests
-        rounded_total_interests -= r_periodic_interests
-
-        timetable << LoanCreator::Term.new(
-          periodic_payment:                 r_periodic_interests,
-          periodic_payment_capital_share:   0,
-          periodic_payment_interests_share: r_periodic_interests,
-          remaining_capital:                amount,
-          paid_capital:                     0,
-          remaining_interests:              rounded_total_interests,
-          paid_interests:                   calc_paid_interests
-        )
-      end
-
-      last_interests_payment = r_periodic_interests - diff
-      calc_paid_interests += last_interests_payment
-      rounded_total_interests -= last_interests_payment
-      last_payment = last_interests_payment + amount
-
-      timetable << LoanCreator::Term.new(
-        periodic_payment:                 last_payment,
-        periodic_payment_capital_share:   amount,
-        periodic_payment_interests_share: last_interests_payment,
-        remaining_capital:                0,
-        paid_capital:                     amount,
-        remaining_interests:              rounded_total_interests,
-        paid_interests:                   calc_paid_interests
-      )
-
-      timetable
-    end
-
-    def periodic_interests(amount = amount_in_cents)
-      _periodic_interests(amount)
-    end
-
-    def rounded_periodic_interests(amount = amount_in_cents)
-      periodic_interests(amount).round
-    end
-
-    def total_interests(amount = amount_in_cents)
-      _total_interests(amount)
-    end
-
-    def total_rounded_interests(amount = amount_in_cents)
-      _total_rounded_interests(amount)
-    end
-
-    def interests_difference(amount = amount_in_cents)
-      _interests_difference(amount)
-    end
-
-    private
-
-    # Capital * periodic_interests_rate
-    #
-    def _periodic_interests(amount)
-      BigDecimal(amount, BIG_DECIMAL_DIGITS)
-        .mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
-    end
-
-    # total_terms * periodic_interests
-    #
-    def _total_interests(amount)
-      BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)
-        .mult(periodic_interests(amount), BIG_DECIMAL_DIGITS)
-    end
-
-    # total_terms * rounded_periodic_interests
-    #
-    def _total_rounded_interests(amount)
-      BigDecimal(duration_in_periods, BIG_DECIMAL_DIGITS)
-        .mult(rounded_periodic_interests(amount), BIG_DECIMAL_DIGITS).round
-    end
-
-    # total_rounded_interests - total_interests
-    #
-    def _interests_difference(amount)
-      total_rounded_interests(amount) - total_interests(amount)
+      raise ArgumentError.new(:deferred_in_periods) unless deferred_in_periods == 0
+      options = { deferred_in_periods: duration_in_periods - 1 }
+      options = REQUIRED_ATTRIBUTES.each_with_object(options) { |k,h| h[k] = send(k) }
+      LoanCreator::Linear.new(options).lender_timetable
     end
   end
 end
