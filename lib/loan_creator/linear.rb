@@ -1,13 +1,10 @@
 # coding: utf-8
 module LoanCreator
   class Linear < LoanCreator::Common
-    def lender_timetable(amount = amount_in_cents)
-      timetable = LoanCreator::Timetable.new(starts_at: starts_at, period: period)
-      @amount = bigd(amount)
-      @accrued_delta_interests = bigd(0)
-      @total_paid_capital_end_of_period = bigd(0)
-      @total_paid_interests_end_of_period = bigd(0)
-      @crd_end_of_period = @amount
+    def lender_timetable
+      timetable = new_timetable
+      reset_current_term
+      @crd_end_of_period = amount
       duration_in_periods.times do |idx|
         @last_period = idx == (duration_in_periods - 1)
         @deferred_period = idx < deferred_in_periods
@@ -49,7 +46,7 @@ module LoanCreator
       elsif @deferred_period
         bigd(0)
       else
-        (@amount / (duration_in_periods - deferred_in_periods)).round(2)
+        (amount / (duration_in_periods - deferred_in_periods)).round(2)
       end
     end
   end

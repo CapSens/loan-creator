@@ -1,6 +1,6 @@
 module LoanCreator
   class Common
-    include BorrowerTimetable
+    extend BorrowerTimetable
 
     PERIODS_IN_MONTHS = {
       month: 1,
@@ -11,7 +11,7 @@ module LoanCreator
 
     REQUIRED_ATTRIBUTES = [
       :period,
-      :amount_in_cents,
+      :amount,
       :annual_interests_rate,
       :starts_at,
       :duration_in_periods
@@ -42,8 +42,16 @@ module LoanCreator
         periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
     end
 
-    def lender_timetable(_amount = amount_in_cents)
+    def lender_timetable
       raise NotImplementedError
+    end
+
+    def self.bigd(value)
+      BigDecimal.new(value, BIG_DECIMAL_DIGITS)
+    end
+
+    def bigd(value)
+      self.class.bigd(value)
     end
 
     private
@@ -65,15 +73,25 @@ module LoanCreator
 
     def validate_attributes
       validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
-      validate(:amount_in_cents) { |v| v.is_a?(Integer) && v > 0 }
+      validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
       validate(:starts_at) { |v| !!Date.parse(v) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
 
-    def bigd(value)
-      BigDecimal.new(value, BIG_DECIMAL_DIGITS)
+    def reset_current_term
+      @crd_beginning_of_period = bigd('0')
+      @crd_end_of_period = bigd('0')
+      @period_theoric_interests = bigd('0')
+      @delta_interests = bigd('0')
+      @accrued_delta_interests = bigd('0')
+      @amount_to_add = bigd('0')
+      @period_interests = bigd('0')
+      @period_capital = bigd('0')
+      @total_paid_capital_end_of_period = bigd('0')
+      @total_paid_interests_end_of_period = bigd('0')
+      @period_amount_to_pay = bigd('0')
     end
 
     def current_term
@@ -90,6 +108,10 @@ module LoanCreator
         total_paid_interests_end_of_period: @total_paid_interests_end_of_period,
         period_amount_to_pay: @period_amount_to_pay
       )
+    end
+
+    def new_timetable
+      LoanCreator::Timetable.new(starts_at: starts_at, period: period)
     end
   end
 end
