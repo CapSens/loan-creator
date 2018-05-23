@@ -2,13 +2,10 @@ module LoanCreator
   class Standard < LoanCreator::Common
     include LoanCreator::ExcelFormulas
 
-    def lender_timetable(amount = amount_in_cents)
-      timetable = LoanCreator::Timetable.new(starts_at: starts_at, period: period)
-      @amount = bigd(amount)
-      @accrued_delta_interests = bigd(0)
-      @total_paid_capital_end_of_period = bigd(0)
-      @total_paid_interests_end_of_period = bigd(0)
-      @crd_end_of_period = @amount
+    def lender_timetable
+      timetable = new_timetable
+      reset_current_term
+      @crd_end_of_period = amount
       duration_in_periods.times do |idx|
         @last_period = last_period?(idx)
         @deferred_period = idx < deferred_in_periods
@@ -55,7 +52,7 @@ module LoanCreator
           periodic_interests_rate,
           (idx + 1) - deferred_in_periods,
           duration_in_periods - deferred_in_periods,
-          @amount
+          amount
         )
       end
     end
@@ -70,7 +67,7 @@ module LoanCreator
           periodic_interests_rate,
           (idx + 1) - deferred_in_periods,
           duration_in_periods - deferred_in_periods,
-          @amount
+          amount
         ).round(2)
       end
     end

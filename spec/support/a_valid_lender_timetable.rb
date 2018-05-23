@@ -6,7 +6,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   let(:loan) do
     described_class.new(
       period: period,
-      amount_in_cents: amount_in_cents,
+      amount: amount,
       annual_interests_rate: annual_interests_rate,
       starts_at: starts_at,
       duration_in_periods: duration_in_periods,
@@ -17,8 +17,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
     loan.lender_timetable
   end
   let(:period) { scenario[0].to_sym }
-  let(:amount_in_cents) { scenario[1].to_i }
-  let(:annual_interests_rate) { BigDecimal.new(scenario[2], LoanCreator::BIG_DECIMAL_DIGITS) }
+  let(:amount) { bigd(scenario[1]) }
+  let(:annual_interests_rate) { bigd(scenario[2]) }
   let(:starts_at) { scenario[3] }
   let(:duration_in_periods) { scenario[4].to_i }
   let(:deferred_in_periods) { scenario[5].to_i }
@@ -26,7 +26,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
     [
       loan_type,
       period,
-      amount_in_cents,
+      amount,
       annual_interests_rate,
       duration_in_periods,
       deferred_in_periods,
