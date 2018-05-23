@@ -23,11 +23,13 @@ Or install it yourself as:
 ## Usage
 
 Parent module
+
 ```ruby
     module LoanCreator
 ```
 
 There are four types of loans. All inherit from a `LoanCreator::Common` class.
+
 ```ruby
     LoanCreator::Standard
     LoanCreator::Linear
@@ -36,6 +38,7 @@ There are four types of loans. All inherit from a `LoanCreator::Common` class.
 ```
 
 Each instance of one of the previous classes has the following attributes:
+
 ```ruby
     :period
     :amount
@@ -46,6 +49,7 @@ Each instance of one of the previous classes has the following attributes:
 ```
 
 There is also a `LoanCreator::Timetable` class dedicated to record the data of the loans' terms. Each instance of `LoanCreator::Timetable` represents an array of `LoanCreator::Term` records, each having the following attributes:
+
 ```ruby
       # Term number (starts at 1)
       :index
@@ -89,14 +93,10 @@ There is also a `LoanCreator::Timetable` class dedicated to record the data of t
 
 `#periodic_interests_rate` renders a precise calculation of the loan's periodic interests rate based on two inputs: `#annual_interests_rate` and `#period`.
 
-`#lender_timetable` shall be defined in each loan class. It renders
-an instance of `LoanCreator::Timetable` which contains an ascending order array of `LoanCreator::Term`.
-It takes into account financial rounding differences and makes the borrower
+`#lender_timetable` shall be defined in each loan class. It renders an instance of `LoanCreator::Timetable` which contains an ascending order array of `LoanCreator::Term`. It takes into account financial rounding differences and makes the borrower
 support all those differences.
 
-`.borrower_timetable(*lenders_timetables)` (class method) intends to sum each attribute of
-each provided `lender_timetable` on each term and thus to provide an ascending order array of
-`LoanCreator::Term`. It should be used for the borrower of a loan, once all lenders and their lending amounts
+`.borrower_timetable(*lenders_timetables)` (class method) intends to sum each attribute of each provided `lender_timetable` on each term and thus to provide an ascending order array of `LoanCreator::Term`. It should be used for the borrower of a loan, once all lenders and their lending amounts
 are known. It makes the borrower support all financial rounding differences.
 
 ## Explanation
@@ -105,16 +105,17 @@ are known. It makes the borrower support all financial rounding differences.
 
 `Linear` loan generates terms with constant capital share payment.
 
-`Standard` and `Linear` loans may be capital-deferred, i.e. capital repayment is delayed. Interests are to be payed normally during this period.
+`Standard` and `Linear` loans may be capital-deferred, i.e. capital repayment is delayed.\
+Interests are to be payed normally during this period.
 
-`InFine` loan generates terms where terms' payments are composed by interests only.
+`InFine` loan generates terms where terms' payments are composed by interests only.\
 Capital share shall be repaid in full at loan's end.
 
-`Bullet` loan generates terms where terms' payments are zero.
-Interests are capitalized, i.e. added to the borrowed capital on each term.
+`Bullet` loan generates terms where terms' payments are zero. \
+Interests are capitalized, i.e. added to the borrowed capital on each term.\
 Capital share shall be repaid in full and all interests paid at loan's end.
 
-There is no deferred time for `InFine` and `Bullet` loans as it is the same as increasing the loan duration.
+There is no deferred time for `InFine` and `Bullet` loans as it would be equivalent to increasing loan's duration.
 
 ## Development
 
