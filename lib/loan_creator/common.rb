@@ -72,10 +72,24 @@ module LoanCreator
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
 
-    public
-
     def bigd(value)
       BigDecimal.new(value, BIG_DECIMAL_DIGITS)
+    end
+
+    def current_term
+      LoanCreator::Term.new(
+        crd_beginning_of_period: @crd_beginning_of_period,
+        crd_end_of_period: @crd_end_of_period,
+        period_theoric_interests: @period_theoric_interests,
+        delta_interests: @delta_interests,
+        accrued_delta_interests: @accrued_delta_interests,
+        amount_to_add: @amount_to_add,
+        period_interests: @period_interests,
+        period_capital: @period_capital,
+        total_paid_capital_end_of_period: @total_paid_capital_end_of_period,
+        total_paid_interests_end_of_period: @total_paid_interests_end_of_period,
+        period_amount_to_pay: @period_amount_to_pay
+      )
     end
   end
 end
