@@ -1,10 +1,6 @@
 # LoanCreator
 
-`loan_creator` gem intends to provide a set of methods to allow automatic
-generation of loan timetables, for simulation, from a lender point of view
-and from a borrower point of view, regarding financial rounding differences.
-As of today, the gem makes the borrower support any rounding issue. In a
-later work, an option should be provided to decide who supports such issues.
+`loan_creator` gem intends to provide a set of methods to allow automatic generation of loan timetables, for simulation, from a lender point of view and from a borrower point of view, regarding financial rounding differences. As of today, the gem makes the borrower support any rounding issue. In a later work, an option should be provided to decide who supports such issues.
 
 ## Installation
 
@@ -47,15 +43,12 @@ Each instance of one of the previous classes has the following attributes:
     :deferred_in_periods (default to zero)
 ```
 
-There is also a `Timetable` class dedicated to record the data of the loans' terms.
-Each instance of `LoanCreator::TimeTable` represents an array of `LoanCreator::Term` records, each having the following attributes:
+There is also a `LoanCreator::Timetable` class dedicated to record the data of the loans' terms. Each instance of `LoanCreator::Timetable` represents an array of `LoanCreator::Term` records, each having the following attributes:
 ```ruby
       # Term number (starts at 1)
-      # This value is to be set by Timetable
       :index
 
       # Term date
-      # This value is to be set by Timetable
       :date
 
       # Remaining due capital at the beginning of the term
@@ -92,10 +85,10 @@ Each instance of `LoanCreator::TimeTable` represents an array of `LoanCreator::T
       :period_amount_to_pay
 ```
 
-`periodic_interests_rate` renders a precise calculation of the loan's periodic rate based on two inputs: `annual_interests_rate` and `period`.
+`#periodic_interests_rate` renders a precise calculation of the loan's periodic interests rate based on two inputs: `#annual_interests_rate` and `#period`.
 
 `#lender_timetable` shall be defined in each loan class. It renders
-an instance of `LoanCreator::TimeTable` which contains an ascending order array of `LoanCreator::Term`.
+an instance of `LoanCreator::Timetable` which contains an ascending order array of `LoanCreator::Term`.
 It takes into account financial rounding differences and makes the borrower
 support all those differences.
 
