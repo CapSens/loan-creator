@@ -1,6 +1,7 @@
 # coding: utf-8
 module LoanCreator
   class Timetable
+    # Used to calculate next term's date (see ActiveSupport#advance)
     PERIODS = {
       month: { months: 1 },
       quarter: { months: 3 },
@@ -12,7 +13,7 @@ module LoanCreator
 
     def initialize(starts_at:, period:)
       @terms = []
-      @starts_at = (Date === starts_at ? starts_at :Date.parse(starts_at))
+      @starts_at = (Date === starts_at ? starts_at : Date.parse(starts_at))
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
       @period = period
     end
