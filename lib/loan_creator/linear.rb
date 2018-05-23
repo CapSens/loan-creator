@@ -6,7 +6,7 @@ module LoanCreator
       reset_current_term
       @crd_end_of_period = amount
       duration_in_periods.times do |idx|
-        @last_period = idx == (duration_in_periods - 1)
+        @last_period = last_period?(idx)
         @deferred_period = idx < deferred_in_periods
         compute_current_term
         timetable << current_term
@@ -15,6 +15,10 @@ module LoanCreator
     end
 
     private
+
+    def last_period?(idx)
+      idx == (duration_in_periods - 1)
+    end
 
     def compute_current_term
       # Reminder: CRD beginning of period = CRD end of period **of previous period**
