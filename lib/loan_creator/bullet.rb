@@ -16,7 +16,7 @@ module LoanCreator
 
     def compute_last_term
       @crd_end_of_period = bigd('0')
-      @period_interests = rounded_total_interests
+      @period_interests = total_interests
       @period_capital = @crd_beginning_of_period
       @total_paid_capital_end_of_period = @period_capital
       @total_paid_interests_end_of_period = @period_interests
@@ -32,9 +32,8 @@ module LoanCreator
       )
     end
 
-    def rounded_total_interests
-      total_interests = total_payment - amount
-      total_interests.ceil
+    def total_interests
+      total_payment - amount
     end
   end
 end
