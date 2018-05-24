@@ -64,6 +64,7 @@ module LoanCreator
     def reinterpret_attributes
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
+      @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
     end
 
     def set_attributes
