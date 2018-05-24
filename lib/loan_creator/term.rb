@@ -1,44 +1,70 @@
 module LoanCreator
   class Term
-    attr_accessor :index,
-                  :date,
-                  :monthly_payment,
-                  :monthly_payment_capital_share,
-                  :monthly_payment_interests_share,
-                  :remaining_capital,
-                  :paid_capital,
-                  :remaining_interests,
-                  :paid_interests
 
-    def initialize(
-          # Amount to pay this term (capital + interests)
-          monthly_payment:,
+    ARGUMENTS = [
+      # Remaining due capital at the beginning of the term
+      :crd_beginning_of_period,
 
-          # Amount to pay this term (capital share)
-          monthly_payment_capital_share:,
+      # Remaining due capital at the end of the term
+      :crd_end_of_period,
 
-          # Amount to pay this term (interests share)
-          monthly_payment_interests_share:,
+      # Theoricaly due interests
+      :period_theoric_interests,
 
-          # By the end of this term, how much capital remains to pay
-          remaining_capital:,
+      # Difference between theorical and real (rounded) due interests
+      :delta_interests,
 
-          # By the end of this term, how much capital has been paid
-          paid_capital:,
+      # Accrued interests' delta
+      :accrued_delta_interests,
 
-          # By the end of this term, how much interests remain to be paid
-          remaining_interests:,
+      # Adjustment of -0.01, 0 or +0.01 cent depending on accrued_delta_interests
+      :amount_to_add,
 
-          # By the end of this term, how much interests have been paid
-          paid_interests:
-        )
-      @monthly_payment                 = monthly_payment
-      @monthly_payment_capital_share   = monthly_payment_capital_share
-      @monthly_payment_interests_share = monthly_payment_interests_share
-      @remaining_capital               = remaining_capital
-      @paid_capital                    = paid_capital
-      @remaining_interests             = remaining_interests
-      @paid_interests                  = paid_interests
+      # Interests to pay this term
+      :period_interests,
+
+      # Capital to pay this term
+      :period_capital,
+
+      # Total capital paid so far (including current term)
+      :total_paid_capital_end_of_period,
+
+      # Total interests paid so far (including current term)
+      :total_paid_interests_end_of_period,
+
+      # Amount to pay this term
+      :period_amount_to_pay
+    ].freeze
+
+    ATTRIBUTES = [
+      # Term number (starts at 1)
+      # This value is to be set by Timetable
+      :index,
+
+      # Term date
+      # This value is to be set by Timetable
+      :date,
+
+      # These values are to be specified during Term's initialization
+      *ARGUMENTS
+    ].freeze
+
+    attr_accessor *ATTRIBUTES
+
+    def initialize(**options)
+      ARGUMENTS.each { |k| instance_variable_set(:"@#{k}", options.fetch(k)) }
+    end
+
+    def to_csv
+      ATTRIBUTES.map { |k| instance_variable_get(:"@#{k}") }.join(',')
+    end
+
+    def to_s
+      to_csv
+    end
+
+    def to_h
+      ATTRIBUTES.each_with_object({}) { |k, h| h[k] = instance_variable_get(:"@#{k}") }
     end
   end
 end

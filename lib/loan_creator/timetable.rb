@@ -1,14 +1,21 @@
+# coding: utf-8
 module LoanCreator
   class Timetable
-    DEFAULT_PERIOD = { months: 1 }.freeze
+    # Used to calculate next term's date (see ActiveSupport#advance)
+    PERIODS = {
+      month: { months: 1 },
+      quarter: { months: 3 },
+      semester: { months: 6 },
+      year: { years: 1 }
+    }
 
     attr_reader :terms, :starts_at, :period
 
-    def initialize(starts_at:, period: DEFAULT_PERIOD)
+    def initialize(starts_at:, period:)
       @terms = []
-      @starts_at = Date.parse(starts_at)
+      @starts_at = (Date === starts_at ? starts_at : Date.parse(starts_at))
+      raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
       @period = period
-      valid?
     end
 
     def <<(term)
@@ -29,9 +36,14 @@ module LoanCreator
       self
     end
 
-    private
+    def to_csv(header: true)
+      output = []
+      output << terms.first.to_h.keys.join(',') if header
+      terms.each { |t| output << t.to_csv }
+      output
+    end
 
-    ACTIVESUPPORT_DATE_ADVANCE_KEYS_WHITELIST = %i[days weeks months years].freeze
+    private
 
     # First term index of a timetable term is 1
     def autoincrement_index
@@ -43,18 +55,8 @@ module LoanCreator
     def autoincrement_date
       @autoincrement_date ||= @starts_at
       date = @autoincrement_date
-      @autoincrement_date = @autoincrement_date.advance(@period)
+      @autoincrement_date = @autoincrement_date.advance(PERIODS.fetch(@period))
       date
-    end
-
-    def valid?
-      raise ArgumentError.new(:starts_at) unless Date === @starts_at
-      raise ArgumentError.new(:period) unless
-        Hash === @period &&
-        @period.keys.empty? == false &&
-        (@period.keys - ACTIVESUPPORT_DATE_ADVANCE_KEYS_WHITELIST).empty?
-      # TODO: make sure none of period's keys has a nil/zero value
-      true
     end
   end
 end

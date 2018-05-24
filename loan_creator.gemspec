@@ -5,10 +5,10 @@ require 'loan_creator/version'
 Gem::Specification.new do |spec|
   spec.name          = 'loan_creator'
   spec.version       = LoanCreator::VERSION
-  spec.authors       = %w[thibaulth nicob]
-  spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu']
+  spec.authors       = %w[thibaulth nicob younes.serraj]
+  spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu', 'younes.serraj@gmail.com']
 
-  spec.summary       = 'Create and update time tables from input data'
+  spec.summary       = 'Create and update timetables from input data'
   spec.homepage      = 'https://capsens.githost.io/capsens/loan-creator'
   spec.license       = 'MIT'
 
@@ -28,4 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'simplecov', '~> 0.16'
+
+  spec.add_runtime_dependency 'bigdecimal'
+  spec.add_runtime_dependency 'activesupport'
 end
