@@ -28,6 +28,7 @@ module LoanCreator
     def initialize(**options)
       @options = options
       require_attributes
+      reinterpret_attributes
       set_attributes
       validate_attributes
     end
@@ -58,6 +59,11 @@ module LoanCreator
 
     def require_attributes
       REQUIRED_ATTRIBUTES.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
+    end
+
+    def reinterpret_attributes
+      @options[:period] = @options[:period].to_sym
+      @options[:amount] = bigd(@options[:amount])
     end
 
     def set_attributes
