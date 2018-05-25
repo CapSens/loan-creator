@@ -49,12 +49,12 @@ describe LoanCreator::Common do
         end
       end
 
-      it 'has contiguous dates' do
-        expect(borrower_timetable.terms.first.date).to eq(Date.parse(starts_at))
+      it 'has contiguous due_on dates' do
+        expect(borrower_timetable.terms.first.due_on).to eq(Date.parse(starts_at))
         date = Date.parse(starts_at)
         step = LoanCreator::Timetable::PERIODS.fetch(period)
         borrower_timetable.terms.each do |term|
-          expect(term.date).to eq(date)
+          expect(term.due_on).to eq(date)
           date = date.advance(step)
         end
       end

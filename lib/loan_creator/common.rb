@@ -65,6 +65,7 @@ module LoanCreator
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
+      @options[:starts_at] = @options[:starts_at].strftime('%Y-%m-%d') if Date === @options[:starts_at]
     end
 
     def set_attributes

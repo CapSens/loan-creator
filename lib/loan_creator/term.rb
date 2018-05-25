@@ -43,7 +43,7 @@ module LoanCreator
 
       # Term date
       # This value is to be set by Timetable
-      :date,
+      :due_on,
 
       # These values are to be specified during Term's initialization
       *ARGUMENTS
