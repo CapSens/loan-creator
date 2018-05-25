@@ -6,14 +6,14 @@ describe LoanCreator::Common do
     context "given 3 standard loans" do
       let(:period) { :month }
       let(:annual_interests_rate) { bigd('10') }
-      let(:starts_at) { '2018-01-01' }
+      let(:starts_on) { '2018-01-01' }
       let(:duration_in_periods) { 36 }
       let(:deferred_in_periods) { 0 }
       let(:loan_commons) do
         {
           period: period,
           annual_interests_rate: annual_interests_rate,
-          starts_at: starts_at,
+          starts_on: starts_on,
           duration_in_periods: duration_in_periods,
           deferred_in_periods: deferred_in_periods
         }
@@ -33,7 +33,7 @@ describe LoanCreator::Common do
       end
 
       it 'has valid start date' do
-        expect(borrower_timetable.starts_at).to eq(Date.parse(starts_at))
+        expect(borrower_timetable.starts_on).to eq(Date.parse(starts_on))
       end
 
       it 'has valid number of terms' do
@@ -50,8 +50,8 @@ describe LoanCreator::Common do
       end
 
       it 'has contiguous due_on dates' do
-        expect(borrower_timetable.terms.first.due_on).to eq(Date.parse(starts_at))
-        date = Date.parse(starts_at)
+        expect(borrower_timetable.terms.first.due_on).to eq(Date.parse(starts_on))
+        date = Date.parse(starts_on)
         step = LoanCreator::Timetable::PERIODS.fetch(period)
         borrower_timetable.terms.each do |term|
           expect(term.due_on).to eq(date)

@@ -13,7 +13,7 @@ module LoanCreator
       :period,
       :amount,
       :annual_interests_rate,
-      :starts_at,
+      :starts_on,
       :duration_in_periods
     ].freeze
 
@@ -65,7 +65,7 @@ module LoanCreator
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
-      @options[:starts_at] = @options[:starts_at].strftime('%Y-%m-%d') if Date === @options[:starts_at]
+      @options[:starts_on] = @options[:starts_on].strftime('%Y-%m-%d') if Date === @options[:starts_on]
     end
 
     def set_attributes
@@ -83,7 +83,7 @@ module LoanCreator
       validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
       validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:starts_at) { |v| !!Date.parse(v) }
+      validate(:starts_on) { |v| !!Date.parse(v) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
@@ -119,7 +119,7 @@ module LoanCreator
     end
 
     def new_timetable
-      LoanCreator::Timetable.new(starts_at: starts_at, period: period)
+      LoanCreator::Timetable.new(starts_on: starts_on, period: period)
     end
   end
 end
