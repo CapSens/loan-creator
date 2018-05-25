@@ -21,17 +21,17 @@ module LoanCreator
     def <<(term)
       raise ArgumentError.new('LoanCreator::Term expected') unless LoanCreator::Term === term
       term.index = autoincrement_index
-      term.date = autoincrement_date
+      term.due_on = autoincrement_date
       @terms << term
       self
     end
 
-    def reset_indexes_and_dates
+    def reset_indexes_and_due_on_dates
       @autoincrement_index = 0
       @autoincrement_date = @starts_at
       @terms.each do |term|
         term[:index] = autoincrement_index
-        term[:date] = autoincrement_date
+        term[:due_on] = autoincrement_date
       end
       self
     end
@@ -51,7 +51,7 @@ module LoanCreator
       @autoincrement_index += 1
     end
 
-    # First term date of timetable term is the starts_at given date
+    # First term due_on date of timetable term is the starts_at given date
     def autoincrement_date
       @autoincrement_date ||= @starts_at
       date = @autoincrement_date
