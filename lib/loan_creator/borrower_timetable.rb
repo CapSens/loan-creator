@@ -18,7 +18,7 @@ module LoanCreator
       end
 
       borrower_timetable = LoanCreator::Timetable.new(
-        starts_at: lenders_timetables.first.starts_at,
+        starts_on: lenders_timetables.first.starts_on,
         period: lenders_timetables.first.period
       )
 

@@ -9,11 +9,11 @@ module LoanCreator
       year: { years: 1 }
     }
 
-    attr_reader :terms, :starts_at, :period
+    attr_reader :terms, :starts_on, :period
 
-    def initialize(starts_at:, period:)
+    def initialize(starts_on:, period:)
       @terms = []
-      @starts_at = (Date === starts_at ? starts_at : Date.parse(starts_at))
+      @starts_on = (Date === starts_on ? starts_on : Date.parse(starts_on))
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
       @period = period
     end
@@ -28,7 +28,7 @@ module LoanCreator
 
     def reset_indexes_and_due_on_dates
       @autoincrement_index = 0
-      @autoincrement_date = @starts_at
+      @autoincrement_date = @starts_on
       @terms.each do |term|
         term[:index] = autoincrement_index
         term[:due_on] = autoincrement_date
@@ -51,9 +51,9 @@ module LoanCreator
       @autoincrement_index += 1
     end
 
-    # First term due_on date of timetable term is the starts_at given date
+    # First term due_on date of timetable term is the starts_on given date
     def autoincrement_date
-      @autoincrement_date ||= @starts_at
+      @autoincrement_date ||= @starts_on
       date = @autoincrement_date
       @autoincrement_date = @autoincrement_date.advance(PERIODS.fetch(@period))
       date
