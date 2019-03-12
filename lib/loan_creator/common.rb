@@ -19,7 +19,8 @@ module LoanCreator
 
     OPTIONAL_ATTRIBUTES = {
       # attribute: default_value
-      deferred_in_periods: 0
+      deferred_in_periods: 0,
+      first_term_date: nil,
     }.freeze
 
     attr_reader *REQUIRED_ATTRIBUTES
@@ -48,7 +49,7 @@ module LoanCreator
     end
 
     def self.bigd(value)
-      BigDecimal.new(value, BIG_DECIMAL_DIGITS)
+      BigDecimal(value, BIG_DECIMAL_DIGITS)
     end
 
     def bigd(value)
@@ -65,7 +66,8 @@ module LoanCreator
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
-      @options[:starts_on] = @options[:starts_on].strftime('%Y-%m-%d') if Date === @options[:starts_on]
+      @options[:starts_on] = @options[:starts_on].strftime('%Y-%m-%d') if @options[:starts_on].is_a?(Date)
+      @options[:first_term_date] = @options[:first_term_date].strftime('%Y-%m-%d') if @options[:first_term_date].is_a?(Date)
     end
 
     def set_attributes
@@ -119,7 +121,7 @@ module LoanCreator
     end
 
     def new_timetable
-      LoanCreator::Timetable.new(starts_on: starts_on, period: period)
+      LoanCreator::Timetable.new(starts_on: starts_on, period: period, first_term_date: first_term_date)
     end
   end
 end

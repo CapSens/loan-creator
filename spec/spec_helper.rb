@@ -12,7 +12,7 @@ require './spec/support/big_decimal_helper.rb'
 RSpec.configure do |c|
   c.include BigDecimalHelper
 
-  TOLERANCE_THRESHOLD = BigDecimal.new('0.1', LoanCreator::BIG_DECIMAL_DIGITS).freeze
+  TOLERANCE_THRESHOLD = BigDecimal('0.1', LoanCreator::BIG_DECIMAL_DIGITS).freeze
 
   # CSV columns:
   CSV_COL_INDEX = 0

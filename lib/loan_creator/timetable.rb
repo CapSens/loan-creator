@@ -3,35 +3,40 @@ module LoanCreator
   class Timetable
     # Used to calculate next term's date (see ActiveSupport#advance)
     PERIODS = {
-      month: { months: 1 },
-      quarter: { months: 3 },
-      semester: { months: 6 },
-      year: { years: 1 }
+      month:    {months: 1},
+      quarter:  {months: 3},
+      semester: {months: 6},
+      year:     {years: 1}
     }
 
-    attr_reader :terms, :starts_on, :period
+    attr_reader :terms, :starts_on, :period, :first_term_date
 
-    def initialize(starts_on:, period:)
-      @terms = []
-      @starts_on = (Date === starts_on ? starts_on : Date.parse(starts_on))
+    def initialize(starts_on:, period:, first_term_date: nil)
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
-      @period = period
+
+      @terms     = []
+      @starts_on = (starts_on.is_a?(Date) ? starts_on : Date.parse(starts_on))
+      @period    = period
+
+      if first_term_date
+        @first_term_date = (first_term_date.is_a?(Date) ? first_term_date : Date.parse(first_term_date))
+      end
     end
 
     def <<(term)
-      raise ArgumentError.new('LoanCreator::Term expected') unless LoanCreator::Term === term
-      term.index = autoincrement_index
-      term.due_on = autoincrement_date
+      raise ArgumentError.new('LoanCreator::Term expected') unless term.is_a?(LoanCreator::Term)
+      term.index  = autoincrement_index
+      term.due_on = date_for(term.index)
       @terms << term
       self
     end
 
     def reset_indexes_and_due_on_dates
-      @autoincrement_index = 0
-      @autoincrement_date = @starts_on
+      reset_index
+      reset_dates
       @terms.each do |term|
-        term[:index] = autoincrement_index
-        term[:due_on] = autoincrement_date
+        term[:index]  = autoincrement_index
+        term[:due_on] = date_for(term[:index])
       end
       self
     end
@@ -45,18 +50,36 @@ module LoanCreator
 
     private
 
-    # First term index of a timetable term is 1
     def autoincrement_index
-      @autoincrement_index ||= 0
-      @autoincrement_index += 1
+      @current_index = @current_index.nil? ? first_index : @current_index + 1
     end
 
-    # First term due_on date of timetable term is the starts_on given date
-    def autoincrement_date
-      @autoincrement_date ||= @starts_on
-      date = @autoincrement_date
-      @autoincrement_date = @autoincrement_date.advance(PERIODS.fetch(@period))
-      date
+    # First term index of a timetable term is 0 if there is a first_term_date, 1 otherwise
+    def first_index
+      first_term_date ? 0 : 1
+    end
+
+    def reset_index
+      @current_index = first_index
+    end
+
+    def date_for(index)
+      @_dates ||= Hash.new do |dates, index|
+        dates[index] =
+          if index == 0
+            first_term_date
+          elsif index == 1
+            starts_on
+          else
+            dates[index - 1].advance(PERIODS.fetch(period))
+          end
+      end
+
+      @_dates[index]
+    end
+
+    def reset_dates
+      @_dates = nil
     end
   end
 end
