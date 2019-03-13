@@ -10,7 +10,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       annual_interests_rate: annual_interests_rate,
       starts_on: starts_on,
       duration_in_periods: duration_in_periods,
-      deferred_in_periods: deferred_in_periods
+      deferred_in_periods: deferred_in_periods,
+      first_term_date: first_term_date,
     )
   end
   let(:lender_timetable) do
@@ -22,6 +23,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   let(:starts_on) { scenario[3] }
   let(:duration_in_periods) { scenario[4].to_i }
   let(:deferred_in_periods) { scenario[5].to_i }
+  let(:first_term_date) { scenario[6] }
   let(:scenario_name) do
     [
       loan_type,
@@ -30,8 +32,9 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       annual_interests_rate,
       duration_in_periods,
       deferred_in_periods,
-      Date.parse(starts_on).strftime('%Y%m%d')
-    ].join('_')
+      Date.parse(starts_on).strftime('%Y%m%d'),
+      first_term_date,
+    ].compact.join('_')
   end
   let(:expected_lender_terms) { CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv")) }
 
@@ -63,21 +66,24 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   end
 
   it 'has contiguous indexes' do
-    expect(lender_timetable.terms.first.index).to eq(1)
-    index = 0
+    index = lender_timetable.first_term_date ? 0 : 1
     lender_timetable.terms.each do |term|
-      index += 1
       expect(term.index).to eq(index)
+      index += 1
     end
   end
 
   it 'has contiguous due_on dates' do
-    expect(lender_timetable.terms.first.due_on).to eq(Date.parse(starts_on))
     date = Date.parse(starts_on)
     step = LoanCreator::Timetable::PERIODS.fetch(period)
+
     lender_timetable.terms.each do |term|
-      expect(term.due_on).to eq(date)
-      date = date.advance(step)
+      if term.index == 0
+        expect(term.due_on).to eq(Date.parse(first_term_date))
+      else
+        expect(term.due_on).to eq(date)
+        date = date.advance(step)
+      end
     end
   end
 

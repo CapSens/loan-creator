@@ -48,6 +48,10 @@ module LoanCreator
       output
     end
 
+    def term(index)
+      @terms.find { |term| term.index == index }
+    end
+
     private
 
     def autoincrement_index
