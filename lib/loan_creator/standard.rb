@@ -73,9 +73,17 @@ module LoanCreator
       end
     end
 
-    # TODO : compute real value
     def term_zero_interests
-      12
+      @crd_beginning_of_period * term_zero_interests_rate
+    end
+
+    def term_zero_interests_rate
+      term_zero_interests_rate_percentage = (annual_interests_rate * term_zero_duration).div(365, BIG_DECIMAL_DIGITS)
+      term_zero_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+    end
+
+    def term_zero_duration
+      (starts_on - first_term_date).to_i
     end
 
     def period_capital(idx)

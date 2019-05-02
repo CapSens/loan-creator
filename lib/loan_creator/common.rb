@@ -66,8 +66,8 @@ module LoanCreator
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
-      @options[:starts_on] = @options[:starts_on].strftime('%Y-%m-%d') if @options[:starts_on].is_a?(Date)
-      @options[:first_term_date] = @options[:first_term_date].strftime('%Y-%m-%d') if @options[:first_term_date].is_a?(Date)
+      @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
+      @options[:first_term_date] = Date.parse(@options[:first_term_date]) if @options[:first_term_date].is_a?(String)
     end
 
     def set_attributes
@@ -85,7 +85,7 @@ module LoanCreator
       validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
       validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:starts_on) { |v| !!Date.parse(v) }
+      validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end

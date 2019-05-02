@@ -20,10 +20,10 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   let(:period) { scenario[0].to_sym }
   let(:amount) { bigd(scenario[1]) }
   let(:annual_interests_rate) { bigd(scenario[2]) }
-  let(:starts_on) { scenario[3] }
+  let(:starts_on) { Date.parse(scenario[3]) }
   let(:duration_in_periods) { scenario[4].to_i }
   let(:deferred_in_periods) { scenario[5].to_i }
-  let(:first_term_date) { scenario[6] }
+  let(:first_term_date) { scenario[6].is_a?(String) ? Date.parse(scenario[6]) : scenario[6] }
   let(:scenario_name) do
     [
       loan_type,
@@ -32,7 +32,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       annual_interests_rate,
       duration_in_periods,
       deferred_in_periods,
-      Date.parse(starts_on).strftime('%Y%m%d'),
+      starts_on.strftime('%Y%m%d'),
       first_term_date,
     ].compact.join('_')
   end
@@ -58,7 +58,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   end
 
   it 'has valid start date' do
-    expect(lender_timetable.starts_on).to eq(Date.parse(starts_on))
+    expect(lender_timetable.starts_on).to eq(starts_on)
   end
 
   it 'has valid number of terms' do
@@ -74,12 +74,12 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   end
 
   it 'has contiguous due_on dates' do
-    date = Date.parse(starts_on)
+    date = starts_on
     step = LoanCreator::Timetable::PERIODS.fetch(period)
 
     lender_timetable.terms.each do |term|
       if term.index == 0
-        expect(term.due_on).to eq(Date.parse(first_term_date))
+        expect(term.due_on).to eq(first_term_date)
       else
         expect(term.due_on).to eq(date)
         date = date.advance(step)
