@@ -50,16 +50,6 @@ module LoanCreator
       @crd_end_of_period -= @period_capital
     end
 
-    def compute_term_zero
-      @crd_beginning_of_period = @crd_end_of_period
-      @period_theoric_interests = term_zero_interests
-      @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
-      @accrued_delta_interests += @delta_interests
-      @period_interests = @period_theoric_interests.round(2)
-      @total_paid_interests_end_of_period += @period_interests
-      @period_amount_to_pay = @period_interests
-    end
-
     def period_theoric_interests(idx)
       if @deferred_period
         @crd_beginning_of_period * periodic_interests_rate
@@ -71,19 +61,6 @@ module LoanCreator
           amount
         )
       end
-    end
-
-    def term_zero_interests
-      @crd_beginning_of_period * term_zero_interests_rate
-    end
-
-    def term_zero_interests_rate
-      term_zero_interests_rate_percentage = (annual_interests_rate * term_zero_duration).div(365, BIG_DECIMAL_DIGITS)
-      term_zero_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
-    end
-
-    def term_zero_duration
-      (starts_on - first_term_date).to_i
     end
 
     def period_capital(idx)

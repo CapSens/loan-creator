@@ -39,7 +39,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   let(:expected_lender_terms) { CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv")) }
 
   # # Debug tool
-  # it do
+  # before do
   #   expected_lender_terms.zip(lender_timetable.to_csv(header: false)).each do |t|
   #     puts "INDEX #{t[1].split(',').first}"
   #     print "E "
