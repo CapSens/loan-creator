@@ -46,6 +46,7 @@ Each instance of one of the previous classes has the following attributes:
     :starts_at
     :duration_in_periods
     :deferred_in_periods (default to zero)
+    :first_term_date (optional)
 ```
 
 There is also a `LoanCreator::Timetable` class dedicated to record the data of the loans' terms. Each instance of `LoanCreator::Timetable` represents an array of `LoanCreator::Term` records, each having the following attributes:
@@ -99,7 +100,28 @@ support all those differences.
 `.borrower_timetable(*lenders_timetables)` (class method) intends to sum each attribute of each provided `lender_timetable` on each term and thus to provide an ascending order array of `LoanCreator::Term`. It should be used for the borrower of a loan, once all lenders and their lending amounts
 are known. It makes the borrower support all financial rounding differences.
 
+## Example
+
+```ruby
+loan_creator = LoanCreator::Standard.new(
+  period: :year,
+  amount: 42_000,
+  annual_interests_rate: 4,
+  starts_on: '2019-03-01',
+  duration_in_periods: 5,
+  deferred_in_periods: 1,
+  first_term_date: '2019-02-10'
+)
+loan_creator.lender_timetable
+# => #<LoanCreator::Timetable:0x0000000003198bd0 @terms=[...] ...>
+loan_creator.lender_timetable.terms.first
+# => #<LoanCreator::Term:0x00000000030f1a88 @crd_beginning_of_period=0.42e5,
+# [...] @period_amount_to_pay=0.8745e2, @index=0, @due_on=Sun, 10 Feb 2019>
+````
+
 ## Explanation
+
+### Classes
 
 `Standard` loan generates terms with constant payments.
 
@@ -116,6 +138,26 @@ Interests are capitalized, i.e. added to the borrowed capital on each term.\
 Capital share shall be repaid in full and all interests paid at loan's end.
 
 There is no deferred time for `InFine` and `Bullet` loans as it would be equivalent to increasing loan's duration.
+
+### Attributes
+
+`period`: A `Symbol`. `:month`, `:quarter`, `:semester` or `:year`.
+
+`duration_in_periods`: An `Integer`.
+
+`amount`: Any number that can be converted to `BigDecimal`.
+
+`annual_interests_rate`: In percentage. Any number that can be converted to `BigDecimal`.
+
+`starts_at`: A `Date`, or a `String` that can be parsed.
+
+`deferred_in_periods`: Optional. An `Integer`, smaller than `duration_in_periods`. Number of periods during which no
+capital is refunded, only interest. Only relevant for `Standard` and `Linear` loans.
+
+`first_term_date`: Optional. To be used when the loan starts before the first full term date. This then compute an
+additional term with only interests for the time difference.  
+For example, with a `start_at` in january 2020 and a `first_term_date` in october 2019, the timetable will include a
+first term corresponding to 3 months of interests.
 
 ## Development
 

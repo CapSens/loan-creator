@@ -19,7 +19,8 @@ module LoanCreator
 
     OPTIONAL_ATTRIBUTES = {
       # attribute: default_value
-      deferred_in_periods: 0
+      deferred_in_periods: 0,
+      first_term_date: nil,
     }.freeze
 
     attr_reader *REQUIRED_ATTRIBUTES
@@ -48,7 +49,7 @@ module LoanCreator
     end
 
     def self.bigd(value)
-      BigDecimal.new(value, BIG_DECIMAL_DIGITS)
+      BigDecimal(value, BIG_DECIMAL_DIGITS)
     end
 
     def bigd(value)
@@ -65,7 +66,8 @@ module LoanCreator
       @options[:period] = @options[:period].to_sym
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
-      @options[:starts_on] = @options[:starts_on].strftime('%Y-%m-%d') if Date === @options[:starts_on]
+      @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
+      @options[:first_term_date] = Date.parse(@options[:first_term_date]) if @options[:first_term_date].is_a?(String)
     end
 
     def set_attributes
@@ -83,7 +85,7 @@ module LoanCreator
       validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
       validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:starts_on) { |v| !!Date.parse(v) }
+      validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
@@ -119,7 +121,30 @@ module LoanCreator
     end
 
     def new_timetable
-      LoanCreator::Timetable.new(starts_on: starts_on, period: period)
+      LoanCreator::Timetable.new(starts_on: starts_on, period: period, first_term_date: first_term_date)
+    end
+
+    def compute_term_zero
+      @crd_beginning_of_period = @crd_end_of_period
+      @period_theoric_interests = term_zero_interests
+      @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
+      @accrued_delta_interests += @delta_interests
+      @period_interests = @period_theoric_interests.round(2)
+      @total_paid_interests_end_of_period += @period_interests
+      @period_amount_to_pay = @period_interests
+    end
+
+    def term_zero_interests
+      @crd_beginning_of_period * term_zero_interests_rate
+    end
+
+    def term_zero_interests_rate
+      term_zero_interests_rate_percentage = (annual_interests_rate * term_zero_duration).div(365, BIG_DECIMAL_DIGITS)
+      term_zero_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+    end
+
+    def term_zero_duration
+      (starts_on - first_term_date).to_i
     end
   end
 end

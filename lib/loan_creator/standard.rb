@@ -6,6 +6,12 @@ module LoanCreator
       timetable = new_timetable
       reset_current_term
       @crd_end_of_period = amount
+
+      if first_term_date
+        compute_term_zero
+        timetable << current_term
+      end
+
       duration_in_periods.times do |idx|
         @last_period = last_period?(idx)
         @deferred_period = idx < deferred_in_periods
