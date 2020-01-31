@@ -9,35 +9,25 @@ module LoanCreator
       year:     {years: 1}
     }
 
-    attr_reader :terms, :starts_on, :period, :first_term_date
+    attr_reader :terms, :starts_on, :period #, :interests_start_date
 
-    def initialize(starts_on:, period:, first_term_date: nil)
+    def initialize(starts_on:, period:, interests_start_date: nil)
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
 
       @terms     = []
       @starts_on = (starts_on.is_a?(Date) ? starts_on : Date.parse(starts_on))
       @period    = period
 
-      if first_term_date
-        @first_term_date = (first_term_date.is_a?(Date) ? first_term_date : Date.parse(first_term_date))
+      if interests_start_date
+        @interests_start_date = (interests_start_date.is_a?(Date) ? interests_start_date : Date.parse(interests_start_date))
       end
     end
 
     def <<(term)
       raise ArgumentError.new('LoanCreator::Term expected') unless term.is_a?(LoanCreator::Term)
-      term.index  = autoincrement_index
-      term.due_on = date_for(term.index)
+      term.index  ||= autoincrement_index
+      term.due_on ||= date_for(term.index)
       @terms << term
-      self
-    end
-
-    def reset_indexes_and_due_on_dates
-      reset_index
-      reset_dates
-      @terms.each do |term|
-        term[:index]  = autoincrement_index
-        term[:due_on] = date_for(term[:index])
-      end
       self
     end
 
@@ -55,23 +45,14 @@ module LoanCreator
     private
 
     def autoincrement_index
-      @current_index = @current_index.nil? ? first_index : @current_index + 1
-    end
-
-    # First term index of a timetable term is 0 if there is a first_term_date, 1 otherwise
-    def first_index
-      first_term_date ? 0 : 1
-    end
-
-    def reset_index
-      @current_index = first_index
+      @current_index = @current_index.nil? ? 1 : @current_index + 1
     end
 
     def date_for(index)
       @_dates ||= Hash.new do |dates, index|
         dates[index] =
-          if index == 0
-            first_term_date
+          if index < 1
+            dates[index + 1].advance(PERIODS.fetch(period).transform_values {|n| -n})
           elsif index == 1
             starts_on
           else

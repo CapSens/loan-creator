@@ -20,7 +20,7 @@ module LoanCreator
     OPTIONAL_ATTRIBUTES = {
       # attribute: default_value
       deferred_in_periods: 0,
-      first_term_date: nil,
+      interests_start_date: nil,
     }.freeze
 
     attr_reader *REQUIRED_ATTRIBUTES
@@ -67,7 +67,7 @@ module LoanCreator
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
-      @options[:first_term_date] = Date.parse(@options[:first_term_date]) if @options[:first_term_date].is_a?(String)
+      @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
     end
 
     def set_attributes
@@ -102,6 +102,8 @@ module LoanCreator
       @total_paid_capital_end_of_period = bigd('0')
       @total_paid_interests_end_of_period = bigd('0')
       @period_amount_to_pay = bigd('0')
+      @due_on = nil
+      @index = nil
     end
 
     def current_term
@@ -116,12 +118,14 @@ module LoanCreator
         period_capital: @period_capital,
         total_paid_capital_end_of_period: @total_paid_capital_end_of_period,
         total_paid_interests_end_of_period: @total_paid_interests_end_of_period,
-        period_amount_to_pay: @period_amount_to_pay
+        period_amount_to_pay: @period_amount_to_pay,
+        due_on: @due_on,
+        index: @index
       )
     end
 
     def new_timetable
-      LoanCreator::Timetable.new(starts_on: starts_on, period: period, first_term_date: first_term_date)
+      LoanCreator::Timetable.new(starts_on: starts_on, period: period, interests_start_date: interests_start_date)
     end
 
     def compute_term_zero
@@ -132,6 +136,7 @@ module LoanCreator
       @period_interests = @period_theoric_interests.round(2)
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests
+      @index = 0
     end
 
     def term_zero_interests
@@ -144,7 +149,15 @@ module LoanCreator
     end
 
     def term_zero_duration
-      (starts_on - first_term_date).to_i
+      (term_zero_date - interests_start_date).to_i
+    end
+
+    def term_zero_date
+      starts_on.advance(months: -PERIODS_IN_MONTHS.fetch(@period))
+    end
+
+    def term_zero?
+      interests_start_date && interests_start_date < term_zero_date
     end
   end
 end
