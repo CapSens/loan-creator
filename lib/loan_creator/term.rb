@@ -36,7 +36,7 @@ module LoanCreator
       :period_amount_to_pay
     ].freeze
 
-    ATTRIBUTES = [
+    OPTIONAL_ARGUMENTS = [
       # Term number (starts at 1)
       # This value is to be set by Timetable
       :index,
@@ -44,15 +44,15 @@ module LoanCreator
       # Term date
       # This value is to be set by Timetable
       :due_on,
+    ]
 
-      # These values are to be specified during Term's initialization
-      *ARGUMENTS
-    ].freeze
+    ATTRIBUTES = (ARGUMENTS + OPTIONAL_ARGUMENTS).freeze
 
     attr_accessor *ATTRIBUTES
 
     def initialize(**options)
       ARGUMENTS.each { |k| instance_variable_set(:"@#{k}", options.fetch(k)) }
+      OPTIONAL_ARGUMENTS.each { |k| instance_variable_set(:"@#{k}", options.fetch(k, nil)) }
     end
 
     def to_csv

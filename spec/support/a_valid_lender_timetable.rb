@@ -11,7 +11,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       starts_on: starts_on,
       duration_in_periods: duration_in_periods,
       deferred_in_periods: deferred_in_periods,
-      first_term_date: first_term_date,
+      interests_start_date: interests_start_date,
     )
   end
   let(:lender_timetable) do
@@ -23,7 +23,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   let(:starts_on) { Date.parse(scenario[3]) }
   let(:duration_in_periods) { scenario[4].to_i }
   let(:deferred_in_periods) { scenario[5].to_i }
-  let(:first_term_date) { scenario[6].is_a?(String) ? Date.parse(scenario[6]) : scenario[6] }
+  let(:interests_start_date) { scenario[6].is_a?(String) ? Date.parse(scenario[6]) : scenario[6] }
   let(:scenario_name) do
     [
       loan_type,
@@ -33,7 +33,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       duration_in_periods,
       deferred_in_periods,
       starts_on.strftime('%Y%m%d'),
-      first_term_date,
+      interests_start_date,
     ].compact.join('_')
   end
   let(:expected_lender_terms) { CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv")) }
@@ -66,7 +66,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   end
 
   it 'has contiguous indexes' do
-    index = lender_timetable.first_term_date ? 0 : 1
+    term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
+    index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
     lender_timetable.terms.each do |term|
       expect(term.index).to eq(index)
       index += 1
@@ -79,7 +80,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
 
     lender_timetable.terms.each do |term|
       if term.index == 0
-        expect(term.due_on).to eq(first_term_date)
+        expect(term.due_on).to eq(date.advance(step.transform_values {|n| -n}))
       else
         expect(term.due_on).to eq(date)
         date = date.advance(step)

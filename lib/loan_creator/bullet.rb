@@ -2,7 +2,7 @@ module LoanCreator
   class Bullet < LoanCreator::Common
     def lender_timetable
       raise ArgumentError.new(:deferred_in_periods) unless deferred_in_periods == 0
-      raise ArgumentError.new(:first_term_date) unless first_term_date.nil?
+      raise ArgumentError.new(:interests_start_date) unless interests_start_date.nil?
       timetable = new_timetable
       reset_current_term
       @crd_beginning_of_period = amount

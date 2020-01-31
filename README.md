@@ -46,7 +46,7 @@ Each instance of one of the previous classes has the following attributes:
     :starts_at
     :duration_in_periods
     :deferred_in_periods (default to zero)
-    :first_term_date (optional)
+    :interests_start_date (optional)
 ```
 
 There is also a `LoanCreator::Timetable` class dedicated to record the data of the loans' terms. Each instance of `LoanCreator::Timetable` represents an array of `LoanCreator::Term` records, each having the following attributes:
@@ -56,7 +56,7 @@ There is also a `LoanCreator::Timetable` class dedicated to record the data of t
       :index
 
       # Term date
-      :date
+      :due_on
 
       # Remaining due capital at the beginning of the term
       :crd_beginning_of_period
@@ -110,7 +110,7 @@ loan_creator = LoanCreator::Standard.new(
   starts_on: '2019-03-01',
   duration_in_periods: 5,
   deferred_in_periods: 1,
-  first_term_date: '2019-02-10'
+  interests_start_date: '2019-02-10'
 )
 loan_creator.lender_timetable
 # => #<LoanCreator::Timetable:0x0000000003198bd0 @terms=[...] ...>
@@ -154,9 +154,9 @@ There is no deferred time for `InFine` and `Bullet` loans as it would be equival
 `deferred_in_periods`: Optional. An `Integer`, smaller than `duration_in_periods`. Number of periods during which no
 capital is refunded, only interest. Only relevant for `Standard` and `Linear` loans.
 
-`first_term_date`: Optional. To be used when the loan starts before the first full term date. This then compute an
+`interests_start_date`: Optional. To be used when the loan starts before the first full term date. This then compute an
 additional term with only interests for the time difference.  
-For example, with a `start_at` in january 2020 and a `first_term_date` in october 2019, the timetable will include a
+For example, with a `start_at` in january 2020 and a `interests_start_date` in october 2019, the timetable will include a
 first term corresponding to 3 months of interests.
 
 ## Development
