@@ -35,6 +35,7 @@ There are four types of loans. All inherit from a `LoanCreator::Common` class.
     LoanCreator::Linear
     LoanCreator::InFine
     LoanCreator::Bullet
+    LoanCreator::UncapitalizedBullet
 ```
 
 Each instance of one of the previous classes has the following attributes:
@@ -137,6 +138,9 @@ Capital share shall be repaid in full at loan's end.
 Interests are capitalized, i.e. added to the borrowed capital on each term.\
 Capital share shall be repaid in full and all interests paid at loan's end.
 
+`UncapitalizedBullet` same as bullet, the only difference is the interests\
+are NOT capitalized.
+
 There is no deferred time for `InFine` and `Bullet` loans as it would be equivalent to increasing loan's duration.
 
 ### Attributes
@@ -155,7 +159,7 @@ There is no deferred time for `InFine` and `Bullet` loans as it would be equival
 capital is refunded, only interest. Only relevant for `Standard` and `Linear` loans.
 
 `interests_start_date`: Optional. To be used when the loan starts before the first full term date. This then compute an
-additional term with only interests for the time difference.  
+additional term with only interests for the time difference.
 For example, with a `start_at` in january 2020 and a `interests_start_date` in october 2019, the timetable will include a
 first term corresponding to 3 months of interests.
 
