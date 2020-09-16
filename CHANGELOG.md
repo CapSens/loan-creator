@@ -32,3 +32,8 @@ v0.2.1
 -------------------------
 
 - convert some options to their expected type by default
+
+v0.2.0
+-------------------------
+
+- Huge rework : add `period`, rename `amount_in_cents` to `amount` and other breaking changes.

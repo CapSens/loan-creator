@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu', 'younes.serraj@gmail.com', "antoine@capsens.eu", "jerome@capsens.eu"]
 
   spec.summary       = 'Create and update timetables from input data'
-  spec.homepage      = 'https://capsens.githost.io/capsens/loan-creator'
+  spec.homepage      = 'https://github.com/CapSens/loan-creator'
   spec.license       = 'MIT'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
