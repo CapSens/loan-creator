@@ -2,8 +2,6 @@
 
 `loan_creator` gem intends to provide a set of methods to allow automatic generation of loan timetables, for simulation, from a lender point of view and from a borrower point of view, regarding financial rounding differences. As of today, the gem makes the borrower support any rounding issue. In a later work, an option should be provided to decide who supports such issues.
 
-Link to Loan_Creator excel simulator [Click here] (Excel)
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -163,6 +161,10 @@ additional term with only interests for the time difference.
 For example, with a `start_at` in january 2020 and a `interests_start_date` in october 2019, the timetable will include a
 first term corresponding to 3 months of interests.
 
+## Calculation
+
+An excel simulator for standard case can be found [here](CapSens_Loan.xlsx).
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -171,7 +173,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/loan_creator.
+Bug reports and pull requests are welcome on GitHub at https://github.com/CapSens/loan_creator.
 
 
 ## License

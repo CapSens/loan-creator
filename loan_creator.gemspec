@@ -5,17 +5,12 @@ require 'loan_creator/version'
 Gem::Specification.new do |spec|
   spec.name          = 'loan_creator'
   spec.version       = LoanCreator::VERSION
-  spec.authors       = %w[thibaulth nicob younes.serraj]
-  spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu', 'younes.serraj@gmail.com']
+  spec.authors       = ["thibaulth", "nicob", "younes.serraj", "Antoine Becquet", "Jerome Drevet"]
+  spec.email         = ['thibault@capsens.eu', 'nicolas.besnard@capsens.eu', 'younes.serraj@gmail.com', "antoine@capsens.eu", "jerome@capsens.eu"]
 
   spec.summary       = 'Create and update timetables from input data'
   spec.homepage      = 'https://capsens.githost.io/capsens/loan-creator'
   spec.license       = 'MIT'
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.' unless spec.respond_to?(:metadata)
-  spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
