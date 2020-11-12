@@ -94,6 +94,7 @@ module LoanCreator
       @crd_beginning_of_period = bigd('0')
       @crd_end_of_period = bigd('0')
       @period_theoric_interests = bigd('0')
+      @capitalized_interests = bigd('0')
       @delta_interests = bigd('0')
       @accrued_delta_interests = bigd('0')
       @amount_to_add = bigd('0')
@@ -113,6 +114,7 @@ module LoanCreator
         period_theoric_interests: @period_theoric_interests,
         delta_interests: @delta_interests,
         accrued_delta_interests: @accrued_delta_interests,
+        capitalized_interests: @capitalized_interests,
         amount_to_add: @amount_to_add,
         period_interests: @period_interests,
         period_capital: @period_capital,
