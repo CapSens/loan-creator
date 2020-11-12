@@ -7,7 +7,7 @@ module LoanCreator
       reset_current_term
       @crd_beginning_of_period = amount
       @crd_end_of_period = amount
-      (duration_in_periods - 1).times { timetable << current_term }
+      (duration_in_periods - 1).times { |period| compute_term(timetable, period + 1) }
       compute_last_term
       timetable << current_term
       timetable
@@ -22,6 +22,16 @@ module LoanCreator
       @total_paid_capital_end_of_period = @period_capital
       @total_paid_interests_end_of_period = @period_interests
       @period_amount_to_pay = @period_capital + @period_interests
+      @capitalized_interests = compute_capitalized_interests(duration_in_periods)
+    end
+
+    def compute_capitalized_interests(period)
+      (amount * (1 + ((@annual_interests_rate / bigd(100)) / 12)) ** period) - amount
+    end
+
+    def compute_term(timetable, period)
+      @capitalized_interests = compute_capitalized_interests(period)
+      timetable << current_term
     end
 
     #   Capital * (periodic_interests_rate ^(total_terms))
