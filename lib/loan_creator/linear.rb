@@ -17,6 +17,7 @@ module LoanCreator
         compute_current_term(idx)
         timetable << current_term
       end
+
       timetable
     end
 
