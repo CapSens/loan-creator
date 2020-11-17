@@ -107,9 +107,9 @@ module LoanCreator
 
       return if initial_values.blank?
 
-      (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital])) if initial_values[:paid_capital]
-      (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests])) if initial_values[:paid_interests]
-      (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests])) if initial_values[:accrued_delta_interests]
+      (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital]))
+      (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests]))
+      (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests]))
     end
 
     def reset_current_term
