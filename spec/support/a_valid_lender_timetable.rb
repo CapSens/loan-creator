@@ -3,31 +3,17 @@ require 'spec_helper'
 PRINT_DEBUG = false
 
 RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values|
-  if initial_values
-    let(:loan) do
-      described_class.new(
-        period: period,
-        amount: amount,
-        annual_interests_rate: annual_interests_rate,
-        starts_on: starts_on,
-        duration_in_periods: duration_in_periods,
-        deferred_in_periods: deferred_in_periods,
-        interests_start_date: interests_start_date,
-        initial_values: initial_values
-      )
-    end
-  else
-    let(:loan) do
-      described_class.new(
-        period: period,
-        amount: amount,
-        annual_interests_rate: annual_interests_rate,
-        starts_on: starts_on,
-        duration_in_periods: duration_in_periods,
-        deferred_in_periods: deferred_in_periods,
-        interests_start_date: interests_start_date,
-      )
-    end
+  let(:loan) do
+    described_class.new(
+      period: period,
+      amount: amount,
+      annual_interests_rate: annual_interests_rate,
+      starts_on: starts_on,
+      duration_in_periods: duration_in_periods,
+      deferred_in_periods: deferred_in_periods,
+      interests_start_date: interests_start_date,
+      initial_values: initial_values.presence || {}
+    )
   end
   let(:lender_timetable) do
     loan.lender_timetable

@@ -34,6 +34,7 @@ module LoanCreator
       set_attributes
       validate_attributes
       set_initial_values
+      validate_initial_values
     end
 
     def periodic_interests_rate_percentage
@@ -92,11 +93,23 @@ module LoanCreator
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
     end
 
+    def validate_initial_values
+      return if initial_values.blank?
+
+      validate(:total_paid_capital_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
+      validate(:total_paid_interests_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
+      validate(:accrued_delta_interests) { |v| v.is_a?(BigDecimal) && v >= 0 }
+      validate(:starting_index) { |v| v.is_a?(Integer) && v >= 0 }
+    end
+
     def set_initial_values
+      @starting_index  = initial_values[:starting_index] || 1
+
+      return if initial_values.blank?
+
       (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital])) if initial_values[:paid_capital]
       (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests])) if initial_values[:paid_interests]
       (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests])) if initial_values[:accrued_delta_interests]
-      @starting_index                      = initial_values[:starting_index] || 1
     end
 
     def reset_current_term
