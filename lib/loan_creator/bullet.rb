@@ -26,7 +26,7 @@ module LoanCreator
     end
 
     def compute_capitalized_interests(period)
-      (amount * (1 + ((@annual_interests_rate / bigd(100)) / 12)) ** period) - amount
+      amount.mult((bigd(1) + periodic_interests_rate) ** period, BIG_DECIMAL_DIGITS) - amount
     end
 
     def compute_term(timetable, period)
