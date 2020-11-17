@@ -33,14 +33,5 @@ module LoanCreator
       @capitalized_interests = compute_capitalized_interests(period)
       timetable << current_term
     end
-
-    #   Capital * (periodic_interests_rate ^(total_terms))
-    #
-    def total_payment
-      amount.mult(
-        (bigd(1) + periodic_interests_rate) ** bigd(duration_in_periods),
-        BIG_DECIMAL_DIGITS
-      )
-    end
   end
 end
