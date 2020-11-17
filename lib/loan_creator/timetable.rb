@@ -11,13 +11,13 @@ module LoanCreator
 
     attr_reader :terms, :starts_on, :period #, :interests_start_date
 
-    def initialize(starts_on:, period:, interests_start_date: nil, starting_index: nil)
+    def initialize(starts_on:, period:, interests_start_date: nil, starting_index: 1)
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
 
       @terms          = []
       @starts_on      = (starts_on.is_a?(Date) ? starts_on : Date.parse(starts_on))
       @period         = period
-      @starting_index = starting_index.presence.to_i || 1
+      @starting_index = starting_index
 
       if interests_start_date
         @interests_start_date = (interests_start_date.is_a?(Date) ? interests_start_date : Date.parse(interests_start_date))
@@ -46,7 +46,7 @@ module LoanCreator
     private
 
     def autoincrement_index
-      @current_index = @current_index.nil? ? @starting_index : @current_index + 1
+      @current_index = (@current_index.nil? ? @starting_index : @current_index + 1)
     end
 
     def date_for(index)
