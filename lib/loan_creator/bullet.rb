@@ -17,7 +17,7 @@ module LoanCreator
 
     def compute_last_term
       @crd_end_of_period                  = bigd('0')
-      @period_interests                   = total_interests
+      @period_interests                   = compute_capitalized_interests(duration_in_periods)
       @period_capital                     = @crd_beginning_of_period
       @total_paid_capital_end_of_period   = @period_capital
       @total_paid_interests_end_of_period = @period_interests
@@ -41,10 +41,6 @@ module LoanCreator
         (bigd(1) + periodic_interests_rate) ** bigd(duration_in_periods),
         BIG_DECIMAL_DIGITS
       )
-    end
-
-    def total_interests
-      total_payment - amount
     end
   end
 end
