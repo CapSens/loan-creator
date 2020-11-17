@@ -96,7 +96,7 @@ module LoanCreator
       (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital])) if initial_values[:paid_capital]
       (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests])) if initial_values[:paid_interests]
       (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests])) if initial_values[:accrued_delta_interests]
-      (@index                              = initial_values[:index]) if initial_values[:index]
+      (@starting_index                     = initial_values[:starting_index]) if initial_values[:starting_index]
     end
 
     def reset_current_term
@@ -131,12 +131,21 @@ module LoanCreator
         total_paid_interests_end_of_period: @total_paid_interests_end_of_period,
         period_amount_to_pay:               @period_amount_to_pay,
         due_on:                             @due_on,
-        index:                              @index
+        index:                              compute_index
       )
     end
 
     def new_timetable
-      LoanCreator::Timetable.new(starts_on: starts_on, period: period, interests_start_date: interests_start_date)
+      LoanCreator::Timetable.new(
+        starts_on: starts_on,
+        period: period,
+        interests_start_date: interests_start_date,
+        starting_index: @starting_index
+      )
+    end
+
+    def compute_index
+      @starting_index ? (@starting_index + @index - 1) : @index
     end
 
     def compute_term_zero
