@@ -126,7 +126,6 @@ module LoanCreator
       @total_paid_interests_end_of_period = @total_paid_interests_end_of_period || bigd('0')
       @period_amount_to_pay               = bigd('0')
       @due_on                             = nil
-      @index                              = @index || nil
     end
 
     def current_term
