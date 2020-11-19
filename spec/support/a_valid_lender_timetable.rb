@@ -2,7 +2,7 @@ require 'spec_helper'
 
 PRINT_DEBUG = false
 
-RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
+RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values|
   let(:loan) do
     described_class.new(
       period: period,
@@ -12,11 +12,13 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       duration_in_periods: duration_in_periods,
       deferred_in_periods: deferred_in_periods,
       interests_start_date: interests_start_date,
+      initial_values: initial_values.presence || {}
     )
   end
   let(:lender_timetable) do
     loan.lender_timetable
   end
+  let(:starting_index) { initial_values ? initial_values[:starting_index] : 1 }
   let(:period) { scenario[0].to_sym }
   let(:amount) { bigd(scenario[1]) }
   let(:annual_interests_rate) { bigd(scenario[2]) }
@@ -36,7 +38,14 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
       interests_start_date,
     ].compact.join('_')
   end
-  let(:expected_lender_terms) { CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv")) }
+
+  let(:expected_lender_terms) do
+    if initial_values.present?
+      CSV.parse(File.read("./spec/fixtures/#{scenario_name}_with_initial_values.csv"))
+    else
+      CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv"))
+    end
+  end
 
   # # Debug tool
   # before do
@@ -68,6 +77,9 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   it 'has contiguous indexes' do
     term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
     index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
+
+    index += starting_index - 1
+
     lender_timetable.terms.each do |term|
       expect(term.index).to eq(index)
       index += 1
@@ -75,8 +87,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario|
   end
 
   it 'has contiguous due_on dates' do
-    date = starts_on
     step = LoanCreator::Timetable::PERIODS.fetch(period)
+    date = starts_on.advance(step.transform_values { |n| n * (starting_index - 1)})
 
     lender_timetable.terms.each do |term|
       if term.index == 0

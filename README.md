@@ -46,6 +46,19 @@ Each instance of one of the previous classes has the following attributes:
     :duration_in_periods
     :deferred_in_periods (default to zero)
     :interests_start_date (optional)
+    :initial_values (to generate a timetable from a previous term or at a given state)
+```
+
+Initial values must be a hash with specific keys, like so:
+
+```ruby
+{
+    paid_capital: 0,
+    paid_interests: 11000.0,
+    accrued_delta_interests: 0,
+    starting_index: 2,
+    capitalized_interests: 0
+}
 ```
 
 There is also a `LoanCreator::Timetable` class dedicated to record the data of the loans' terms. Each instance of `LoanCreator::Timetable` represents an array of `LoanCreator::Term` records, each having the following attributes:
