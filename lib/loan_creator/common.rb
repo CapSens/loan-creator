@@ -98,7 +98,7 @@ module LoanCreator
 
       validate(:total_paid_capital_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
       validate(:total_paid_interests_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:accrued_delta_interests) { |v| v.is_a?(BigDecimal) && v >= 0 }
+      validate(:accrued_delta_interests) { |v| v.is_a?(BigDecimal) }
       validate(:starting_index) { |v| v.is_a?(Integer) && v >= 0 }
     end
 
