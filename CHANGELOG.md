@@ -1,3 +1,9 @@
+v0.6.2
+-------------------------
+
+- add `:initial_values` for loans initialization
+- add and compute `capitalized_interests` for `LoanCreator::Bullet` terms
+
 v0.6.1
 -------------------------
 
