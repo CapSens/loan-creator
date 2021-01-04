@@ -34,7 +34,7 @@ module LoanCreator
         term = BORROWER_FINANCIAL_ATTRIBUTES.each_with_object({}) do |k, h|
           h[k] = arr.inject(bigd('0')) { |sum, tt| sum + tt.send(k) }
         end
-        borrower_timetable << LoanCreator::Term.new(all_zero.merge(term))
+        borrower_timetable << LoanCreator::Term.new(**all_zero.merge(term))
       end
       borrower_timetable
     end

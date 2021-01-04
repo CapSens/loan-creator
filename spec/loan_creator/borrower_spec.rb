@@ -18,9 +18,9 @@ describe LoanCreator::Common do
           deferred_in_periods: deferred_in_periods
         }
       end
-      let(:loan_1) { LoanCreator::Standard.new(loan_commons.merge({ amount: bigd('55000') })) }
-      let(:loan_2) { LoanCreator::Standard.new(loan_commons.merge({ amount: bigd('21000') })) }
-      let(:loan_3) { LoanCreator::Standard.new(loan_commons.merge({ amount: bigd('42000') })) }
+      let(:loan_1) { LoanCreator::Standard.new(**loan_commons.merge({ amount: bigd('55000') })) }
+      let(:loan_2) { LoanCreator::Standard.new(**loan_commons.merge({ amount: bigd('21000') })) }
+      let(:loan_3) { LoanCreator::Standard.new(**loan_commons.merge({ amount: bigd('42000') })) }
       let(:loans) { [loan_1, loan_2, loan_3] }
       let(:lenders_timetables) { loans.map(&:lender_timetable) }
       let(:borrower_timetable) { described_class.borrower_timetable(*lenders_timetables) }
