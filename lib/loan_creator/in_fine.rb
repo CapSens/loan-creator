@@ -4,7 +4,7 @@ module LoanCreator
     # Thus we're generating a Linear loan instead of rewriting already existing code.
     def lender_timetable
       options = @options.merge(deferred_in_periods: duration_in_periods - 1)
-      LoanCreator::Linear.new(options).lender_timetable
+      LoanCreator::Linear.new(**options).lender_timetable
     end
   end
 end
