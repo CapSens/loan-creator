@@ -1,0 +1,45 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@0.1.2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.7-node
+    executor: ruby/default
+    steps:
+      - checkout
+      - run:
+          name: Bundle install
+          command: |
+            gem install bundler:2.1.4
+            bundle install --path vendor/bundle
+      - run:
+          name: Test
+          command: bundle exec rspec
+      - run:
+          name: Coding style
+          command: |
+            gem install rubocop
+            mkdir -p rubocop
+            rubocop --format html -o rubocop/rubocop.html || true
+      - run:
+          name: Notation
+          command: |
+            gem install sexp_processor -v 4.13.0
+            gem install rubycritic -v 4.3.2
+            rubycritic app --no-browser || true
+      - run:
+          name: "Axe d'optimisation"
+          command: |
+            gem install fasterer
+            fasterer || true
+      - run:
+          name: "Audit Securité du Gemfile"
+          command: |
+            gem install bundler-audit
+            bundle audit --update
+      - store_artifacts:
+          path: rubocop/rubocop.html
+      - store_artifacts:
+          path: tmp/rubycritic
