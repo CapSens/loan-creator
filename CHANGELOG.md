@@ -1,3 +1,9 @@
+v0.7.0
+-------------------------
+
+- change `capitalized_interests` for `capitalized_interests_beginning_of_period`
+  and `capitalized_interests_end_of_period` in `LoanCreator::Term`
+
 v0.6.2
 -------------------------
 
