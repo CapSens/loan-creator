@@ -21,7 +21,7 @@ describe LoanCreator::Bullet do
         paid_interests: 0,
         accrued_delta_interests: 0,
         starting_index: 3,
-        capitalized_interests: 16.7361111111
+        capitalized_interests: 16.73
       }
 
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']

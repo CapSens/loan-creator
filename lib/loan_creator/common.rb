@@ -110,17 +110,20 @@ module LoanCreator
       (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital]))
       (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests]))
       (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests]))
+      if self.is_a?(LoanCreator::Bullet)
+        (@capitalized_interests_beginning_of_period = bigd(initial_values[:capitalized_interests] || 0))
+      end
     end
 
     def reset_current_term
       @accrued_delta_interests ||= bigd('0')
       @total_paid_capital_end_of_period ||= bigd('0')
       @total_paid_interests_end_of_period ||= bigd('0')
+      @capitalized_interests_beginning_of_period ||= bigd('0')
       @crd_beginning_of_period                   = bigd('0')
       @crd_end_of_period                         = bigd('0')
       @period_theoric_interests                  = bigd('0')
-      @capitalized_interests_beginning_of_period = bigd('0')
-      @capitalized_interests_end_of_period       = bigd('0')
+      @capitalized_interests_end_of_period       = @capitalized_interests_beginning_of_period
       @delta_interests                           = bigd('0')
       @amount_to_add                             = bigd('0')
       @period_interests                          = bigd('0')
