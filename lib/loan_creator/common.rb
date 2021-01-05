@@ -110,40 +110,45 @@ module LoanCreator
       (@total_paid_capital_end_of_period   = bigd(initial_values[:paid_capital]))
       (@total_paid_interests_end_of_period = bigd(initial_values[:paid_interests]))
       (@accrued_delta_interests            = bigd(initial_values[:accrued_delta_interests]))
+      if self.is_a?(LoanCreator::Bullet)
+        (@capitalized_interests_beginning_of_period = bigd(initial_values[:capitalized_interests] || 0))
+      end
     end
 
     def reset_current_term
-      @crd_beginning_of_period            = bigd('0')
-      @crd_end_of_period                  = bigd('0')
-      @period_theoric_interests           = bigd('0')
-      @capitalized_interests              = bigd('0')
-      @delta_interests                    = bigd('0')
-      @accrued_delta_interests            = @accrued_delta_interests || bigd('0')
-      @amount_to_add                      = bigd('0')
-      @period_interests                   = bigd('0')
-      @period_capital                     = bigd('0')
-      @total_paid_capital_end_of_period   = @total_paid_capital_end_of_period || bigd('0')
-      @total_paid_interests_end_of_period = @total_paid_interests_end_of_period || bigd('0')
-      @period_amount_to_pay               = bigd('0')
-      @due_on                             = nil
+      @accrued_delta_interests ||= bigd('0')
+      @total_paid_capital_end_of_period ||= bigd('0')
+      @total_paid_interests_end_of_period ||= bigd('0')
+      @capitalized_interests_beginning_of_period ||= bigd('0')
+      @crd_beginning_of_period                   = bigd('0')
+      @crd_end_of_period                         = bigd('0')
+      @period_theoric_interests                  = bigd('0')
+      @capitalized_interests_end_of_period       = @capitalized_interests_beginning_of_period
+      @delta_interests                           = bigd('0')
+      @amount_to_add                             = bigd('0')
+      @period_interests                          = bigd('0')
+      @period_capital                            = bigd('0')
+      @period_amount_to_pay                      = bigd('0')
+      @due_on                                    = nil
     end
 
     def current_term
       LoanCreator::Term.new(
-        crd_beginning_of_period:            @crd_beginning_of_period,
-        crd_end_of_period:                  @crd_end_of_period,
-        period_theoric_interests:           @period_theoric_interests,
-        delta_interests:                    @delta_interests,
-        accrued_delta_interests:            @accrued_delta_interests,
-        capitalized_interests:              @capitalized_interests,
-        amount_to_add:                      @amount_to_add,
-        period_interests:                   @period_interests,
-        period_capital:                     @period_capital,
-        total_paid_capital_end_of_period:   @total_paid_capital_end_of_period,
-        total_paid_interests_end_of_period: @total_paid_interests_end_of_period,
-        period_amount_to_pay:               @period_amount_to_pay,
-        due_on:                             @due_on,
-        index:                              compute_index
+        crd_beginning_of_period:                   @crd_beginning_of_period,
+        crd_end_of_period:                         @crd_end_of_period,
+        period_theoric_interests:                  @period_theoric_interests,
+        delta_interests:                           @delta_interests,
+        accrued_delta_interests:                   @accrued_delta_interests,
+        capitalized_interests_beginning_of_period: @capitalized_interests_beginning_of_period,
+        capitalized_interests_end_of_period:       @capitalized_interests_end_of_period,
+        amount_to_add:                             @amount_to_add,
+        period_interests:                          @period_interests,
+        period_capital:                            @period_capital,
+        total_paid_capital_end_of_period:          @total_paid_capital_end_of_period,
+        total_paid_interests_end_of_period:        @total_paid_interests_end_of_period,
+        period_amount_to_pay:                      @period_amount_to_pay,
+        due_on:                                    @due_on,
+        index:                                     compute_index
       )
     end
 

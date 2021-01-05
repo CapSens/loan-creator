@@ -17,8 +17,11 @@ module LoanCreator
       # Accrued interests' delta
       :accrued_delta_interests,
 
-      # Capitalized interests (Bullet only)
-      :capitalized_interests,
+      # Capitalized interests at the beginning of the term (Bullet only)
+      :capitalized_interests_beginning_of_period,
+
+      # Capitalized interests at the end of the term (Bullet only)
+      :capitalized_interests_end_of_period,
 
       # Adjustment of -0.01, 0 or +0.01 cent depending on accrued_delta_interests
       :amount_to_add,

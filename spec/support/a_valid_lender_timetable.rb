@@ -133,7 +133,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       # expect(term_got.amount_to_add).to eq(term_expected[CSV_COL_AMOUNT_TO_ADD])
       expect(term_got.period_interests).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_PERIOD_INTERESTS])
       expect(term_got.total_paid_interests_end_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_TOTAL_PAID_INTERESTS_END_OF_PERIOD])
-      expect(term_got.capitalized_interests).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_CAPITALIZED_INTERESTS])
+      expect(term_got.capitalized_interests_beginning_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_CAPITALIZED_INTERESTS_BEGINNING_OF_PERIOD])
+      expect(term_got.capitalized_interests_end_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_CAPITALIZED_INTERESTS_END_OF_PERIOD])
     end
   end
 end
