@@ -7,6 +7,8 @@ module LoanCreator
       :period_capital,
       :total_paid_capital_end_of_period,
       :total_paid_interests_end_of_period,
+      :capitalized_interests_beginning_of_period,
+      :capitalized_interests_end_of_period,
       :period_amount_to_pay
     ].freeze
 
@@ -18,6 +20,7 @@ module LoanCreator
       end
 
       borrower_timetable = LoanCreator::Timetable.new(
+        starting_index: lenders_timetables.first.starting_index,
         starts_on: lenders_timetables.first.starts_on,
         period: lenders_timetables.first.period
       )

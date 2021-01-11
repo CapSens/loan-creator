@@ -9,7 +9,7 @@ module LoanCreator
       year:     {years: 1}
     }
 
-    attr_reader :terms, :starts_on, :period #, :interests_start_date
+    attr_reader :terms, :starts_on, :period, :starting_index #, :interests_start_date
 
     def initialize(starts_on:, period:, interests_start_date: nil, starting_index: 1)
       raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)

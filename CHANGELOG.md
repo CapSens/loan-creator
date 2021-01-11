@@ -1,3 +1,8 @@
+v0.7.1
+-------------------------
+
+- fix `index` for `borrower_timetable` method that did not take into account starting index of `lender_timetables`
+
 v0.7.0
 -------------------------
 
