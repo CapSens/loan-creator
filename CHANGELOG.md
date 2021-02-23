@@ -1,3 +1,19 @@
+v0.8.0
+-------------------------
+
+### FEATURE
+- due interests to date are now store into `due_interests_` columns for `LoanCreator::UncapitalizedBullet`
+
+### BUGFIX
+- fix `initial_values` not taking `paid_capital` and `paid_interests` into account for `LoanCreator::UncapitalizedBullet`
+  and `LoanCreator::Bullet`
+
+### BREAKING CHANGES
+- rename columns `capitalized_interests_beginning_of_period` and `capitalized_interests_end_of_period` for
+  `due_interests_beginning_of_period` and `due_interests_end_of_period`
+- rename `capitalized_interests` option in `:inital_values` into `due_interests`
+
+
 v0.7.1
 -------------------------
 

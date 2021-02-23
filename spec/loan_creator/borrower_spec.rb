@@ -92,7 +92,7 @@ describe LoanCreator::Common do
           initial_values: {
             paid_capital: 0,
             paid_interests: 0,
-            capitalized_interests: 0,
+            due_interests: 0,
             starting_index: 2,
             accrued_delta_interests: 0
           }

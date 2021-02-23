@@ -29,7 +29,7 @@ describe LoanCreator::Standard do
         paid_interests: 9338.37,
         accrued_delta_interests: 0.002598187312828,
         starting_index: 3,
-        capitalized_interests: 0
+        due_interests: 0
       }
 
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']

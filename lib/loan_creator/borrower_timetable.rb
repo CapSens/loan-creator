@@ -7,8 +7,8 @@ module LoanCreator
       :period_capital,
       :total_paid_capital_end_of_period,
       :total_paid_interests_end_of_period,
-      :capitalized_interests_beginning_of_period,
-      :capitalized_interests_end_of_period,
+      :due_interests_beginning_of_period,
+      :due_interests_end_of_period,
       :period_amount_to_pay
     ].freeze
 
