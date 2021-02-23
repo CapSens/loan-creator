@@ -13,5 +13,19 @@ describe LoanCreator::UncapitalizedBullet do
         include_examples('valid lender timetable', loan_type, scenario)
       end
     end
+
+    context 'given a scenario with initial_values' do
+      initial_values = {
+        paid_capital: 1000,
+        paid_interests: 100,
+        accrued_delta_interests: 0,
+        starting_index: 3,
+        due_interests: 46.67
+      }
+
+      scenario = ['month', '14000', '2', '2018-01-01', '2', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values)
+    end
   end
 end

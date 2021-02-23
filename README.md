@@ -57,7 +57,7 @@ Initial values must be a hash with specific keys, like so:
     paid_interests: 11000.0,
     accrued_delta_interests: 0,
     starting_index: 2,
-    capitalized_interests: 0
+    due_interests: 0
 }
 ```
 
@@ -148,9 +148,11 @@ Capital share shall be repaid in full at loan's end.
 `Bullet` loan generates terms where terms' payments are zero. \
 Interests are capitalized, i.e. added to the borrowed capital on each term.\
 Capital share shall be repaid in full and all interests paid at loan's end.
+N.b.: Due capitalized interests to date are stored into terms under `due_intesrests_` columns
 
 `UncapitalizedBullet` same as bullet, the only difference is the interests\
 are NOT capitalized.
+N.b.: Due interests to date are stored into terms under `due_intesrests_` columns
 
 There is no deferred time for `InFine` and `Bullet` loans as it would be equivalent to increasing loan's duration.
 

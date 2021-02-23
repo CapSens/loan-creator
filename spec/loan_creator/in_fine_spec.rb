@@ -24,7 +24,7 @@ describe LoanCreator::InFine do
         paid_interests: 5500.0,
         accrued_delta_interests: 0,
         starting_index: 2,
-        capitalized_interests: 0
+        due_interests: 0
       }
 
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']

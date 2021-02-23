@@ -17,11 +17,11 @@ describe LoanCreator::Bullet do
 
     context 'given a scenario with initial_values' do
       initial_values = {
-        paid_capital: 0,
-        paid_interests: 0,
+        paid_capital: 1000,
+        paid_interests: 100,
         accrued_delta_interests: 0,
         starting_index: 3,
-        capitalized_interests: 16.73
+        due_interests: 16.73
       }
 
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']
