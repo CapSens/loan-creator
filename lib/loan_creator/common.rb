@@ -47,6 +47,19 @@ module LoanCreator
         periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
     end
 
+   def timetable_term_dates
+     @_timetable_term_dates ||= Hash.new do |dates, index|
+        dates[index] =
+          if index < 1
+            dates[index + 1].advance(months: -PERIODS_IN_MONTHS.fetch(period))
+          elsif index == 1
+            starts_on
+          else
+            dates[index - 1].advance(months: PERIODS_IN_MONTHS.fetch(period))
+          end
+      end
+    end
+
     def lender_timetable
       raise NotImplementedError
     end
@@ -152,8 +165,7 @@ module LoanCreator
 
     def new_timetable
       LoanCreator::Timetable.new(
-        starts_on: starts_on,
-        period: period,
+        loan: self,
         interests_start_date: interests_start_date,
         starting_index: @starting_index
       )

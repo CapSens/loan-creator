@@ -21,8 +21,7 @@ module LoanCreator
 
       borrower_timetable = LoanCreator::Timetable.new(
         starting_index: lenders_timetables.first.starting_index,
-        starts_on: lenders_timetables.first.starts_on,
-        period: lenders_timetables.first.period
+        loan: lenders_timetables.first.loan
       )
 
       # Borrower timetable is not concerned with computation-related value (delta, etc.),

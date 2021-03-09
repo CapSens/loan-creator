@@ -1,22 +1,13 @@
 # coding: utf-8
 module LoanCreator
   class Timetable
-    # Used to calculate next term's date (see ActiveSupport#advance)
-    PERIODS = {
-      month:    {months: 1},
-      quarter:  {months: 3},
-      semester: {months: 6},
-      year:     {years: 1}
-    }
+    attr_reader :loan, :terms, :starting_index #, :interests_start_date
 
-    attr_reader :terms, :starts_on, :period, :starting_index #, :interests_start_date
+    delegate :starts_on, :period, to: :@loan
 
-    def initialize(starts_on:, period:, interests_start_date: nil, starting_index: 1)
-      raise ArgumentError.new(:period) unless PERIODS.keys.include?(period)
-
+    def initialize(loan:, interests_start_date: nil, starting_index: 1)
       @terms          = []
-      @starts_on      = (starts_on.is_a?(Date) ? starts_on : Date.parse(starts_on))
-      @period         = period
+      @loan           = loan
       @starting_index = starting_index
 
       if interests_start_date
@@ -27,7 +18,7 @@ module LoanCreator
     def <<(term)
       raise ArgumentError.new('LoanCreator::Term expected') unless term.is_a?(LoanCreator::Term)
       term.index  ||= autoincrement_index
-      term.due_on ||= date_for(term.index)
+      term.due_on ||= loan.timetable_term_dates[term.index]
       @terms << term
       self
     end
@@ -47,25 +38,6 @@ module LoanCreator
 
     def autoincrement_index
       @current_index = (@current_index.nil? ? @starting_index : @current_index + 1)
-    end
-
-    def date_for(index)
-      @_dates ||= Hash.new do |dates, index|
-        dates[index] =
-          if index < 1
-            dates[index + 1].advance(PERIODS.fetch(period).transform_values {|n| -n})
-          elsif index == 1
-            starts_on
-          else
-            dates[index - 1].advance(PERIODS.fetch(period))
-          end
-      end
-
-      @_dates[index]
-    end
-
-    def reset_dates
-      @_dates = nil
     end
   end
 end

@@ -87,7 +87,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   end
 
   it 'has contiguous due_on dates' do
-    step = LoanCreator::Timetable::PERIODS.fetch(period)
+    step = { months: LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period) }
     date = starts_on.advance(step.transform_values { |n| n * (starting_index - 1)})
 
     lender_timetable.terms.each do |term|
