@@ -47,8 +47,8 @@ module LoanCreator
         periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
     end
 
-   def timetable_term_dates
-     @_timetable_term_dates ||= Hash.new do |dates, index|
+    def timetable_term_dates
+      @_timetable_term_dates ||= Hash.new do |dates, index|
         dates[index] =
           if index < 1
             dates[index + 1].advance(months: -PERIODS_IN_MONTHS.fetch(period))
