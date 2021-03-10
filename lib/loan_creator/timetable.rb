@@ -17,7 +17,10 @@ module LoanCreator
 
     def <<(term)
       raise ArgumentError.new('LoanCreator::Term expected') unless term.is_a?(LoanCreator::Term)
-      term.index  ||= autoincrement_index
+
+      @current_index = term.index || next_index
+
+      term.index    = @current_index
       term.due_on ||= loan.timetable_term_dates[term.index]
       @terms << term
       self
@@ -34,10 +37,8 @@ module LoanCreator
       @terms.find { |term| term.index == index }
     end
 
-    private
-
-    def autoincrement_index
-      @current_index = (@current_index.nil? ? @starting_index : @current_index + 1)
+    def next_index
+      @current_index.nil? ? @starting_index : @current_index + 1
     end
   end
 end
