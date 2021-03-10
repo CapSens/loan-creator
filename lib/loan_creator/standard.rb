@@ -23,10 +23,6 @@ module LoanCreator
 
     private
 
-    def last_period?(idx)
-      idx == (duration_in_periods - 1)
-    end
-
     def compute_current_term(idx)
       @crd_beginning_of_period = @crd_end_of_period
       @period_theoric_interests = period_theoric_interests(idx)

@@ -175,6 +175,10 @@ module LoanCreator
       @index ? (@starting_index + @index - 1) : nil
     end
 
+    def last_period?(idx)
+      idx == (duration_in_periods - 1)
+    end
+
     def compute_term_zero
       @crd_beginning_of_period              = @crd_end_of_period
       @period_theoric_interests             = term_zero_interests
