@@ -12,9 +12,11 @@ module LoanCreator
       end
 
       duration_in_periods.times do |idx|
+        @index = idx + 1
         @last_period = last_period?(idx)
-        @deferred_period = idx < deferred_in_periods
-        compute_current_term(idx)
+        @deferred_period = @index <= deferred_in_periods
+        @due_on = timetable_term_dates[timetable.next_index]
+        compute_current_term
         timetable << current_term
       end
 
@@ -23,7 +25,7 @@ module LoanCreator
 
     private
 
-    def compute_current_term(idx)
+    def compute_current_term
       # Reminder: CRD beginning of period = CRD end of period **of previous period**
       @crd_beginning_of_period = @crd_end_of_period
       @period_theoric_interests = @crd_beginning_of_period * periodic_interests_rate
@@ -45,8 +47,6 @@ module LoanCreator
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
-      @due_on = nil
-      @index = idx + 1
     end
 
     def period_capital

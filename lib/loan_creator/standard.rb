@@ -13,19 +13,22 @@ module LoanCreator
       end
 
       duration_in_periods.times do |idx|
+        @index = idx + 1
         @last_period = last_period?(idx)
-        @deferred_period = idx < deferred_in_periods
-        compute_current_term(idx)
+        @deferred_period = @index <= deferred_in_periods
+        @due_on = timetable_term_dates[timetable.next_index]
+        compute_current_term
         timetable << current_term
       end
+
       timetable
     end
 
     private
 
-    def compute_current_term(idx)
+    def compute_current_term
       @crd_beginning_of_period = @crd_end_of_period
-      @period_theoric_interests = period_theoric_interests(idx)
+      @period_theoric_interests = period_theoric_interests(@index)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
       @amount_to_add = bigd(
@@ -39,13 +42,11 @@ module LoanCreator
       )
       @accrued_delta_interests -= @amount_to_add
       @period_interests = @period_theoric_interests.round(2) + @amount_to_add
-      @period_capital = period_capital(idx)
+      @period_capital = period_capital(@index)
       @total_paid_capital_end_of_period += @period_capital
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
-      @due_on = nil
-      @index = idx + 1
     end
 
     def period_theoric_interests(idx)
@@ -54,7 +55,7 @@ module LoanCreator
       else
         -ipmt(
           periodic_interests_rate,
-          (idx + 1) - deferred_in_periods,
+          idx - deferred_in_periods,
           duration_in_periods - deferred_in_periods,
           amount
         )
@@ -69,7 +70,7 @@ module LoanCreator
       else
         -ppmt(
           periodic_interests_rate,
-          (idx + 1) - deferred_in_periods,
+          idx - deferred_in_periods,
           duration_in_periods - deferred_in_periods,
           amount
         ).round(2)

@@ -7,9 +7,13 @@ module LoanCreator
       reset_current_term
       @crd_beginning_of_period = amount
       @crd_end_of_period = amount
-      (duration_in_periods - 1).times { |period| compute_term(timetable) }
-      compute_last_term
-      timetable << current_term
+
+      duration_in_periods.times do |idx|
+        @due_on = timetable_term_dates[timetable.next_index]
+        last_period?(idx) ? compute_last_term : compute_term
+        timetable << current_term
+      end
+
       timetable
     end
 
@@ -30,10 +34,9 @@ module LoanCreator
       amount.mult(bigd(periodic_interests_rate), BIG_DECIMAL_DIGITS)
     end
 
-    def compute_term(timetable)
+    def compute_term
       @due_interests_beginning_of_period = @due_interests_end_of_period
       @due_interests_end_of_period += compute_interests
-      timetable << current_term
     end
   end
 end

@@ -188,6 +188,7 @@ module LoanCreator
       @total_paid_interests_end_of_period  += @period_interests
       @period_amount_to_pay                 = @period_interests
       @index                                = 0
+      @due_on                               = timetable_term_dates[0]
     end
 
     def term_zero_interests
