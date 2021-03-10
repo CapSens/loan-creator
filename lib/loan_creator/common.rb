@@ -21,7 +21,8 @@ module LoanCreator
       # attribute: default_value
       deferred_in_periods: 0,
       interests_start_date: nil,
-      initial_values: {}
+      initial_values: {},
+      realistic_durations: false
     }.freeze
 
     attr_reader *REQUIRED_ATTRIBUTES
@@ -37,14 +38,22 @@ module LoanCreator
       validate_initial_values
     end
 
-    def periodic_interests_rate_percentage
-      @periodic_interests_rate_percentage ||=
-        annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
+    def periodic_interests_rate_percentage(date = nil)
+      if realistic_durations? && date
+        compute_realistic_periodic_interests_rate_percentage_for(date)
+      else
+        @periodic_interests_rate_percentage ||=
+          annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
+      end
     end
 
-    def periodic_interests_rate
-      @periodic_interests_rate ||=
-        periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+    def periodic_interests_rate(date = nil)
+      if realistic_durations? && date
+        compute_realistic_periodic_interests_rate_for(date)
+      else
+        @periodic_interests_rate ||=
+          periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+      end
     end
 
     def timetable_term_dates
@@ -210,6 +219,24 @@ module LoanCreator
 
     def term_zero?
       interests_start_date && interests_start_date < term_zero_date
+    end
+
+    def compute_realistic_periodic_interests_rate_percentage_for(date)
+      realistic_days = 12.times.with_object([]) do |index, obj|
+        obj << (date.advance(months: index + 1) - date.advance(months: index)).to_i
+      end
+
+      realistic_days_in_period = realistic_days.slice(0, PERIODS_IN_MONTHS[period])
+
+      annual_interests_rate.div(realistic_days.sum / realistic_days_in_period.sum, BIG_DECIMAL_DIGITS)
+    end
+
+    def compute_realistic_periodic_interests_rate_for(date)
+      compute_realistic_periodic_interests_rate_percentage_for(date).div(100, BIG_DECIMAL_DIGITS)
+    end
+
+    def realistic_durations?
+      !!@realistic_durations
     end
   end
 end

@@ -28,7 +28,7 @@ module LoanCreator
     def compute_current_term
       # Reminder: CRD beginning of period = CRD end of period **of previous period**
       @crd_beginning_of_period = @crd_end_of_period
-      @period_theoric_interests = @crd_beginning_of_period * periodic_interests_rate
+      @period_theoric_interests = @crd_beginning_of_period * periodic_interests_rate(@due_on)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
       @amount_to_add = bigd(
