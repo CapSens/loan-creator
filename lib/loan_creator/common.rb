@@ -222,13 +222,11 @@ module LoanCreator
     end
 
     def compute_realistic_periodic_interests_rate_percentage_for(date)
-      realistic_days = 12.times.with_object([]) do |index, obj|
-        obj << (date.advance(months: index + 1) - date.advance(months: index)).to_i
-      end
+      realistic_days = 365
+      realistic_days += 1 if date.leap?
+      realistic_days_in_period = (date - date.advance(months:  -PERIODS_IN_MONTHS[period])).to_i
 
-      realistic_days_in_period = realistic_days.slice(0, PERIODS_IN_MONTHS[period])
-
-      annual_interests_rate.div(realistic_days.sum / realistic_days_in_period.sum, BIG_DECIMAL_DIGITS)
+      annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
     end
 
     def compute_realistic_periodic_interests_rate_for(date)
