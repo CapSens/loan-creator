@@ -38,18 +38,18 @@ module LoanCreator
       validate_initial_values
     end
 
-    def periodic_interests_rate_percentage(date = nil)
-      if realistic_durations? && date
-        compute_realistic_periodic_interests_rate_percentage_for(date)
+    def periodic_interests_rate_percentage(date = nil, relative_to_date: nil)
+      if realistic_durations?
+        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date)
       else
         @periodic_interests_rate_percentage ||=
           annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
       end
     end
 
-    def periodic_interests_rate(date = nil)
-      if realistic_durations? && date
-        compute_realistic_periodic_interests_rate_for(date)
+    def periodic_interests_rate(date = nil, relative_to_date: nil)
+      if realistic_durations?
+        compute_realistic_periodic_interests_rate_for(date, relative_to_date: relative_to_date)
       else
         @periodic_interests_rate ||=
           periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
@@ -64,7 +64,7 @@ module LoanCreator
           elsif index == 1
             starts_on
           else
-            dates[index - 1].advance(months: PERIODS_IN_MONTHS.fetch(period))
+            starts_on.advance(months: PERIODS_IN_MONTHS.fetch(period) * (index - 1))
           end
       end
     end
@@ -221,16 +221,16 @@ module LoanCreator
       interests_start_date && interests_start_date < term_zero_date
     end
 
-    def compute_realistic_periodic_interests_rate_percentage_for(date)
+    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
       realistic_days = 365
       realistic_days += 1 if date.leap?
-      realistic_days_in_period = (date - date.advance(months:  -PERIODS_IN_MONTHS[period])).to_i
+      realistic_days_in_period = (date - relative_to_date).to_i
 
       annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
     end
 
-    def compute_realistic_periodic_interests_rate_for(date)
-      compute_realistic_periodic_interests_rate_percentage_for(date).div(100, BIG_DECIMAL_DIGITS)
+    def compute_realistic_periodic_interests_rate_for(date, relative_to_date:)
+      compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
     end
 
     def realistic_durations?
