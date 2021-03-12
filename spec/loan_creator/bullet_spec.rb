@@ -13,6 +13,10 @@ describe LoanCreator::Bullet do
       context "for scenario #{loan_type}_#{scenario.join('_')}" do
         include_examples('valid lender timetable', loan_type, scenario)
       end
+
+      context "for scenario realistic_#{loan_type}_#{scenario.join('_')} with realistic durations" do
+        include_examples('valid lender timetable', loan_type, scenario, {}, true)
+      end
     end
 
     context 'given a scenario with initial_values' do
@@ -27,6 +31,7 @@ describe LoanCreator::Bullet do
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']
 
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
+      include_examples('valid lender timetable', loan_type, scenario, initial_values, true)
     end
   end
 end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 PRINT_DEBUG = false
 
-RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values|
+RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values, realistic_durations|
   let(:loan) do
     described_class.new(
       period: period,
@@ -12,13 +12,14 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       duration_in_periods: duration_in_periods,
       deferred_in_periods: deferred_in_periods,
       interests_start_date: interests_start_date,
-      initial_values: initial_values.presence || {}
+      initial_values: initial_values.presence || {},
+      realistic_durations: !!realistic_durations.presence
     )
   end
   let(:lender_timetable) do
     loan.lender_timetable
   end
-  let(:starting_index) { initial_values ? initial_values[:starting_index] : 1 }
+  let(:starting_index) { initial_values.present? ? initial_values[:starting_index] : 1 }
   let(:period) { scenario[0].to_sym }
   let(:amount) { bigd(scenario[1]) }
   let(:annual_interests_rate) { bigd(scenario[2]) }
@@ -40,11 +41,17 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   end
 
   let(:expected_lender_terms) do
+    csv_name = scenario_name
+
     if initial_values.present?
-      CSV.parse(File.read("./spec/fixtures/#{scenario_name}_with_initial_values.csv"))
-    else
-      CSV.parse(File.read("./spec/fixtures/#{scenario_name}.csv"))
+      csv_name = "#{csv_name}_with_initial_values"
     end
+
+    if realistic_durations
+      csv_name = "realistic_#{csv_name}"
+    end
+
+    CSV.parse(File.read("./spec/fixtures/#{csv_name}.csv"))
   end
 
   # # Debug tool
