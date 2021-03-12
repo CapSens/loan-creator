@@ -3,7 +3,7 @@ module LoanCreator
   class Timetable
     attr_reader :loan, :terms, :starting_index #, :interests_start_date
 
-    delegate :starts_on, :period, to: :@loan
+    delegate :starts_on, :period, to: :loan
 
     def initialize(loan:, interests_start_date: nil, starting_index: 1)
       @terms          = []
