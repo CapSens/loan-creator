@@ -36,6 +36,7 @@ module LoanCreator
       validate_attributes
       set_initial_values
       validate_initial_values
+      prepare_custom_term_dates if custom_term_dates?
     end
 
     def periodic_interests_rate_percentage(date = nil, relative_to_date: nil)
@@ -81,6 +82,51 @@ module LoanCreator
       self.class.bigd(value)
     end
 
+    protected
+
+    def validate_custom_term_dates!
+      unless @options[:term_dates].is_a?(Array)
+        raise TypeError, 'the :term_dates option must be an Array'
+      end
+
+      unless @options[:term_dates].size == duration_in_periods
+        raise ArgumentError, "the size of :term_dates (#{@options[:term_dates].size}) do not match the :duration_in_periods (#{duration_in_periods})"
+      end
+
+      if interests_start_date.present?
+        raise ArgumentError, ":interests_start_date is no compatible with :term_dates"
+      end
+
+      @options[:term_dates].each_with_index do |term_date, index|
+        previous_term_date = index.zero? ? starts_on : @options[:term_dates][index - 1]
+
+        unless term_date > previous_term_date
+          previous_term_date_description =
+            if index.zero?
+              ":starts_on (#{starts_on.strftime('%Y-%m-%d')})"
+            else
+              ":term_dates[#{index - 1}] (#{@options[:term_dates][index - 1].strftime('%Y-%m-%d')})"
+            end
+
+          error_message = "#{previous_term_date_description} must be before :term_dates[#{index}] (#{term_date.strftime('%Y-%m-%d')})"
+
+          raise ArgumentError, error_message
+        end
+      end
+    end
+
+    def prepare_custom_term_dates
+      validate_custom_term_dates!
+
+      term_dates = @options[:term_dates].each_with_index.with_object({}) do |(term_date, index), obj|
+        obj[index + 1] = term_date
+      end
+
+      term_dates[0] = starts_on
+      @_timetable_term_dates = term_dates
+      @realistic_durations = true
+    end
+
     private
 
     def require_attributes
@@ -93,6 +139,16 @@ module LoanCreator
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
       @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
+
+      if custom_term_dates?
+        @options[:term_dates].map! do |term_date|
+          if term_date.is_a?(Date)
+            term_date
+          else
+            Date.parse(term_date.to_s)
+          end
+        end
+      end
     end
 
     def set_attributes
@@ -205,20 +261,22 @@ module LoanCreator
     end
 
     def term_zero_interests_rate
+      return 0 if custom_term_dates?
+
       term_zero_interests_rate_percentage = (annual_interests_rate * term_zero_duration).div(365, BIG_DECIMAL_DIGITS)
       term_zero_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
     end
 
     def term_zero_duration
-      (term_zero_date - interests_start_date).to_i
+      custom_term_dates? ? 0 : (term_zero_date - interests_start_date).to_i
     end
 
     def term_zero_date
-      starts_on.advance(months: -PERIODS_IN_MONTHS.fetch(@period))
+      custom_term_dates? ? starts_on : starts_on.advance(months: -PERIODS_IN_MONTHS.fetch(@period))
     end
 
     def term_zero?
-      interests_start_date && interests_start_date < term_zero_date
+      !custom_term_dates? && interests_start_date && interests_start_date < term_zero_date
     end
 
     def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
@@ -234,7 +292,11 @@ module LoanCreator
     end
 
     def realistic_durations?
-      !!@realistic_durations
+      custom_term_dates? || @realistic_durations.present?
+    end
+
+    def custom_term_dates?
+      @options[:term_dates].present?
     end
   end
 end

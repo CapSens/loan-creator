@@ -41,5 +41,30 @@ module LoanCreator
       @due_interests_beginning_of_period = @due_interests_end_of_period
       @due_interests_end_of_period += compute_capitalized_interests(@due_on, timetable)
     end
+
+    def validate_custom_term_dates!
+      super
+
+      @options[:term_dates].each_with_index do |term_date, index|
+        days_in_year = 365
+        days_in_year += 1 if term_date.leap?
+
+        previous_term_date = index.zero? ? starts_on : @options[:term_dates][index - 1]
+        days_between = (term_date - previous_term_date).to_i.abs
+
+        if days_between > days_in_year
+          previous_term_date_description =
+            if index.zero?
+              ":starts_on (#{starts_on.strftime('%Y-%m-%d')})"
+            else
+              ":term_dates[#{index - 1}] (#{@options[:term_dates][index - 1].strftime('%Y-%m-%d')})"
+            end
+
+          error_description = "There is #{days_between} days between #{previous_term_date_description} and :term_dates[#{index}]"
+
+          raise ArgumentError, "term dates can't be more than 1 year apart. #{error_description}"
+        end
+      end
+    end
   end
 end
