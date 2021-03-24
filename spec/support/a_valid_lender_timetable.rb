@@ -61,6 +61,19 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   #     puts ""
   #   end
   # end
+  # # Print table
+  # require 'table_print'
+  # before do
+  #   tp lender_timetable.terms,
+  #     {t: {display_method: :index}},
+  #     {remaining_capital: {display_method: :crd_end_of_period}},
+  #     {period_total: {display_method: :period_amount_to_pay}},
+  #     :period_capital,
+  #     :period_interests,
+  #     {capitalized_interests: {display_method: :due_interests_end_of_period}},
+  #     {due_on: {display_method: proc { |term| term.due_on.strftime("%d/%m/%Y") }}}
+  # end
+
 
   it 'has valid period' do
     expect(lender_timetable.period).to eq(period)
