@@ -5,6 +5,7 @@ describe LoanCreator::InFine do
   describe '#lender_timetable' do
     loan_type = 'in_fine'
     scenarios = [
+      ['month', '1000', '12', '2020-01-01', '1', '0'],
       ['month', '55000', '10', '2018-01-01', '36', '0'],
       ['quarter', '55000', '10', '2018-01-01', '12', '0'],
       ['semester', '55000', '10', '2018-01-01', '6', '0'],
@@ -28,6 +29,34 @@ describe LoanCreator::InFine do
       }
 
       scenario = ['year', '55000', '10', '2018-01-01', '3', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values)
+    end
+
+    context 'given a scenario with due_interests' do
+      initial_values = {
+        paid_capital: 0,
+        paid_interests: 0,
+        accrued_delta_interests: 0,
+        starting_index: 1,
+        due_interests: 1000
+      }
+
+      scenario = ['month', '1000', '12', '2020-01-01', '12', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values)
+    end
+
+    context 'given a scenario with due_interests and 1 term' do
+      initial_values = {
+        paid_capital: 0,
+        paid_interests: 0,
+        accrued_delta_interests: 0,
+        starting_index: 1,
+        due_interests: 1000
+      }
+
+      scenario = ['month', '1000', '12', '2020-01-01', '1', '0']
 
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
     end
