@@ -163,6 +163,10 @@ module LoanCreator
       @index ? (@starting_index + @index - 1) : nil
     end
 
+    def compute_period_generated_interests
+      (@crd_beginning_of_period + @due_interests_beginning_of_period).mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
+    end
+
     def compute_term_zero
       @crd_beginning_of_period              = @crd_end_of_period
       @period_theoric_interests             = term_zero_interests
