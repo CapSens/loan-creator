@@ -11,7 +11,7 @@ module LoanCreator
         timetable << current_term
       end
 
-        (duration_in_periods - 1).times do |idx|
+      (duration_in_periods - 1).times do |idx|
         @deferred_period = idx < deferred_in_periods
         compute_current_term(idx)
         timetable << current_term
