@@ -200,6 +200,7 @@ module LoanCreator
     end
 
     def compute_last_term
+      @crd_beginning_of_period = @crd_end_of_period
       @crd_end_of_period                  = bigd('0')
       @due_interests_beginning_of_period  = @due_interests_end_of_period
       @period_interests                   = @due_interests_beginning_of_period + compute_period_generated_interests
@@ -208,7 +209,6 @@ module LoanCreator
       @total_paid_capital_end_of_period   += @period_capital
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay               = @period_capital + @period_interests
-
       # handled in Timetable.<<
       @due_on = nil
       @index ||= @starting_index
