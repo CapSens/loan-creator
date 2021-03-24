@@ -15,17 +15,6 @@ module LoanCreator
 
     private
 
-    def compute_last_term
-      @crd_end_of_period                  =  bigd('0')
-      @due_interests_beginning_of_period  =  @due_interests_end_of_period
-      @period_interests                   =  @due_interests_end_of_period + compute_interests
-      @due_interests_end_of_period        =  0
-      @period_capital                     =  @crd_beginning_of_period
-      @total_paid_capital_end_of_period   += @period_capital
-      @total_paid_interests_end_of_period += @period_interests
-      @period_amount_to_pay               =  @period_capital + @period_interests
-    end
-
     def compute_interests
       amount.mult(bigd(periodic_interests_rate), BIG_DECIMAL_DIGITS)
     end
