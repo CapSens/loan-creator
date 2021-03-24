@@ -15,13 +15,13 @@ module LoanCreator
 
     private
 
-    def compute_interests
+    def compute_period_generated_interests
       amount.mult(bigd(periodic_interests_rate), BIG_DECIMAL_DIGITS)
     end
 
     def compute_term(timetable)
       @due_interests_beginning_of_period = @due_interests_end_of_period
-      @due_interests_end_of_period += compute_interests
+      @due_interests_end_of_period += compute_period_generated_interests
       timetable << current_term
     end
   end
