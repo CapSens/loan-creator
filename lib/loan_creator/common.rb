@@ -216,7 +216,7 @@ module LoanCreator
           '0'
         end
       )
-      
+
       @period_interests                   = @period_theoric_interests.round(2) + @amount_to_add
       @due_interests_end_of_period        = 0
       @period_capital                     = @crd_beginning_of_period
@@ -225,8 +225,11 @@ module LoanCreator
       @period_amount_to_pay               = @period_capital + @period_interests
       # handled in Timetable.<<
       @due_on = nil
-      @index ||= @starting_index
-      @index += 1
+      if @index.nil?
+        @index = @starting_index
+      else
+        @index += 1
+      end
     end
   end
 end
