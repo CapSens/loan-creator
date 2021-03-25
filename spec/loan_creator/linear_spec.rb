@@ -21,19 +21,5 @@ describe LoanCreator::Linear do
         include_examples('valid lender timetable', loan_type, scenario)
       end
     end
-
-    context 'given a scenario with due_interests' do
-      initial_values = {
-        paid_capital: 0,
-        paid_interests: 0,
-        accrued_delta_interests: 0,
-        starting_index: 1,
-        due_interests: 1000
-      }
-
-      scenario = ['month', '1000', '12', '2020-01-01', '12', '0']
-
-      include_examples('valid lender timetable', loan_type, scenario, initial_values)
-    end
   end
 end
