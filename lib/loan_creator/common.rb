@@ -207,15 +207,8 @@ module LoanCreator
 
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
-      @amount_to_add = bigd(
-        if @accrued_delta_interests >= bigd('0.01')
-          '0.01'
-        elsif @accrued_delta_interests <= bigd('-0.01')
-          '-0.01'
-        else
-          '0'
-        end
-      )
+      @amount_to_add = bigd(@accrued_delta_interests.truncate(2))
+      @accrued_delta_interests -= @amount_to_add
 
       @period_interests                   = @period_theoric_interests.round(2) + @amount_to_add
       @due_interests_end_of_period        = 0
