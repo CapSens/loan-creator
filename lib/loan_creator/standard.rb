@@ -57,15 +57,21 @@ module LoanCreator
 
     def period_theoric_interests(idx)
       if @deferred_period
-        @crd_beginning_of_period * periodic_interests_rate
+        compute_period_generated_interests
+      elsif @due_interests_beginning_of_period > 0
+        reimbursed_due_interests(idx) + compute_period_interests(idx)
       else
-        -ipmt(
-          periodic_interests_rate,
-          (idx + 1) - deferred_in_periods,
-          duration_in_periods - deferred_in_periods,
-          amount
-        )
+        compute_period_interests(idx)
       end
+    end
+
+    def compute_period_interests(idx)
+      -ipmt(
+        periodic_interests_rate,
+        (idx + 1) - deferred_in_periods,
+        duration_in_periods - deferred_in_periods,
+        amount + @initial_due_interests
+      )
     end
 
     def period_capital(idx)
@@ -73,14 +79,27 @@ module LoanCreator
         @crd_beginning_of_period
       elsif @deferred_period
         bigd(0)
+      elsif @due_interests_beginning_of_period > 0
+        compute_period_capital(idx) - reimbursed_due_interests(idx)
       else
-        -ppmt(
-          periodic_interests_rate,
-          (idx + 1) - deferred_in_periods,
-          duration_in_periods - deferred_in_periods,
-          amount
-        ).round(2)
+        compute_period_capital(idx)
       end
+    end
+
+    def compute_period_capital(idx)
+      -ppmt(
+        periodic_interests_rate,
+        (idx + 1) - deferred_in_periods,
+        duration_in_periods - deferred_in_periods,
+        amount + @initial_due_interests
+      ).round(2)
+    end
+
+    def reimbursed_due_interests(idx)
+      [
+        @due_interests_beginning_of_period,
+        compute_period_capital(idx)
+      ].min
     end
   end
 end
