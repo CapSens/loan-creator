@@ -104,6 +104,7 @@ module LoanCreator
 
     def set_initial_values
       @starting_index  = initial_values[:starting_index] || 1
+      @initial_due_interests = bigd(initial_values[:due_interests] || 0)
 
       return if initial_values.blank?
 

@@ -31,6 +31,7 @@ module LoanCreator
     end
 
     def compute_current_term(idx)
+      @due_interests_beginning_of_period = @due_interests_end_of_period
       @crd_beginning_of_period = @crd_end_of_period
       @period_theoric_interests = period_theoric_interests(idx)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
@@ -51,6 +52,7 @@ module LoanCreator
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
+      @due_interests_end_of_period -= reimbursed_due_interests(idx)
       @due_on = nil
       @index = idx + 1
     end
