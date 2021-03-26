@@ -41,6 +41,7 @@ module LoanCreator
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
+      @due_interests_end_of_period -= reimbursed_due_interests
       @due_on = nil
       @index = idx + 1
     end
