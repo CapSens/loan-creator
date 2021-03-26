@@ -36,15 +36,7 @@ module LoanCreator
       @period_theoric_interests = period_theoric_interests(idx)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
-      @amount_to_add = bigd(
-        if @accrued_delta_interests >= bigd('0.01')
-          '0.01'
-        elsif @accrued_delta_interests <= bigd('-0.01')
-          '-0.01'
-        else
-          '0'
-        end
-      )
+      @amount_to_add = bigd(@accrued_delta_interests.truncate(2))
       @accrued_delta_interests -= @amount_to_add
       @period_interests = @period_theoric_interests.round(2) + @amount_to_add
       @period_capital = period_capital(idx)
@@ -58,22 +50,11 @@ module LoanCreator
     end
 
     def period_theoric_interests(idx)
-      if @deferred_period
-        compute_period_generated_interests
-      elsif @due_interests_beginning_of_period > 0
-        reimbursed_due_interests(idx) + compute_period_interests(idx)
+      if @due_interests_beginning_of_period > 0
+        reimbursed_due_interests(idx) + compute_period_generated_interests
       else
-        compute_period_interests(idx)
+        compute_period_generated_interests
       end
-    end
-
-    def compute_period_interests(idx)
-      -ipmt(
-        periodic_interests_rate,
-        (idx + 1) - deferred_in_periods,
-        duration_in_periods - deferred_in_periods,
-        amount + @initial_due_interests
-      )
     end
 
     def period_capital(idx)
