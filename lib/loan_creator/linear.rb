@@ -29,7 +29,6 @@ module LoanCreator
       # Reminder: CRD beginning of period = CRD end of period **of previous period** same for due interests
       @crd_beginning_of_period = @crd_end_of_period
       @due_interests_beginning_of_period = @due_interests_end_of_period
-
       @period_theoric_interests = period_theoric_interests
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
@@ -67,10 +66,14 @@ module LoanCreator
     end
 
     def reimbursed_due_interests
-      [
-        @due_interests_beginning_of_period,
-        compute_period_capital
-      ].min
+      if @deferred_period
+        bigd(0)
+      else
+        [
+          @due_interests_beginning_of_period,
+          compute_period_capital
+        ].min
+      end
     end
 
     def compute_period_capital

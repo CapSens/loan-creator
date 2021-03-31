@@ -81,10 +81,14 @@ module LoanCreator
     end
 
     def reimbursed_due_interests(idx)
-      [
-        @due_interests_beginning_of_period,
-        compute_period_capital(idx)
-      ].min
+      if @deferred_period
+        bigd(0)
+      else
+        [
+          @due_interests_beginning_of_period,
+          compute_period_capital(idx)
+        ].min
+      end
     end
   end
 end
