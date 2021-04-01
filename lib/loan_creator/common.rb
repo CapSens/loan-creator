@@ -38,21 +38,12 @@ module LoanCreator
       validate_initial_values
     end
 
-    def periodic_interests_rate_percentage(date = nil, relative_to_date: nil)
-      if realistic_durations?
-        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date)
-      else
-        @periodic_interests_rate_percentage ||=
-          annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
-      end
-    end
-
     def periodic_interests_rate(date = nil, relative_to_date: nil)
       if realistic_durations?
-        compute_realistic_periodic_interests_rate_for(date, relative_to_date: relative_to_date)
+        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
       else
         @periodic_interests_rate ||=
-          periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+          annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
       end
     end
 
@@ -227,10 +218,6 @@ module LoanCreator
       realistic_days_in_period = (date - relative_to_date).to_i
 
       annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
-    end
-
-    def compute_realistic_periodic_interests_rate_for(date, relative_to_date:)
-      compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
     end
 
     def realistic_durations?
