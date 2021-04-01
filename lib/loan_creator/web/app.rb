@@ -4,7 +4,7 @@ require_relative "../../loan_creator"
 
 module LoanCreator
   class Web < Sinatra::Base
-    helpers ApplicationHelper
+    helpers LoanCreator::ApplicationHelper
 
     get "/" do
       @params = fix_params_type(params)
