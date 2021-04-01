@@ -1,20 +1,20 @@
 
 
 <form action="/" method="GET">
-  <div class="form-group">
-    <label for="type">
-      Type
-    </label>
-    <select name="type" class="form-control" id="type-select">
-      <option value="">--Chose an option--</option>
-      <option value="standard" <%= selected(params: fixed_params[:type], value: 'standard') %>>Standard</option>
-      <option value="in_fine" <%= selected(params: fixed_params[:type], value: 'in_fine') %>>In fine</option>
-      <option value="bullet" <%= selected(params: fixed_params[:type], value: 'bullet') %>>Bullet</option>
-      <option value="linear" <%= selected(params: fixed_params[:type], value: 'linear') %>>Linear</option>
-    </select>
-  </div>
-
   <div class="row">
+    <div class="col form-group">
+      <label for="type">
+        Type
+      </label>
+      <select name="type" class="form-control" id="type-select">
+        <option value="">--Chose an option--</option>
+        <option value="standard" <%= selected(params: fixed_params[:type], value: 'standard') %>>Standard</option>
+        <option value="in_fine" <%= selected(params: fixed_params[:type], value: 'in_fine') %>>In fine</option>
+        <option value="bullet" <%= selected(params: fixed_params[:type], value: 'bullet') %>>Bullet</option>
+        <option value="linear" <%= selected(params: fixed_params[:type], value: 'linear') %>>Linear</option>
+      </select>
+    </div>
+
     <div class="col form-group">  
       <label for="amount" id="amount">
         Amount
