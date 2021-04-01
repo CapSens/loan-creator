@@ -1,6 +1,8 @@
 require 'pry'
 module ApplicationHelper
   def fix_params_type(params)
+    params = params.merge({initial_values:{}}) if params[:initial_values].nil?
+
     {}.tap do |h|
       h[:type] = params[:type]
       h[:period] = params[:period]
