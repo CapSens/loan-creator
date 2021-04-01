@@ -5,4 +5,3 @@ gemspec
 
 gem 'activesupport'
 gem 'pry'
-gem 'sinatra'

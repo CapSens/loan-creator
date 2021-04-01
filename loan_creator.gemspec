@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'bigdecimal'
   spec.add_runtime_dependency 'activesupport'
+  spec.add_runtime_dependency 'sinatra'
 end
