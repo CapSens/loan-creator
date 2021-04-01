@@ -1,3 +1,3 @@
 require_relative "./lib/app/web"
 
-run Web
+run LoanCreator::Web
