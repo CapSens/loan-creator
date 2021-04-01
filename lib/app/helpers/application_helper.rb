@@ -1,4 +1,3 @@
-require 'pry'
 module ApplicationHelper
   def fix_params_type(params)
     params = params.merge({initial_values:{}}) if params[:initial_values].nil?
@@ -22,5 +21,9 @@ module ApplicationHelper
 
   def selected(params:, value:)
     value == params ? 'selected' : ''
+  end
+
+  def number_to_euro(number)
+    "#{number} €"
   end
 end

@@ -1,6 +1,5 @@
 require "sinatra/base"
 require_relative "./helpers/application_helper"
-require 'pry'
 require_relative "../loan_creator"
 
 class Web < Sinatra::Base
