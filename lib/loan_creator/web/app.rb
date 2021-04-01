@@ -1,6 +1,6 @@
 require "sinatra/base"
 require_relative "./helpers/application_helper"
-require_relative "../loan_creator"
+require_relative "../../loan_creator"
 
 module LoanCreator
   class Web < Sinatra::Base
