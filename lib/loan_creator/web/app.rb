@@ -7,26 +7,26 @@ module LoanCreator
     helpers LoanCreator::ApplicationHelper
 
     get "/" do
-      @params = fix_params_type(params)
+      parameters = fix_params_type(params)
 
-      @timetable =  case params[:type]
+      timetable =  case params[:type]
                     when 'in_fine'
-                      LoanCreator::InFine.new(**@params)
+                      LoanCreator::InFine.new(**parameters)
                     when 'bullet'
-                      LoanCreator::Bullet.new(**@params)
+                      LoanCreator::Bullet.new(**parameters)
                     when 'linear'
-                      LoanCreator::Linear.new(**@params)
+                      LoanCreator::Linear.new(**parameters)
                     when 'standard'
-                      LoanCreator::Standard.new(**@params)
+                      LoanCreator::Standard.new(**parameters)
                     end
 
-      @terms =  if @timetable
-                  @timetable.lender_timetable.terms
+      terms =  if timetable
+                  timetable.lender_timetable.terms
                 else
                   []
                 end
 
-      erb :index, locals: { fixed_params: @params, terms: @terms }
+      erb :index, locals: { fixed_params: parameters, terms: terms }
     end
   end
 end
