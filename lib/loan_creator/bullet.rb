@@ -7,18 +7,24 @@ module LoanCreator
       reset_current_term
       @crd_beginning_of_period = amount
       @crd_end_of_period = amount
-      (duration_in_periods - 1).times { |period| compute_term(timetable) }
-      compute_last_term
-      timetable << current_term
+
+      duration_in_periods.times { |idx| timetable << compute_current_term(idx, timetable) }
+
       timetable
     end
 
     private
 
-    def compute_last_term
+    def compute_current_term(idx, timetable)
+      @due_on = timetable_term_dates[timetable.next_index]
+      last_period?(idx) ? compute_last_term(timetable) : compute_term(timetable)
+      current_term
+    end
+
+    def compute_last_term(timetable)
       @crd_end_of_period                  = bigd('0')
       @due_interests_beginning_of_period  = @due_interests_end_of_period
-      @period_interests                   = @due_interests_end_of_period + compute_capitalized_interests
+      @period_interests                   = @due_interests_end_of_period + compute_capitalized_interests(@due_on, timetable)
       @due_interests_end_of_period        = 0
       @period_capital                     = @crd_beginning_of_period
       @total_paid_capital_end_of_period   += @period_capital
@@ -26,14 +32,14 @@ module LoanCreator
       @period_amount_to_pay               = @period_capital + @period_interests
     end
 
-    def compute_capitalized_interests
-      (amount + @due_interests_beginning_of_period).mult(periodic_interests_rate, BIG_DECIMAL_DIGITS)
+    def compute_capitalized_interests(due_date, timetable)
+      computed_periodic_interests_rate = periodic_interests_rate(due_date, relative_to_date: timetable_term_dates[timetable.next_index - 1])
+      (amount + @due_interests_beginning_of_period).mult(computed_periodic_interests_rate, BIG_DECIMAL_DIGITS)
     end
 
     def compute_term(timetable)
       @due_interests_beginning_of_period = @due_interests_end_of_period
-      @due_interests_end_of_period += compute_capitalized_interests
-      timetable << current_term
+      @due_interests_end_of_period += compute_capitalized_interests(@due_on, timetable)
     end
   end
 end

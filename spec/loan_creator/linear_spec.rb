@@ -20,6 +20,10 @@ describe LoanCreator::Linear do
       context "for scenario #{loan_type}_#{scenario.join('_')}" do
         include_examples('valid lender timetable', loan_type, scenario)
       end
+
+      context "for scenario realistic_#{loan_type}_#{scenario.join('_')} with realistic durations" do
+        include_examples('valid lender timetable', loan_type, scenario, {}, true)
+      end
     end
   end
 end

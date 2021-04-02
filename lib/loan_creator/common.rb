@@ -21,7 +21,8 @@ module LoanCreator
       # attribute: default_value
       deferred_in_periods: 0,
       interests_start_date: nil,
-      initial_values: {}
+      initial_values: {},
+      realistic_durations: false
     }.freeze
 
     attr_reader *REQUIRED_ATTRIBUTES
@@ -37,14 +38,26 @@ module LoanCreator
       validate_initial_values
     end
 
-    def periodic_interests_rate_percentage
-      @periodic_interests_rate_percentage ||=
-        annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS)
+    def periodic_interests_rate(date = nil, relative_to_date: nil)
+      if realistic_durations?
+        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
+      else
+        @periodic_interests_rate ||=
+          annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
+      end
     end
 
-    def periodic_interests_rate
-      @periodic_interests_rate ||=
-        periodic_interests_rate_percentage.div(100, BIG_DECIMAL_DIGITS)
+    def timetable_term_dates
+      @_timetable_term_dates ||= Hash.new do |dates, index|
+        dates[index] =
+          if index < 1
+            dates[index + 1].advance(months: -PERIODS_IN_MONTHS.fetch(period))
+          elsif index == 1
+            starts_on
+          else
+            starts_on.advance(months: PERIODS_IN_MONTHS.fetch(period) * (index - 1))
+          end
+      end
     end
 
     def lender_timetable
@@ -152,8 +165,7 @@ module LoanCreator
 
     def new_timetable
       LoanCreator::Timetable.new(
-        starts_on: starts_on,
-        period: period,
+        loan: self,
         interests_start_date: interests_start_date,
         starting_index: @starting_index
       )
@@ -161,6 +173,10 @@ module LoanCreator
 
     def compute_index
       @index ? (@starting_index + @index - 1) : nil
+    end
+
+    def last_period?(idx)
+      idx == (duration_in_periods - 1)
     end
 
     def compute_term_zero
@@ -172,6 +188,7 @@ module LoanCreator
       @total_paid_interests_end_of_period  += @period_interests
       @period_amount_to_pay                 = @period_interests
       @index                                = 0
+      @due_on                               = timetable_term_dates[0]
     end
 
     def term_zero_interests
@@ -193,6 +210,18 @@ module LoanCreator
 
     def term_zero?
       interests_start_date && interests_start_date < term_zero_date
+    end
+
+    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
+      realistic_days = 365
+      realistic_days += 1 if date.leap?
+      realistic_days_in_period = (date - relative_to_date).to_i
+
+      annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
+    end
+
+    def realistic_durations?
+      !!@realistic_durations
     end
   end
 end
