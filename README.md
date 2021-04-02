@@ -44,9 +44,10 @@ Each instance of one of the previous classes has the following attributes:
     :annual_interests_rate
     :starts_at
     :duration_in_periods
-    :deferred_in_periods (default to zero)
+    :deferred_in_periods (defaults to zero)
     :interests_start_date (optional)
     :initial_values (to generate a timetable from a previous term or at a given state)
+    :realistic_durations (optional, defaults to false)
 ```
 
 Initial values must be a hash with specific keys, like so:
@@ -102,6 +103,9 @@ There is also a `LoanCreator::Timetable` class dedicated to record the data of t
 
       # Amount to pay this term
       :period_amount_to_pay
+
+      # Whether or not to use the real number of days in each month
+      :realistic_durations
 ```
 
 `#periodic_interests_rate` renders a precise calculation of the loan's periodic interests rate based on two inputs: `#annual_interests_rate` and `#period`.
@@ -175,6 +179,9 @@ capital is refunded, only interest. Only relevant for `Standard` and `Linear` lo
 additional term with only interests for the time difference.
 For example, with a `start_at` in january 2020 and a `interests_start_date` in october 2019, the timetable will include a
 first term corresponding to 3 months of interests.
+
+`realistic_durations`: Optional. A boolean tha specifies whether or not to use the real number of days in each month when calculating the periodic interests rate. Note that leap years are taken into account. Default: `false`.
+The default behaviour is to use the `period` in relation to the number of months in a year (ie: 12)
 
 ## Calculation
 
