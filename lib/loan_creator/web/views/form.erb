@@ -1,4 +1,10 @@
 <form action="<%= env["SCRIPT_NAME"] %>/" method="GET">
+  <label class="switch">
+    <input name="realistic_durations" type="checkbox" <%= checked(params: fixed_params[:realistic_durations]) %>>
+    <span class="slider round"></span>
+  </label>
+  <span>Année au réel</span>
+
   <div class="row">
     <div class="col form-group">
       <label for="type">
