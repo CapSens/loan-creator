@@ -1,53 +1,6 @@
 <script>
-  function formattedDate(d = new Date) {
-    let month = String(d.getMonth() + 1);
-    let day = String(d.getDate());
-    const year = String(d.getFullYear());
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return `${day}/${month}/${year}`;
+  function updateWithDates(){
+    document.getElementById('datesChange').value = 'true';
+    document.forms[0].submit();
   }
-
-window.onload = function() {
-  document.getElementById('container').onclick = function(event) {
-    var td, input, text;
-
-    // Get the event (handle MS difference)
-    event = event || window.event;
-
-    // Get the root element of the event (handle MS difference)
-    td = event.target || event.srcElement;
-
-    // If it's a td...
-    if (td && td.contentEditable == "true" && td.tagName.toUpperCase() === "TD") {
-      // Hide it
-      td.style.display = "none";
-
-      // Get its text
-      text = td.innerHTML;
-
-      // Create an input
-      input = document.createElement("input");
-      input.type = "date";
-      input.value = text;
-      td.parentNode.insertBefore(input, td);
-
-      // Focus it, hook blur to undo
-      input.focus();
-      input.onblur = function() {
-        // Remove the input
-        td.parentNode.removeChild(input);
-
-        // Update the td
-        td.innerHTML = input.value == "" ? "Date à remplir" : formattedDate(new Date(input.value));
-
-        // Show the td again
-
-        td.style.display = "";
-      };
-    }
-  };
-};
 </script>

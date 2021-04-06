@@ -1,2 +1,4 @@
-<%= erb :form, locals: { fixed_params: fixed_params } %>
-<%= erb :table, locals: { terms: terms } %>
+<form action="<%= env["SCRIPT_NAME"] %>/" method="GET">
+  <%= erb :form, locals: { fixed_params: fixed_params } %>
+  <%= erb :table, locals: { terms: terms } %>
+</form>
