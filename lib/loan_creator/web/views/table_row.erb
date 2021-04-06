@@ -1,6 +1,6 @@
 <tr>
   <td><%= term.index %></td>
-  <td><%= term.due_on.strftime('%d/%m/%Y') %></td>
+  <td contenteditable="true"><%= term.due_on.strftime('%d/%m/%Y') %></td>
   <td><%= number_to_euro(term.period_amount_to_pay) %></td>
   <td><%= number_to_euro(term.period_capital) %></td>
   <td><%= number_to_euro(term.period_interests) %></td>

@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table" id="container">
   <%= erb :table_head %>
   <% terms.each do |term| %>
     <%= erb :table_row, locals: { term: term } %>
