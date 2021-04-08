@@ -234,11 +234,15 @@ module LoanCreator
     end
 
     def required_attributes
-      if @options[:with_custom_term_dates]
+      if custom_term_dates?
         REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES
       else
         REQUIRED_ATTRIBUTES
       end
+    end
+
+    def custom_term_dates?
+      @options[:custom_term_dates].present?
     end
   end
 end
