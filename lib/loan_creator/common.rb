@@ -17,6 +17,14 @@ module LoanCreator
       :duration_in_periods
     ].freeze
 
+    REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES = [
+      :amount,
+      :annual_interests_rate,
+      :starts_on,
+      :duration_in_periods,
+      :custom_term_dates
+    ].freeze
+
     OPTIONAL_ATTRIBUTES = {
       # attribute: default_value
       deferred_in_periods: 0,
@@ -75,11 +83,12 @@ module LoanCreator
     private
 
     def require_attributes
-      REQUIRED_ATTRIBUTES.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
+      required_attributes.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
     end
 
     def reinterpret_attributes
-      @options[:period] = @options[:period].to_sym
+      @options[:period] = @options[:period].to_sym if @options[:period].present?
+      @options[:custom_term_dates] = custom_term_dates.map { |date| Date.parse(date) if date.is_a?(String) } if @options[:custom_term_dates].present?
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
@@ -87,7 +96,7 @@ module LoanCreator
     end
 
     def set_attributes
-      REQUIRED_ATTRIBUTES.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
+      required_attributes.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
       OPTIONAL_ATTRIBUTES.each { |k,v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
     end
 
@@ -222,6 +231,14 @@ module LoanCreator
 
     def realistic_durations?
       !!@realistic_durations
+    end
+
+    def required_attributes
+      if @options[:custom_term_dates]
+        REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES
+      else
+        REQUIRED_ATTRIBUTES
+      end
     end
   end
 end
