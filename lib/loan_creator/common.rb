@@ -17,12 +17,12 @@ module LoanCreator
       :duration_in_periods
     ].freeze
 
-    REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES = [
+    REQUIRED_ATTRIBUTES_TERMS_DATES = [
       :amount,
       :annual_interests_rate,
       :starts_on,
       :duration_in_periods,
-      :custom_term_dates
+      :term_dates
     ].freeze
 
     OPTIONAL_ATTRIBUTES = {
@@ -230,19 +230,19 @@ module LoanCreator
     end
 
     def realistic_durations?
-      !!@realistic_durations
+      term_dates? || @realistic_durations.present?
     end
 
     def required_attributes
-      if custom_term_dates?
-        REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES
+      if term_dates?
+        REQUIRED_ATTRIBUTES_TERMS_DATES
       else
         REQUIRED_ATTRIBUTES
       end
     end
 
-    def custom_term_dates?
-      @options[:custom_term_dates].present?
+    def term_dates?
+      @options[:term_dates].present?
     end
   end
 end
