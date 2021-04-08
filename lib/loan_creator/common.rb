@@ -87,8 +87,7 @@ module LoanCreator
     end
 
     def reinterpret_attributes
-      @options[:period] = @options[:period].to_sym if @options[:period].present?
-      @options[:custom_term_dates] = custom_term_dates.map { |date| Date.parse(date) if date.is_a?(String) } if @options[:with_custom_term_dates].present?
+      @options[:period] = @options[:period].to_sym unless term_dates?
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
@@ -102,17 +101,18 @@ module LoanCreator
 
     def validate(key, &block)
       raise unless block.call(instance_variable_get(:"@#{key}"))
-    rescue
-      raise ArgumentError.new(key)
+    rescue => e
+      raise ArgumentError.new([key, e.message].join(': '))
     end
 
     def validate_attributes
-      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
+      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) } unless term_dates?
       validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
       validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
+      validate(:term_dates) { |v| TermDatesValidate.new(term_dates: v, duration_in_periods: @options[:duration_in_periods], interests_start_date: @options[:interests_start_date], loan_class: self.class.name) } if term_dates?
     end
 
     def validate_initial_values
