@@ -88,7 +88,7 @@ module LoanCreator
 
     def reinterpret_attributes
       @options[:period] = @options[:period].to_sym if @options[:period].present?
-      @options[:custom_term_dates] = custom_term_dates.map { |date| Date.parse(date) if date.is_a?(String) } if @options[:custom_term_dates].present?
+      @options[:custom_term_dates] = custom_term_dates.map { |date| Date.parse(date) if date.is_a?(String) } if @options[:with_custom_term_dates].present?
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
@@ -234,7 +234,7 @@ module LoanCreator
     end
 
     def required_attributes
-      if @options[:custom_term_dates]
+      if @options[:with_custom_term_dates]
         REQUIRED_ATTRIBUTES_CUSTOM_TERM_DATES
       else
         REQUIRED_ATTRIBUTES
