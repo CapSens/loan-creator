@@ -92,6 +92,7 @@ module LoanCreator
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
       @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
+      @options[:term_dates] = @options[:term_dates].map { |term_date| Date.parse(term_date.to_s) unless term_date.is_a?(Date) }
     end
 
     def set_attributes

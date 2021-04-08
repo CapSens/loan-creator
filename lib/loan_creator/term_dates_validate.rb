@@ -5,22 +5,11 @@ module LoanCreator
       @duration_in_periods = duration_in_periods
       @interests_start_date = interests_start_date
       @loan_class = loan_class
-      prepare_dates
       validate
       validate_for_bullet if bullet?
     end
 
     private
-
-    def prepare_dates
-      @term_dates.map! do |term_date|
-        if term_date.is_a?(Date)
-          term_date
-        else
-          Date.parse(term_date.to_s)
-        end
-      end
-    end
 
     def validate
       unless @term_dates.is_a?(Array)
