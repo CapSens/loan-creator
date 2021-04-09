@@ -44,6 +44,7 @@ module LoanCreator
       validate_attributes
       set_initial_values
       validate_initial_values
+      prepare_custom_term_dates if term_dates?
     end
 
     def periodic_interests_rate(date = nil, relative_to_date: nil)
@@ -92,7 +93,7 @@ module LoanCreator
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
       @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
-      @options[:term_dates] = @options[:term_dates].map { |term_date| Date.parse(term_date.to_s) unless term_date.is_a?(Date) }
+      @options[:term_dates] = @options[:term_dates].map { |term_date| Date.parse(term_date.to_s) unless term_date.is_a?(Date) } if term_dates?
     end
 
     def set_attributes
@@ -219,7 +220,7 @@ module LoanCreator
     end
 
     def term_zero?
-      interests_start_date && interests_start_date < term_zero_date
+      (interests_start_date && interests_start_date < term_zero_date) && !term_dates?
     end
 
     def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
@@ -244,6 +245,16 @@ module LoanCreator
 
     def term_dates?
       @options[:term_dates].present?
+    end
+
+    def prepare_custom_term_dates
+      term_dates = @options[:term_dates].each_with_index.with_object({}) do |(term_date, index), obj|
+        obj[index + 1] = term_date
+      end
+
+      term_dates[0] = starts_on
+      @_timetable_term_dates = term_dates
+      @realistic_durations = true
     end
   end
 end
