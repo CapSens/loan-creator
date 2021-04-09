@@ -17,7 +17,7 @@ module LoanCreator
       :duration_in_periods
     ].freeze
 
-    REQUIRED_ATTRIBUTES_TERMS_DATES = [
+    REQUIRED_ATTRIBUTES_TERM_DATES = [
       :amount,
       :annual_interests_rate,
       :starts_on,
@@ -114,7 +114,11 @@ module LoanCreator
       validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
-      validate(:term_dates) { |v| TermDatesValidate.new(term_dates: v, duration_in_periods: @options[:duration_in_periods], interests_start_date: @options[:interests_start_date], loan_class: self.class.name) } if term_dates?
+      validate(:term_dates) { |v| validate_term_dates(v) } if term_dates?
+    end
+
+    def validate_term_dates(v)
+      TermDatesValidate.new(term_dates: v, duration_in_periods: @options[:duration_in_periods], interests_start_date: @options[:interests_start_date], loan_class: self.class.name)
     end
 
     def validate_initial_values
@@ -237,7 +241,7 @@ module LoanCreator
 
     def required_attributes
       if term_dates?
-        REQUIRED_ATTRIBUTES_TERMS_DATES
+        REQUIRED_ATTRIBUTES_TERM_DATES
       else
         REQUIRED_ATTRIBUTES
       end

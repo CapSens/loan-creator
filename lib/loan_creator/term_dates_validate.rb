@@ -17,7 +17,7 @@ module LoanCreator
       end
 
       unless @term_dates.size == @duration_in_periods
-        raise ArgumentError, "the size of :term_dates (#{@term_dates.size}) do not match the :duration_in_periods (#{duration_in_periods})"
+        raise ArgumentError, "the size of :term_dates (#{@term_dates.size}) do not match the :duration_in_periods (#{@duration_in_periods})"
       end
 
       if @interests_start_date.present?
