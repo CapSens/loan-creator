@@ -52,6 +52,10 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       csv_name = "realistic_#{csv_name}"
     end
 
+    if term_dates.present?
+      csv_name = "#{csv_name}_with_custom_term_dates"
+    end
+
     CSV.parse(File.read("./spec/fixtures/#{csv_name}.csv"))
   end
 
@@ -87,10 +91,14 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   end
 
   it 'has contiguous indexes' do
-    term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
-    index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
+    if term_dates
+      index = 1
+    else
+      term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
+      index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
 
-    index += starting_index - 1
+      index += starting_index - 1
+    end
 
     lender_timetable.terms.each do |term|
       expect(term.index).to eq(index)
@@ -101,7 +109,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   it 'has contiguous due_on dates' do
     if term_dates
       lender_timetable.terms.each_with_index do |term, index|
-        expect(term.due_on).to eq(Date.parse(term_dates[index]))
+        expect(term.due_on).to eq(term_dates[index])
       end
     else
       step = { months: LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period) }
