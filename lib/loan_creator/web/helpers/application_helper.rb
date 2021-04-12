@@ -5,6 +5,7 @@ module LoanCreator
 
       {}.tap do |h|
         h[:type] = params[:type]
+        h[:realistic_durations] = true unless params[:realistic_durations].nil?
         h[:period] = params[:period]
         h[:amount] = params[:amount].to_f unless params[:amount].nil?
         h[:annual_interests_rate] = params[:annual_interests_rate].to_f unless params[:annual_interests_rate].nil?
@@ -26,6 +27,10 @@ module LoanCreator
 
     def number_to_euro(number)
       "#{number} €"
+    end
+
+    def checked(params:)
+      params ? 'checked' : ''
     end
   end
 end
