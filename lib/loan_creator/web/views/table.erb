@@ -1,6 +1,11 @@
-<table class="table">
+<table class="table" id="container">
   <%= erb :table_head %>
   <% terms.each do |term| %>
     <%= erb :table_row, locals: { term: term } %>
   <% end %>
 </table>
+
+<div class="d-flex justify-content-center">
+  <input type="hidden" id="datesChange" name="dates_change" value=""/>
+  <input type="button" onclick="updateWithDates()" class="btn btn-primary btn-lg my-2" value="update">
+</div>

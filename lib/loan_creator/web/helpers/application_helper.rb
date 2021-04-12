@@ -11,6 +11,7 @@ module LoanCreator
         h[:annual_interests_rate] = params[:annual_interests_rate].to_f unless params[:annual_interests_rate].nil?
         h[:starts_on] = Date.parse(params[:starts_on]) unless params[:starts_on].nil?
         h[:duration_in_periods] = params[:duration_in_periods].to_i unless params[:duration_in_periods].nil?
+        h[:term_dates] = params.select { |k, v| k.match(/due_on_/) }.each_with_object([]) { |(k, v), arr| arr << v } if params[:dates_change].present?
         h[:initial_values] = {}.tap do |ivh|
           ivh[:paid_capital] = params[:initial_values][:paid_capital].to_f unless params[:initial_values][:paid_capital].nil?
           ivh[:paid_interests] = params[:initial_values][:paid_interests].to_f unless params[:initial_values][:paid_interests].nil?

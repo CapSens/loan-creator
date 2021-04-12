@@ -1,6 +1,8 @@
 <tr>
   <td><%= term.index %></td>
-  <td><%= term.due_on.strftime('%d/%m/%Y') %></td>
+  <td>
+    <input type="date" class="form-control" name="due_on_<%= term.index %>" value= <%= term.due_on %>>
+  </td>
   <td><%= number_to_euro(term.period_amount_to_pay) %></td>
   <td><%= number_to_euro(term.period_capital) %></td>
   <td><%= number_to_euro(term.period_interests) %></td>
