@@ -1,0 +1,6 @@
+<table class="table">
+  <%= erb :table_head %>
+  <% terms.each do |term| %>
+    <%= erb :table_row, locals: { term: term } %>
+  <% end %>
+</table>

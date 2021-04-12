@@ -1,0 +1,10 @@
+<tr>
+  <td><%= term.index %></td>
+  <td><%= term.due_on.strftime('%d/%m/%Y') %></td>
+  <td><%= number_to_euro(term.period_amount_to_pay) %></td>
+  <td><%= number_to_euro(term.period_capital) %></td>
+  <td><%= number_to_euro(term.period_interests) %></td>
+  <td><%= number_to_euro(term.crd_end_of_period) %></td>
+  <td><%= number_to_euro(term.total_paid_capital_end_of_period) %></td>
+  <td><%= number_to_euro(term.total_paid_interests_end_of_period) %></td>
+</tr>

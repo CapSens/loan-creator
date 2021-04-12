@@ -1,0 +1,83 @@
+<form action="<%= env["SCRIPT_NAME"] %>/" method="GET">
+  <div class="row">
+    <div class="col form-group">
+      <label for="type">
+        Type
+      </label>
+      <select name="type" class="form-control" id="type-select">
+        <option value="">--Chose an option--</option>
+        <option value="standard" <%= selected(params: fixed_params[:type], value: 'standard') %>>Standard</option>
+        <option value="in_fine" <%= selected(params: fixed_params[:type], value: 'in_fine') %>>In fine</option>
+        <option value="bullet" <%= selected(params: fixed_params[:type], value: 'bullet') %>>Bullet</option>
+        <option value="linear" <%= selected(params: fixed_params[:type], value: 'linear') %>>Linear</option>
+      </select>
+    </div>
+
+    <div class="col form-group">  
+      <label for="amount" id="amount">
+        Amount
+      </label>
+      <input type="number" class="form-control" name="amount" value=<%= fixed_params[:amount] %>>
+    </div>
+
+    <div class="col form-group">
+      <label for="period">
+        Period
+      </label>
+      <select name="period" class="form-control" id="period-select">
+        <option value="">--Chose an option--</option>
+        <option value="month" <%= selected(params: fixed_params[:period], value: 'month') %>>Month</option>
+        <option value="quarter" <%= selected(params: fixed_params[:period], value: 'quarter') %>>Quarter</option>
+        <option value="semester" <%= selected(params: fixed_params[:period], value: 'semester') %>>Semester</option>
+        <option value="year" <%= selected(params: fixed_params[:period], value: 'year') %>>Year</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col form-group">
+      <label for="annual_interests_rate" id="annual_interests_rate">
+        Annual Interests Rate
+      </label>
+      <input type="number" class="form-control" step="0.01" name="annual_interests_rate" value=<%= fixed_params[:annual_interests_rate] %>>
+    </div>
+
+    <div class="col form-group">
+      <label for="starts_on">Starts on</label>
+      <input type="date" class="form-control" name="starts_on" id="starts_on" value= <%= fixed_params[:starts_on] %>>
+    </div>
+
+    <div class="col form-group">
+      <label for="duration_in_periods">Duration in periods</label>
+      <input type="number" class="form-control" name="duration_in_periods" id="duration_in_periods" value= <%= fixed_params[:duration_in_periods] %>>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col form-group">
+      <label for="initial_values[due_interests]">Initial values[due interests]</label>
+      <input step="0.01" class="form-control" type="number" name="initial_values[due_interests]" id="initial_values[due_interests]" value= <%= fixed_params[:initial_values][:due_interests] %>>
+    </div>
+
+    <div class="col form-group">
+      <label for="initial_values[accrued_delta_interests]">Initial values[accrued delta interests]</label>
+      <input step="1.0e-07" class="form-control" type="number" name="initial_values[accrued_delta_interests]" id="initial_values[accrued_delta_interests]" value= <%= fixed_params[:initial_values][:accrued_delta_interests] %>>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col form-group">
+      <label for="initial_values[paid_interests]">Initial values[paid interests]</label>
+      <input step="0.01" class="form-control" type="number" name="initial_values[paid_interests]" id="initial_values[paid_interests]" value= <%= fixed_params[:initial_values][:paid_interests] %>>
+    </div>
+
+    <div class="col form-group">
+      <label for="initial_values[paid_capital]">Initial values[paid capital]</label>
+      <input step="0.01" class="form-control" type="number" name="initial_values[paid_capital]" id="initial_values[paid_capital]" value= <%= fixed_params[:initial_values][:paid_capital] %>>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <input type="submit" class="btn btn-primary btn-lg my-2" value="generate">
+  </div>
+</form>
