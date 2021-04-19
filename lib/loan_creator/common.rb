@@ -212,12 +212,43 @@ module LoanCreator
       interests_start_date && interests_start_date < term_zero_date
     end
 
-    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
-      realistic_days = 365
-      realistic_days += 1 if date.leap?
-      realistic_days_in_period = (date - relative_to_date).to_i
+    def get_parts(date, relative_to_date:)
+      end_of_last_year = Date.new(date.year - 1, 12, 31)
+      beginning_of_year = Date.new(date.year, 1, 1)
 
-      annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
+      if date.leap? && relative_to_date.leap?
+        {
+          leap: bigd(date - relative_to_date),
+          normal: bigd(0)
+        }
+      elsif date.leap?
+        {
+          leap: bigd(date - end_of_last_year),
+          normal: bigd(beginning_of_year - relative_to_date)
+        }
+      elsif relative_to_date.leap?
+        {
+          leap: bigd(beginning_of_year - relative_to_date),
+          normal: bigd(date - end_of_last_year),
+        }
+      else
+        {
+          leap: bigd(0),
+          normal: bigd(date - relative_to_date),
+        }
+      end
+    end
+
+    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
+      parts = get_parts(date, relative_to_date: relative_to_date)
+
+      annual_interests_rate.mult(
+        parts[:leap].div(366, BIG_DECIMAL_DIGITS) +
+        parts[:normal].div(365, BIG_DECIMAL_DIGITS),
+        BIG_DECIMAL_DIGITS
+      )
+
+      # annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
     end
 
     def realistic_durations?
