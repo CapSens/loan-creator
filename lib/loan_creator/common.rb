@@ -214,7 +214,6 @@ module LoanCreator
 
     def get_parts(date, relative_to_date:)
       end_of_last_year = Date.new(date.year - 1, 12, 31)
-      beginning_of_year = Date.new(date.year, 1, 1)
 
       if date.leap? && relative_to_date.leap?
         {
@@ -224,11 +223,11 @@ module LoanCreator
       elsif date.leap?
         {
           leap: bigd(date - end_of_last_year),
-          normal: bigd(beginning_of_year - relative_to_date)
+          normal: bigd(end_of_last_year - relative_to_date)
         }
       elsif relative_to_date.leap?
         {
-          leap: bigd(beginning_of_year - relative_to_date),
+          leap: bigd(end_of_last_year - relative_to_date),
           normal: bigd(date - end_of_last_year),
         }
       else
