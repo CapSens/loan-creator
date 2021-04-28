@@ -116,7 +116,8 @@ module LoanCreator
     end
 
     def set_initial_values
-      @starting_index  = initial_values[:starting_index] || 1
+      @starting_index         = initial_values[:starting_index] || 1
+      @initial_due_interests  = bigd(initial_values[:due_interests] || 0)
 
       return if initial_values.blank?
 
@@ -222,6 +223,10 @@ module LoanCreator
 
     def realistic_durations?
       !!@realistic_durations
+    end
+
+    def compute_period_generated_interests(interests_rate)
+      (@crd_beginning_of_period + @due_interests_beginning_of_period).mult(interests_rate, BIG_DECIMAL_DIGITS)
     end
   end
 end

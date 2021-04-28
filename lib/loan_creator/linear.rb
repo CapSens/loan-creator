@@ -27,7 +27,8 @@ module LoanCreator
 
       # Reminder: CRD beginning of period = CRD end of period **of previous period**
       @crd_beginning_of_period = @crd_end_of_period
-      @period_theoric_interests = @crd_beginning_of_period * computed_periodic_interests_rate
+      @due_interests_beginning_of_period = @due_interests_end_of_period
+      @period_theoric_interests = period_theoric_interests(computed_periodic_interests_rate)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
       @amount_to_add = bigd(
@@ -46,8 +47,19 @@ module LoanCreator
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
+      @due_interests_end_of_period -= reimbursed_due_interests
 
       current_term
+    end
+
+    def period_theoric_interests(computed_periodic_interests_rate)
+      if @deferred_period
+        compute_period_generated_interests(computed_periodic_interests_rate)
+      elsif @due_interests_beginning_of_period > 0
+        reimbursed_due_interests + compute_period_generated_interests(computed_periodic_interests_rate)
+      else
+        compute_period_generated_interests(computed_periodic_interests_rate)
+      end
     end
 
     def period_capital
@@ -55,9 +67,26 @@ module LoanCreator
         @crd_beginning_of_period
       elsif @deferred_period
         bigd(0)
+      elsif @due_interests_beginning_of_period > 0
+        compute_period_capital - reimbursed_due_interests
       else
-        (amount / (duration_in_periods - deferred_in_periods)).round(2)
+        compute_period_capital
       end
+    end
+
+    def reimbursed_due_interests
+      if @deferred_period
+        bigd(0)
+      else
+        [
+          @due_interests_beginning_of_period,
+          compute_period_capital
+        ].min
+      end
+    end
+
+    def compute_period_capital
+      ((amount + @initial_due_interests) / (duration_in_periods - deferred_in_periods)).round(2)
     end
   end
 end
