@@ -53,9 +53,7 @@ module LoanCreator
     end
 
     def period_theoric_interests(computed_periodic_interests_rate)
-      if @deferred_period
-        compute_period_generated_interests(computed_periodic_interests_rate)
-      elsif @due_interests_beginning_of_period > 0
+      if @due_interests_beginning_of_period > 0
         reimbursed_due_interests + compute_period_generated_interests(computed_periodic_interests_rate)
       else
         compute_period_generated_interests(computed_periodic_interests_rate)
