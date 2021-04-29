@@ -41,5 +41,32 @@ describe LoanCreator::Standard do
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
       include_examples('valid lender timetable', loan_type, scenario, initial_values, true)
     end
+
+    context 'given a scenario with initial_values' do
+      initial_values = {
+        paid_capital: 0,
+        paid_interests: 0,
+        accrued_delta_interests: 0.00,
+        starting_index: 1,
+        due_interests: 1000
+      }
+
+      scenario = ['month', '10000', '12', '2018-01-01', '12', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values)
+    end
+    context 'given a scenario with initial_values' do
+      initial_values = {
+        paid_capital: 0,
+        paid_interests: 0,
+        accrued_delta_interests: 0.00,
+        starting_index: 1,
+        due_interests: 1000
+      }
+
+      scenario = ['month', '10', '12', '2018-01-01', '12', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values)
+    end
   end
 end

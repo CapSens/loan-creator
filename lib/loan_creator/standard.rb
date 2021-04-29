@@ -27,6 +27,7 @@ module LoanCreator
       computed_periodic_interests_rate = periodic_interests_rate(@due_on, relative_to_date: timetable_term_dates[timetable.next_index - 1])
 
       @crd_beginning_of_period = @crd_end_of_period
+      @due_interests_beginning_of_period = @due_interests_end_of_period
       @period_theoric_interests = period_theoric_interests(@index, computed_periodic_interests_rate)
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
@@ -46,13 +47,16 @@ module LoanCreator
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay = @period_interests + @period_capital
       @crd_end_of_period -= @period_capital
+      @due_interests_end_of_period -= reimbursed_due_interests(idx, computed_periodic_interests_rate)
 
       current_term
     end
 
     def period_theoric_interests(idx, computed_periodic_interests_rate)
       if @deferred_period
-        @crd_beginning_of_period * computed_periodic_interests_rate
+        compute_period_generated_interests(computed_periodic_interests_rate)
+      elsif @due_interests_beginning_of_period > 0
+        reimbursed_due_interests(idx, computed_periodic_interests_rate) + compute_period_generated_interests(computed_periodic_interests_rate)
       else
         -ipmt(
           computed_periodic_interests_rate,
@@ -68,13 +72,30 @@ module LoanCreator
         @crd_beginning_of_period
       elsif @deferred_period
         bigd(0)
+      elsif @due_interests_beginning_of_period > 0
+        compute_period_capital(idx, computed_periodic_interests_rate) - reimbursed_due_interests(idx, computed_periodic_interests_rate)
       else
-        -ppmt(
-          computed_periodic_interests_rate,
-          idx - deferred_in_periods,
-          duration_in_periods - deferred_in_periods,
-          amount
-        ).round(2)
+        compute_period_capital(idx, computed_periodic_interests_rate)
+      end
+    end
+
+    def compute_period_capital(idx, computed_periodic_interests_rate)
+      -ppmt(
+        computed_periodic_interests_rate,
+        idx - deferred_in_periods,
+        duration_in_periods - deferred_in_periods,
+        amount + @initial_due_interests
+      ).round(2)
+    end
+
+    def reimbursed_due_interests(idx, computed_periodic_interests_rate)
+      if @deferred_period
+        bigd(0)
+      else
+        [
+          @due_interests_beginning_of_period,
+          compute_period_capital(idx, computed_periodic_interests_rate)
+        ].min
       end
     end
   end
