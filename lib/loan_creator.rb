@@ -17,5 +17,5 @@ module LoanCreator
   autoload :Timetable,                'loan_creator/timetable'
   autoload :Term,                     'loan_creator/term'
   autoload :UncapitalizedBullet,      'loan_creator/uncapitalized_bullet'
-  autoload :TermDatesValidate,  'loan_creator/term_dates_validate'
+  autoload :TermDatesValidate,        'loan_creator/term_dates_validate'
 end
