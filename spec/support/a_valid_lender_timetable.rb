@@ -91,14 +91,10 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   end
 
   it 'has contiguous indexes' do
-    if term_dates
-      index = 1
-    else
-      term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
-      index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
+    term_zero_date = starts_on.advance(months: -LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period))
+    index = interests_start_date && interests_start_date < term_zero_date ? 0 : 1
 
-      index += starting_index - 1
-    end
+    index += starting_index - 1
 
     lender_timetable.terms.each do |term|
       expect(term.index).to eq(index)
