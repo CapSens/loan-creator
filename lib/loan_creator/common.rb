@@ -126,8 +126,13 @@ module LoanCreator
       validate(:term_dates) { |v| validate_term_dates(v) } if term_dates?
     end
 
-    def validate_term_dates(v)
-      TermDatesValidate.new(term_dates: v, duration_in_periods: @options[:duration_in_periods], interests_start_date: @options[:interests_start_date], loan_class: self.class.name)
+    def validate_term_dates(term_dates)
+      TermDatesValidator.call(
+        term_dates: term_dates,
+        duration_in_periods: @options[:duration_in_periods],
+        interests_start_date: @options[:interests_start_date],
+        loan_class: self.class.name
+      )
     end
 
     def validate_initial_values
