@@ -33,5 +33,13 @@ describe LoanCreator::Bullet do
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
       include_examples('valid lender timetable', loan_type, scenario, initial_values, true)
     end
+
+    context 'given a scenario with term dates' do
+      term_dates = ['2022-02-15', '2022-10-15', '2023-04-15']
+
+      scenario = ['semester', '100000', '12', '2021-10-15', '3', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, {}, false, term_dates)
+    end
   end
 end
