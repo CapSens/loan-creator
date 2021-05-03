@@ -117,12 +117,12 @@ module LoanCreator
       validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
-      validate(:term_dates) { |v| validate_term_dates(v) } if term_dates?
+      validate_term_dates if term_dates?
     end
 
-    def validate_term_dates(term_dates)
+    def validate_term_dates
       TermDatesValidator.call(
-        term_dates: term_dates,
+        term_dates: @options[:term_dates],
         duration_in_periods: @options[:duration_in_periods],
         interests_start_date: @options[:interests_start_date],
         loan_class: self.class.name

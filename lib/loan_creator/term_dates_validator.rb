@@ -6,8 +6,6 @@ module LoanCreator
       interests_start_date_present(interests_start_date)
       coherent_dates_for_non_bullet(term_dates)
       coherent_dates_for_bullet(term_dates) if bullet?(loan_class)
-
-      true
     end
 
     private
