@@ -95,13 +95,7 @@ module LoanCreator
       @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
 
       if term_dates?
-        @options[:term_dates].map! do |term_date|
-          if term_date.is_a?(Date)
-            term_date
-          else
-            Date.parse(term_date.to_s)
-          end
-        end
+        @options[:term_dates].map!{ |term_date| Date.parse(term_date.to_s) }
       end
     end
 
