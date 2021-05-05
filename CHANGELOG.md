@@ -1,3 +1,8 @@
+v0.8.2
+-------------------------
+
+- manage initial value `due_interests` for Linear and InFine loan types
+
 v0.8.1
 -------------------------
 - add `realistic_durations` option
