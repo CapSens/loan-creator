@@ -28,5 +28,15 @@ describe LoanCreator::Bullet do
 
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
     end
+
+    context 'given scenarios with realistic durations' do
+      scenarios = [
+        ['semester', '100000', '12', '2022-04-15', '3', '0'],
+        ['semester', '100000', '12', '2021-04-15', '3', '0']
+      ]
+      scenarios.each do |scenario|
+        include_examples('valid lender timetable', loan_type, scenario, nil, true)
+      end
+    end
   end
 end
