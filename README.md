@@ -180,8 +180,12 @@ additional term with only interests for the time difference.
 For example, with a `start_at` in january 2020 and a `interests_start_date` in october 2019, the timetable will include a
 first term corresponding to 3 months of interests.
 
-`realistic_durations`: Optional. A boolean tha specifies whether or not to use the real number of days in each month when calculating the periodic interests rate. Note that leap years are taken into account. Default: `false`.
-The default behaviour is to use the `period` in relation to the number of months in a year (ie: 12)
+`realistic_durations`: Optional. A boolean that specifies whether or not to use the real number of days in each month when calculating the periodic interests rate (ie: for a period between January 1st 2021 and February 1st 2021 the period rate is annual_interests_rate * 31/355).
+Note that leap years are taken into account (ie: for a period between January 1st 2020 and February 1st 2020 the period rate is annual_interests_rate * 31/356). Also, an overlaping period
+take each parts into account (ie: for a period between December 1st 2020 and February 1st 2021, the period rate is (annual_interests_rate * (31/355) + annual_interests_rate * (31/356)))
+Default: `false`.
+The default behaviour is to use the `period` in relation to the number of months in a year (ie: for a monthly timetable annual_interests_rate * 1/12, for quarter annual_interests_rate * 3/12, etc.)
+
 
 `term_dates`: Optional. Implemented for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`. Can be used if you want to implement custom due dates for terms. Terms will be compute from date to date. Must be an array with following dates.
 
