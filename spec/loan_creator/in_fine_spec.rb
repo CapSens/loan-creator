@@ -31,5 +31,15 @@ describe LoanCreator::InFine do
 
       include_examples('valid lender timetable', loan_type, scenario, initial_values)
     end
+
+    context 'given scenarios with realistic durations' do
+      scenarios = [
+        ['month', '100000', '12', '2021-12-15', '18', '0'],
+        ['quarter', '100000', '12', '2021-01-15', '12', '0']
+      ]
+      scenarios.each do |scenario|
+        include_examples('valid lender timetable', loan_type, scenario, nil, true)
+      end
+    end
   end
 end
