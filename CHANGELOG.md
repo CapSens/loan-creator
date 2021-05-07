@@ -1,3 +1,13 @@
+v0.9.0
+-------------------------
+- add possibility to pass the argument `term_dates` for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`
+- `term_dates` option is based on `realistic_durations` and allow to compute terms custom date to custom date
+
+v0.8.2
+-------------------------
+
+- manage initial value `due_interests` for Linear and InFine loan types
+
 v0.8.1
 -------------------------
 - add `realistic_durations` option

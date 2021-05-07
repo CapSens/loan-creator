@@ -17,6 +17,14 @@ module LoanCreator
       :duration_in_periods
     ].freeze
 
+    REQUIRED_ATTRIBUTES_TERM_DATES = [
+      :amount,
+      :annual_interests_rate,
+      :starts_on,
+      :duration_in_periods,
+      :term_dates
+    ].freeze
+
     OPTIONAL_ATTRIBUTES = {
       # attribute: default_value
       deferred_in_periods: 0,
@@ -36,6 +44,7 @@ module LoanCreator
       validate_attributes
       set_initial_values
       validate_initial_values
+      prepare_custom_term_dates if term_dates?
     end
 
     def periodic_interests_rate(date = nil, relative_to_date: nil)
@@ -75,35 +84,49 @@ module LoanCreator
     private
 
     def require_attributes
-      REQUIRED_ATTRIBUTES.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
+      required_attributes.each { |k| raise ArgumentError.new(k) unless @options.fetch(k, nil) }
     end
 
     def reinterpret_attributes
-      @options[:period] = @options[:period].to_sym
+      @options[:period] = @options[:period].to_sym unless term_dates?
       @options[:amount] = bigd(@options[:amount])
       @options[:annual_interests_rate] = bigd(@options[:annual_interests_rate])
       @options[:starts_on] = Date.parse(@options[:starts_on]) if @options[:starts_on].is_a?(String)
       @options[:interests_start_date] = Date.parse(@options[:interests_start_date]) if @options[:interests_start_date].is_a?(String)
+
+      if term_dates?
+        @options[:term_dates].map!{ |term_date| Date.parse(term_date.to_s) }
+      end
     end
 
     def set_attributes
-      REQUIRED_ATTRIBUTES.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
+      required_attributes.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
       OPTIONAL_ATTRIBUTES.each { |k,v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
     end
 
     def validate(key, &block)
       raise unless block.call(instance_variable_get(:"@#{key}"))
-    rescue
-      raise ArgumentError.new(key)
+    rescue => e
+      raise ArgumentError.new([key, e.message].join(': '))
     end
 
     def validate_attributes
-      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) }
+      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) } unless term_dates?
       validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
       validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
       validate(:starts_on) { |v| v.is_a?(Date) }
       validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
       validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
+      validate_term_dates if term_dates?
+    end
+
+    def validate_term_dates
+      TermDatesValidator.call(
+        term_dates: @options[:term_dates],
+        duration_in_periods: @options[:duration_in_periods],
+        interests_start_date: @options[:interests_start_date],
+        loan_class: self.class.name
+      )
     end
 
     def validate_initial_values
@@ -116,7 +139,8 @@ module LoanCreator
     end
 
     def set_initial_values
-      @starting_index  = initial_values[:starting_index] || 1
+      @starting_index         = initial_values[:starting_index] || 1
+      @initial_due_interests  = bigd(initial_values[:due_interests] || 0)
 
       return if initial_values.blank?
 
@@ -209,7 +233,7 @@ module LoanCreator
     end
 
     def term_zero?
-      interests_start_date && interests_start_date < term_zero_date
+      (interests_start_date && interests_start_date < term_zero_date) && !term_dates?
     end
 
     def leap_days_count(date, relative_to_date:)
@@ -250,7 +274,33 @@ module LoanCreator
     end
 
     def realistic_durations?
-      !!@realistic_durations
+      term_dates? || @realistic_durations.present?
+    end
+
+    def required_attributes
+      if term_dates?
+        REQUIRED_ATTRIBUTES_TERM_DATES
+      else
+        REQUIRED_ATTRIBUTES
+      end
+    end
+
+    def term_dates?
+      @options[:term_dates].present?
+    end
+
+    def prepare_custom_term_dates
+      term_dates = @options[:term_dates].each_with_index.with_object({}) do |(term_date, index), obj|
+        obj[index + 1] = term_date
+      end
+
+      term_dates[0] = starts_on
+      @_timetable_term_dates = term_dates
+      @realistic_durations = true
+    end
+
+    def compute_period_generated_interests(interests_rate)
+      (@crd_beginning_of_period + @due_interests_beginning_of_period).mult(interests_rate, BIG_DECIMAL_DIGITS)
     end
   end
 end
