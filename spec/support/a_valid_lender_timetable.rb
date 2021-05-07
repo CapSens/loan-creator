@@ -2,7 +2,7 @@ require 'spec_helper'
 
 PRINT_DEBUG = false
 
-RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values, realistic_durations|
+RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_values, realistic_durations, term_dates|
   let(:loan) do
     described_class.new(
       period: period,
@@ -13,7 +13,8 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       deferred_in_periods: deferred_in_periods,
       interests_start_date: interests_start_date,
       initial_values: initial_values.presence || {},
-      realistic_durations: !!realistic_durations.presence
+      realistic_durations: !!realistic_durations.presence,
+      term_dates: term_dates
     )
   end
   let(:lender_timetable) do
@@ -51,6 +52,10 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       csv_name = "realistic_#{csv_name}"
     end
 
+    if term_dates.present?
+      csv_name = "#{csv_name}_with_custom_term_dates"
+    end
+
     CSV.parse(File.read("./spec/fixtures/#{csv_name}.csv"))
   end
 
@@ -82,7 +87,11 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   # end
 
   it 'has valid period' do
-    expect(lender_timetable.period).to eq(period)
+    if term_dates
+      expect(lender_timetable.period).to eq(nil)
+    else
+      expect(lender_timetable.period).to eq(period)
+    end
   end
 
   it 'has valid start date' do
@@ -106,15 +115,21 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   end
 
   it 'has contiguous due_on dates' do
-    step = { months: LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period) }
-    date = starts_on.advance(step.transform_values { |n| n * (starting_index - 1)})
+    if term_dates
+      lender_timetable.terms.each_with_index do |term, index|
+        expect(term.due_on).to eq(term_dates[index])
+      end
+    else
+      step = { months: LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period) }
+      date = starts_on.advance(step.transform_values { |n| n * (starting_index - 1)})
 
-    lender_timetable.terms.each do |term|
-      if term.index == 0
-        expect(term.due_on).to eq(date.advance(step.transform_values {|n| -n}))
-      else
-        expect(term.due_on).to eq(date)
-        date = date.advance(step)
+      lender_timetable.terms.each do |term|
+        if term.index == 0
+          expect(term.due_on).to eq(date.advance(step.transform_values {|n| -n}))
+        else
+          expect(term.due_on).to eq(date)
+          date = date.advance(step)
+        end
       end
     end
   end
@@ -152,8 +167,10 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       # expect(term_got.amount_to_add).to eq(term_expected[CSV_COL_AMOUNT_TO_ADD])
       expect(term_got.period_interests).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_PERIOD_INTERESTS])
       expect(term_got.total_paid_interests_end_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_TOTAL_PAID_INTERESTS_END_OF_PERIOD])
-      expect(term_got.due_interests_beginning_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_DUE_INTERESTS_BEGINNING_OF_PERIOD])
-      expect(term_got.due_interests_end_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_DUE_INTERESTS_END_OF_PERIOD])
+      if loan.class.name != "LoanCreator::Bullet" && !term_dates.present?
+        expect(term_got.due_interests_beginning_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_DUE_INTERESTS_BEGINNING_OF_PERIOD])
+        expect(term_got.due_interests_end_of_period).to be_within(TOLERANCE_THRESHOLD).of(term_expected[CSV_COL_DUE_INTERESTS_END_OF_PERIOD])
+      end
     end
   end
 end

@@ -183,6 +183,8 @@ first term corresponding to 3 months of interests.
 `realistic_durations`: Optional. A boolean tha specifies whether or not to use the real number of days in each month when calculating the periodic interests rate. Note that leap years are taken into account. Default: `false`.
 The default behaviour is to use the `period` in relation to the number of months in a year (ie: 12)
 
+`term_dates`: Optional. Implemented for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`. Can be used if you want to implement custom due dates for terms. Terms will be compute from date to date. Must be an array with following dates.
+
 ## Calculation
 
 An excel simulator for standard case can be found [here](CapSens_Loan.xlsx).

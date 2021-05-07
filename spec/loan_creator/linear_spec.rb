@@ -26,6 +26,14 @@ describe LoanCreator::Linear do
       end
     end
 
+    context 'given a scenario with term dates' do
+      term_dates = ['2022-02-15', '2022-10-15', '2023-04-15']
+
+      scenario = ['semester', '100000', '12', '2021-10-15', '3', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, {}, false, term_dates)
+    end
+
     context 'with due interests' do
       scenario = ['month', '1000', '12', '20202-01-01', '12', '0']
       initial_values = {
