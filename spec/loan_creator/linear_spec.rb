@@ -20,9 +20,15 @@ describe LoanCreator::Linear do
       context "for scenario #{loan_type}_#{scenario.join('_')}" do
         include_examples('valid lender timetable', loan_type, scenario)
       end
+    end
 
-      context "for scenario realistic_#{loan_type}_#{scenario.join('_')} with realistic durations" do
-        include_examples('valid lender timetable', loan_type, scenario, {}, true)
+    context 'given scenarios with realistic durations' do
+      scenarios = [
+        ['semester', '100000', '12', '2022-04-15', '3', '0'],
+        ['year', '100000', '12', '2021-10-15', '3', '0']
+      ]
+      scenarios.each do |scenario|
+        include_examples('valid lender timetable', loan_type, scenario, nil, true)
       end
     end
 

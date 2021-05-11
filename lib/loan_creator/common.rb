@@ -236,12 +236,41 @@ module LoanCreator
       (interests_start_date && interests_start_date < term_zero_date) && !term_dates?
     end
 
-    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
-      realistic_days = 365
-      realistic_days += 1 if date.leap?
-      realistic_days_in_period = (date - relative_to_date).to_i
+    def leap_days_count(date, relative_to_date:)
+      start_year = relative_to_date.year
+      end_year = date.year
 
-      annual_interests_rate.div(bigd(realistic_days) / bigd(realistic_days_in_period), BIG_DECIMAL_DIGITS)
+      (start_year..end_year).sum do |year|
+        next 0 unless Date.gregorian_leap?(year)
+
+        start_date =
+          if start_year == year
+            relative_to_date
+          else
+            Date.new(year - 1, 12, 31)
+          end
+
+        end_date =
+          if end_year == year
+            date
+          else
+            Date.new(year, 12, 31)
+          end
+
+        end_date - start_date
+      end
+    end
+
+    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
+      total_days = date - relative_to_date
+      leap_days = bigd(leap_days_count(date, relative_to_date: relative_to_date))
+      non_leap_days = bigd(total_days - leap_days)
+
+      annual_interests_rate.mult(
+        leap_days.div(366, BIG_DECIMAL_DIGITS) +
+        non_leap_days.div(365, BIG_DECIMAL_DIGITS),
+        BIG_DECIMAL_DIGITS
+      )
     end
 
     def realistic_durations?

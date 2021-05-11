@@ -1,3 +1,8 @@
+v0.9.1
+-------------------------
+- add spec importer `scripts/convert_export_to_spec.rb {csv_url}`
+- fix period interests rate for realistic duration period overlapping leap & non leap years
+
 v0.9.0
 -------------------------
 - add possibility to pass the argument `term_dates` for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`
