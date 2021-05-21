@@ -33,7 +33,7 @@ describe LoanCreator::Linear do
     end
 
     context 'given a scenario with term dates' do
-      term_dates = ['2022-02-15', '2022-10-15', '2023-04-15']
+      term_dates = ['2021-10-15', '2022-02-15', '2022-10-15', '2023-04-15']
 
       scenario = ['semester', '100000', '12', '2021-10-15', '3', '0']
 

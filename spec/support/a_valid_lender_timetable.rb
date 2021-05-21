@@ -117,7 +117,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
   it 'has contiguous due_on dates' do
     if term_dates
       lender_timetable.terms.each_with_index do |term, index|
-        expect(term.due_on).to eq(term_dates[index])
+        expect(term.due_on).to eq(term_dates[index + 1])
       end
     else
       step = { months: LoanCreator::Common::PERIODS_IN_MONTHS.fetch(period) }
