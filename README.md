@@ -187,7 +187,7 @@ Default: `false`.
 The default behaviour is to use the `period` in relation to the number of months in a year (ie: for a monthly timetable annual_interests_rate * 1/12, for quarter annual_interests_rate * 3/12, etc.)
 
 
-`term_dates`: Optional. Implemented for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`. Can be used if you want to implement custom due dates for terms. Terms will be compute from date to date. Must be an array with following dates.
+`term_dates`: Optional. Implemented for `LoanCreator::Bullet`, `LoanCreator::InFine` and `LoanCreator::Linear`. Can be used if you want to implement custom due dates for terms. Terms will be computed from date to date. Must be an array with following dates. Must contain duration + 1 dates. The first element of the array is the first period start_date and last is the last period pay day.
 
 ## Calculation
 
