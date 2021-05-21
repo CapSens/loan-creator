@@ -294,6 +294,7 @@ module LoanCreator
         obj[index + @starting_index - 1] = term_date
       end
 
+      # if starting_index > 1 term_dates[0] is not set
       term_dates[0] ||= starts_on
       @_timetable_term_dates = term_dates
       @realistic_durations = true
