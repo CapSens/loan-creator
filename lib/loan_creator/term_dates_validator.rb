@@ -17,8 +17,10 @@ module LoanCreator
     end
 
     def self.matches_duration(term_dates, duration_in_periods)
-      unless term_dates.size == duration_in_periods
-        raise ArgumentError, "the size of :term_dates (#{term_dates.size}) do not match the :duration_in_periods (#{duration_in_periods})"
+      unless term_dates.size == duration_in_periods + 1
+        error_message = "the size of :term_dates (#{term_dates.size}) do not match the :duration_in_periods (#{duration_in_periods})."
+        advice = "You must pass the previous term date (or start_on if starting_index == 1) as the first term date"
+        raise ArgumentError, "#{error_message} #{advice}"
       end
     end
 
@@ -64,7 +66,7 @@ module LoanCreator
           raise ArgumentError, "term dates can't be more than 1 year apart. #{error_description}"
         end
       end
-    end      
+    end
 
     def self.bullet?(loan_class)
       loan_class == "LoanCreator::Bullet"

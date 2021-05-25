@@ -33,11 +33,25 @@ describe LoanCreator::Linear do
     end
 
     context 'given a scenario with term dates' do
-      term_dates = ['2022-02-15', '2022-10-15', '2023-04-15']
+      term_dates = ['2021-10-15', '2022-02-15', '2022-10-15', '2023-04-15']
 
       scenario = ['semester', '100000', '12', '2021-10-15', '3', '0']
 
       include_examples('valid lender timetable', loan_type, scenario, {}, false, term_dates)
+    end
+
+    context 'given a scenario with term dates & starting index' do
+      term_dates = ['2021-10-15', '2022-02-15', '2022-10-15', '2023-04-15']
+
+      scenario = ['semester', '100000', '12', '2021-10-15', '3', '0']
+      initial_values = {
+        paid_capital: 0,
+        paid_interests: 0,
+        accrued_delta_interests: 0.00,
+        starting_index: 12,
+        due_interests: 0.0
+      }
+      include_examples('valid lender timetable', loan_type, scenario, initial_values, false, term_dates)
     end
 
     context 'with due interests' do
