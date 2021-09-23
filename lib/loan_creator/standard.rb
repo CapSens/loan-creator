@@ -24,7 +24,7 @@ module LoanCreator
       @last_period = last_period?(idx)
       @deferred_period = @index <= deferred_in_periods
       @due_on = timetable_term_dates[timetable.next_index]
-      computed_periodic_interests_rate = periodic_interests_rate(@due_on, relative_to_date: timetable_term_dates[timetable.next_index - 1])
+      computed_periodic_interests_rate = periodic_interests_rate(timetable_term_dates[timetable.next_index - 1], @due_on)
 
       @crd_beginning_of_period = @crd_end_of_period
       @period_theoric_interests = period_theoric_interests(@index, computed_periodic_interests_rate)

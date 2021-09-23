@@ -6,7 +6,7 @@ describe LoanCreator::Common do
     subject {
       Class.new(described_class) {
         def initialize; end
-      }.new.send(:leap_days_count, end_date, relative_to_date: start_date)
+      }.new.send(:leap_days_count, start_date, end_date)
     }
 
     context 'when no leap' do

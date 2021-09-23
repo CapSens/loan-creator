@@ -47,9 +47,9 @@ module LoanCreator
       prepare_custom_term_dates if term_dates?
     end
 
-    def periodic_interests_rate(date = nil, relative_to_date: nil)
+    def periodic_interests_rate(start_date = nil, end_date = nil)
       if realistic_durations?
-        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
+        compute_realistic_periodic_interests_rate_percentage_for(start_date, end_date).div(100, BIG_DECIMAL_DIGITS)
       else
         @periodic_interests_rate ||=
           annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
@@ -236,34 +236,34 @@ module LoanCreator
       (interests_start_date && interests_start_date < term_zero_date) && !term_dates?
     end
 
-    def leap_days_count(date, relative_to_date:)
-      start_year = relative_to_date.year
-      end_year = date.year
+    def leap_days_count(start_date, end_date)
+      start_year = start_date.year
+      end_year = end_date.year
 
       (start_year..end_year).sum do |year|
         next 0 unless Date.gregorian_leap?(year)
 
-        start_date =
+        current_start_date =
           if start_year == year
-            relative_to_date
+            start_date
           else
             Date.new(year, 1, 1)
           end
 
-        end_date =
+        current_end_date =
           if end_year == year
-            date
+            end_date
           else
             Date.new(year + 1, 1, 1)
           end
 
-        end_date - start_date
+        current_end_date - current_start_date
       end
     end
 
-    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
-      total_days = date - relative_to_date
-      leap_days = bigd(leap_days_count(date, relative_to_date: relative_to_date))
+    def compute_realistic_periodic_interests_rate_percentage_for(start_date, end_date)
+      total_days = end_date - start_date
+      leap_days = bigd(leap_days_count(start_date, end_date))
       non_leap_days = bigd(total_days - leap_days)
 
       annual_interests_rate.mult(
