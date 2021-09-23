@@ -247,14 +247,14 @@ module LoanCreator
           if start_year == year
             relative_to_date
           else
-            Date.new(year - 1, 12, 31)
+            Date.new(year, 1, 1)
           end
 
         end_date =
           if end_year == year
             date
           else
-            Date.new(year, 12, 31)
+            Date.new(year + 1, 1, 1)
           end
 
         end_date - start_date
