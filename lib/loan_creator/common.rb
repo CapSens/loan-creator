@@ -238,7 +238,8 @@ module LoanCreator
 
     def leap_days_count(start_date, end_date)
       start_year = start_date.year
-      end_year = end_date.year
+      # mostly no op but allows to skip one iteration if end date is january 1st
+      end_year = (end_date - 1.day).year
 
       (start_year..end_year).sum do |year|
         next 0 unless Date.gregorian_leap?(year)
@@ -273,6 +274,19 @@ module LoanCreator
       )
     end
 
+    # for terms spanning more than a year,
+    # we capitalize each years until the last one which behaves normally
+    def multi_part_interests(start_date, end_date)
+      duration_in_days = end_date - start_date
+      # what about leap years ?
+      split = (duration_in_days / 365.0).divmod(1)
+      full_years = split[0]
+      year_part = split[1]
+
+      amount_to_capitalize.mult((1 + annual_interests_rate)**full_years)
+                          .mult(1 + annual_interests_rate * year_part)
+    end
+
     def realistic_durations?
       term_dates? || @realistic_durations.present?
     end
@@ -301,7 +315,11 @@ module LoanCreator
     end
 
     def compute_period_generated_interests(interests_rate)
-      (@crd_beginning_of_period + @due_interests_beginning_of_period).mult(interests_rate, BIG_DECIMAL_DIGITS)
+      amount_to_capitalize.mult(interests_rate, BIG_DECIMAL_DIGITS)
+    end
+
+    def amount_to_capitalize
+      @crd_beginning_of_period + @due_interests_beginning_of_period
     end
   end
 end
