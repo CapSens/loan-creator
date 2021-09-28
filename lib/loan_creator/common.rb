@@ -278,8 +278,11 @@ module LoanCreator
     # we capitalize each years until the last one which behaves normally
     def multi_part_interests(start_date, end_date)
       duration_in_days = end_date - start_date
-      # what about leap years ?
-      split = (duration_in_days / 365.0).divmod(1)
+      leap_days = leap_days_count(start_date, end_date)
+      non_leap_days = duration_in_days - leap_days
+
+      ratio = (non_leap_days / 365.0) + (leap_days / 366.0)
+      split = ratio.divmod(1)
       full_years = split[0]
       year_part = split[1]
 
