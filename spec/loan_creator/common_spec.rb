@@ -54,4 +54,40 @@ describe LoanCreator::Common do
       end
     end
   end
+
+  describe '#multi_part_interests' do
+    subject {
+      Class.new(described_class) {
+        def initialize(amount, rate)
+          @crd_beginning_of_period = amount
+          @due_interests_beginning_of_period = 0.0
+          @annual_interests_rate = rate
+        end
+      }.new(amount, rate).send(:multi_part_interests, start_date, end_date)
+    }
+
+    context '01/08/2021 -> 15/08/2022 100000 0.12' do
+      let(:amount) { bigd(100_000) }
+      let(:rate) { 0.12 }
+      let(:start_date) { Date.new(2021, 8, 1) }
+      let(:end_date) { Date.new(2022, 8, 15) }
+
+      it 'works' do
+        expect(subject.round(2)).to eq(12_515.51)
+      end
+    end
+
+    context '01/08/2022 -> 15/08/2022 100000 0.12' do
+      let(:amount) { bigd(100_000) }
+      let(:rate) { 0.12 }
+      let(:start_date) { Date.new(2022, 7, 1) }
+      let(:end_date) { Date.new(2022, 8, 15) }
+
+      it 'works' do
+        expect(subject.round(2)).to eq(1_479.45)
+      end
+    end
+  end
+  # @crd_beginning_of_period + @due_interests_beginning_of_period
+
 end

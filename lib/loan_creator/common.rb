@@ -286,8 +286,10 @@ module LoanCreator
       full_years = split[0]
       year_part = split[1]
 
-      amount_to_capitalize.mult((1 + annual_interests_rate)**full_years)
-                          .mult(1 + annual_interests_rate * year_part)
+      total = amount_to_capitalize.mult((1 + annual_interests_rate)**full_years, BIG_DECIMAL_DIGITS)
+                                  .mult(1 + annual_interests_rate * year_part, BIG_DECIMAL_DIGITS)
+
+      total - amount_to_capitalize
     end
 
     def realistic_durations?
