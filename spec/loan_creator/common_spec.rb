@@ -68,7 +68,7 @@ describe LoanCreator::Common do
 
     context '01/08/2021 -> 15/08/2022 100000 0.12' do
       let(:amount) { bigd(100_000) }
-      let(:rate) { 0.12 }
+      let(:rate) { bigd(12.0) }
       let(:start_date) { Date.new(2021, 8, 1) }
       let(:end_date) { Date.new(2022, 8, 15) }
 
@@ -79,7 +79,7 @@ describe LoanCreator::Common do
 
     context '01/08/2022 -> 15/08/2022 100000 0.12' do
       let(:amount) { bigd(100_000) }
-      let(:rate) { 0.12 }
+      let(:rate) { bigd(12.0) }
       let(:start_date) { Date.new(2022, 7, 1) }
       let(:end_date) { Date.new(2022, 8, 15) }
 
