@@ -77,6 +77,21 @@ describe LoanCreator::InFine do
       include_examples('valid lender timetable', loan_type, scenario, initial_values, false, term_dates)
     end
 
+    context 'given a scenario with term dates' do
+      term_dates = ['2018-08-15', '2021-12-10']
+
+      initial_values = {
+        paid_capital: 0.0,
+        paid_interests: 0.0,
+        accrued_delta_interests: 0.0,
+        starting_index: 2,
+        due_interests: 0.0
+      }
+      scenario = ['year', '100000', '12', '2018-08-15', '1', '0']
+
+      include_examples('valid lender timetable', loan_type, scenario, initial_values, true, term_dates)
+    end
+
     context 'given a scenario with due_interests' do
       initial_values = {
         paid_capital: 0,
