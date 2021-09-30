@@ -49,7 +49,7 @@ module LoanCreator
 
     def periodic_interests_rate(start_date = nil, end_date = nil)
       if realistic_durations?
-        compute_realistic_periodic_interests_rate_percentage_for(start_date, end_date).div(100, BIG_DECIMAL_DIGITS)
+        compute_realistic_periodic_interests_rate(start_date, end_date)
       else
         @periodic_interests_rate ||=
           annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
@@ -262,7 +262,7 @@ module LoanCreator
       end
     end
 
-    def compute_realistic_periodic_interests_rate_percentage_for(start_date, end_date)
+    def compute_realistic_periodic_interests_rate(start_date, end_date)
       total_days = end_date - start_date
       leap_days = bigd(leap_days_count(start_date, end_date))
       non_leap_days = bigd(total_days - leap_days)
@@ -271,7 +271,7 @@ module LoanCreator
         leap_days.div(366, BIG_DECIMAL_DIGITS) +
         non_leap_days.div(365, BIG_DECIMAL_DIGITS),
         BIG_DECIMAL_DIGITS
-      )
+      ).div(100, BIG_DECIMAL_DIGITS)
     end
 
     # for terms spanning more than a year,
@@ -285,9 +285,10 @@ module LoanCreator
       split = ratio.divmod(1)
       full_years = split[0]
       year_part = split[1]
+      rate = annual_interests_rate.div(100, BIG_DECIMAL_DIGITS)
 
-      total = amount_to_capitalize.mult((1 + annual_interests_rate)**full_years, BIG_DECIMAL_DIGITS)
-                                  .mult(1 + annual_interests_rate * year_part, BIG_DECIMAL_DIGITS)
+      total = amount_to_capitalize.mult((1 + rate)**full_years, BIG_DECIMAL_DIGITS)
+                                  .mult(1 + rate * year_part, BIG_DECIMAL_DIGITS)
 
       total - amount_to_capitalize
     end
