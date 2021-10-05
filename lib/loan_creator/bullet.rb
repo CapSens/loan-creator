@@ -33,10 +33,10 @@ module LoanCreator
     end
 
     def compute_capitalized_interests(timetable)
-      if term_dates? && (timetable_term_dates[timetable.next_index - 1] + 1.year) < @due_on
-        multi_part_interests(timetable_term_dates[timetable.next_index - 1], @due_on)
+      if term_dates? && (timetable_term_dates[timetable.current_index] + 1.year) < @due_on
+        multi_part_interests(timetable_term_dates[timetable.current_index], @due_on)
       else
-        compute_period_generated_interests(periodic_interests_rate(timetable_term_dates[timetable.next_index - 1], @due_on))
+        compute_period_generated_interests(periodic_interests_rate(timetable_term_dates[timetable.current_index], @due_on))
       end
     end
 
