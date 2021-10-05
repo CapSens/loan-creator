@@ -47,7 +47,7 @@ module LoanCreator
       prepare_custom_term_dates if term_dates?
     end
 
-    def periodic_interests_rate(start_date = nil, end_date = nil)
+    def periodic_interests_rate(start_date, end_date)
       if realistic_durations?
         compute_realistic_periodic_interests_rate(start_date, end_date)
       else
