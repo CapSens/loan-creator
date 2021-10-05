@@ -282,9 +282,7 @@ module LoanCreator
       non_leap_days = duration_in_days - leap_days
 
       ratio = (non_leap_days / 365.0) + (leap_days / 366.0)
-      split = ratio.divmod(1)
-      full_years = split[0]
-      year_part = split[1]
+      full_years, year_part = ratio.divmod(1)
       rate = annual_interests_rate.div(100, BIG_DECIMAL_DIGITS)
 
       total = amount_to_capitalize.mult((1 + rate)**full_years, BIG_DECIMAL_DIGITS)
