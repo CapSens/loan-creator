@@ -88,6 +88,4 @@ describe LoanCreator::Common do
       end
     end
   end
-  # @crd_beginning_of_period + @due_interests_beginning_of_period
-
 end
