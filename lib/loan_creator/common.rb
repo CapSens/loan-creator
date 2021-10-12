@@ -3,6 +3,13 @@ module LoanCreator
     extend BorrowerTimetable
     include TimeHelper
 
+    PERIODS_IN_MONTHS = {
+      month: 1,
+      quarter: 3,
+      semester: 6,
+      year: 12
+    }.freeze
+
     REQUIRED_ATTRIBUTES = [
       :period,
       :amount,
@@ -40,6 +47,15 @@ module LoanCreator
       set_initial_values
       validate_initial_values
       prepare_custom_term_dates if term_dates?
+    end
+
+    def periodic_interests_rate(start_date, end_date)
+      if realistic_durations?
+        compute_realistic_periodic_interests_rate(start_date, end_date, annual_interests_rate)
+      else
+        @periodic_interests_rate ||=
+          annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
+      end
     end
 
     def timetable_term_dates

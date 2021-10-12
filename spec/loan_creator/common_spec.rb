@@ -2,12 +2,19 @@
 require 'spec_helper'
 
 describe LoanCreator::Common do
-  describe '#leap_days_count' do
-    subject {
-      Class.new(described_class) {
-        def initialize; end
-      }.new.send(:leap_days_count, start_date, end_date)
+  let(:random_params) do
+    {
+      period: :month,
+      annual_interests_rate: 0.12,
+      starts_on: Date.today,
+      duration_in_periods: 12,
+      amount: 100
     }
+  end
+  describe '#leap_days_count' do
+    subject do
+      described_class.new(random_params).leap_days_count(start_date, end_date)
+    end
 
     context 'when no leap' do
       let(:start_date) { Date.new(2021, 1, 1) }
@@ -56,15 +63,9 @@ describe LoanCreator::Common do
   end
 
   describe '#multi_part_interests' do
-    subject {
-      Class.new(described_class) {
-        def initialize(amount, rate)
-          @crd_beginning_of_period = amount
-          @due_interests_beginning_of_period = 0.0
-          @annual_interests_rate = rate
-        end
-      }.new(amount, rate).send(:multi_part_interests, start_date, end_date)
-    }
+    subject do
+      described_class.new(random_params).multi_part_interests(start_date, end_date, rate, amount)
+    end
 
     context '01/08/2021 -> 15/08/2022 100000 0.12' do
       let(:amount) { bigd(100_000) }

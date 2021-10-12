@@ -31,7 +31,12 @@ module LoanCreator
       @period_theoric_interests = (
         # if period is more than a year
         if term_dates? && (timetable_term_dates[timetable.current_index] + 1.year) < @due_on
-          multi_part_interests(timetable_term_dates[timetable.current_index], @due_on)
+          multi_part_interests(
+            timetable_term_dates[timetable.current_index],
+            @due_on,
+            annual_interests_rate,
+            amount_to_capitalize
+          )
         else
           period_theoric_interests(periodic_interests_rate(timetable_term_dates[timetable.current_index], @due_on))
         end
