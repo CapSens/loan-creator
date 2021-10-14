@@ -3,4 +3,4 @@
 # (Bank rounding)
 # usage of BigDecimal method: div(value, digits)
 # usage of BigDecimal method: mult(value, digits)
-BigDecimal.mode(BigDecimal::ROUND_HALF_EVEN, true)
+BigDecimal.mode(BigDecimal::ROUND_MODE, :banker)
