@@ -31,7 +31,8 @@ module LoanCreator
       deferred_in_periods: 0,
       interests_start_date: nil,
       initial_values: {},
-      realistic_durations: false
+      realistic_durations: false,
+      multi_part_interests_calculation: true
     }.freeze
 
 
@@ -103,7 +104,7 @@ module LoanCreator
 
     def set_attributes
       required_attributes.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
-      OPTIONAL_ATTRIBUTES.each { |k,v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
+      OPTIONAL_ATTRIBUTES.each { |k, v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
     end
 
     def validate(key, &block)
