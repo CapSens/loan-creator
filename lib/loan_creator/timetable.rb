@@ -40,5 +40,9 @@ module LoanCreator
     def next_index
       @current_index.nil? ? @starting_index : @current_index + 1
     end
+
+    def current_index
+      @current_index.nil? ? @starting_index - 1 : @current_index
+    end
   end
 end

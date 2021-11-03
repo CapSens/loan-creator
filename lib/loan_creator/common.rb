@@ -1,6 +1,7 @@
 module LoanCreator
   class Common
     extend BorrowerTimetable
+    include TimeHelper
 
     PERIODS_IN_MONTHS = {
       month: 1,
@@ -30,8 +31,10 @@ module LoanCreator
       deferred_in_periods: 0,
       interests_start_date: nil,
       initial_values: {},
-      realistic_durations: false
+      realistic_durations: false,
+      multi_part_interests_calculation: true
     }.freeze
+
 
     attr_reader *REQUIRED_ATTRIBUTES
     attr_reader *OPTIONAL_ATTRIBUTES.keys
@@ -47,9 +50,9 @@ module LoanCreator
       prepare_custom_term_dates if term_dates?
     end
 
-    def periodic_interests_rate(date = nil, relative_to_date: nil)
+    def periodic_interests_rate(start_date, end_date)
       if realistic_durations?
-        compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date: relative_to_date).div(100, BIG_DECIMAL_DIGITS)
+        compute_realistic_periodic_interests_rate(start_date, end_date, annual_interests_rate)
       else
         @periodic_interests_rate ||=
           annual_interests_rate.div(12 / PERIODS_IN_MONTHS[period], BIG_DECIMAL_DIGITS).div(100, BIG_DECIMAL_DIGITS)
@@ -101,7 +104,7 @@ module LoanCreator
 
     def set_attributes
       required_attributes.each { |k| instance_variable_set(:"@#{k}", @options.fetch(k)) }
-      OPTIONAL_ATTRIBUTES.each { |k,v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
+      OPTIONAL_ATTRIBUTES.each { |k, v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
     end
 
     def validate(key, &block)
@@ -236,43 +239,6 @@ module LoanCreator
       (interests_start_date && interests_start_date < term_zero_date) && !term_dates?
     end
 
-    def leap_days_count(date, relative_to_date:)
-      start_year = relative_to_date.year
-      end_year = date.year
-
-      (start_year..end_year).sum do |year|
-        next 0 unless Date.gregorian_leap?(year)
-
-        start_date =
-          if start_year == year
-            relative_to_date
-          else
-            Date.new(year - 1, 12, 31)
-          end
-
-        end_date =
-          if end_year == year
-            date
-          else
-            Date.new(year, 12, 31)
-          end
-
-        end_date - start_date
-      end
-    end
-
-    def compute_realistic_periodic_interests_rate_percentage_for(date, relative_to_date:)
-      total_days = date - relative_to_date
-      leap_days = bigd(leap_days_count(date, relative_to_date: relative_to_date))
-      non_leap_days = bigd(total_days - leap_days)
-
-      annual_interests_rate.mult(
-        leap_days.div(366, BIG_DECIMAL_DIGITS) +
-        non_leap_days.div(365, BIG_DECIMAL_DIGITS),
-        BIG_DECIMAL_DIGITS
-      )
-    end
-
     def realistic_durations?
       term_dates? || @realistic_durations.present?
     end
@@ -301,7 +267,11 @@ module LoanCreator
     end
 
     def compute_period_generated_interests(interests_rate)
-      (@crd_beginning_of_period + @due_interests_beginning_of_period).mult(interests_rate, BIG_DECIMAL_DIGITS)
+      amount_to_capitalize.mult(interests_rate, BIG_DECIMAL_DIGITS)
+    end
+
+    def amount_to_capitalize
+      @crd_beginning_of_period + @due_interests_beginning_of_period
     end
   end
 end

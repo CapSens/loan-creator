@@ -23,12 +23,25 @@ module LoanCreator
       @last_period = last_period?(idx)
       @deferred_period = @index <= deferred_in_periods
       @due_on = timetable_term_dates[timetable.next_index]
-      computed_periodic_interests_rate = periodic_interests_rate(@due_on, relative_to_date: timetable_term_dates[timetable.next_index - 1])
 
       # Reminder: CRD beginning of period = CRD end of period **of previous period**
       @crd_beginning_of_period = @crd_end_of_period
       @due_interests_beginning_of_period = @due_interests_end_of_period
-      @period_theoric_interests = period_theoric_interests(computed_periodic_interests_rate)
+
+      @period_theoric_interests = (
+        # if period is more than a year
+        if multi_part_interests_calculation && term_dates? && (timetable_term_dates[timetable.current_index] + 1.year) < @due_on
+          multi_part_interests(
+            timetable_term_dates[timetable.current_index],
+            @due_on,
+            annual_interests_rate,
+            amount_to_capitalize
+          )
+        else
+          period_theoric_interests(periodic_interests_rate(timetable_term_dates[timetable.current_index], @due_on))
+        end
+      )
+
       @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
       @accrued_delta_interests += @delta_interests
       @amount_to_add = bigd(
