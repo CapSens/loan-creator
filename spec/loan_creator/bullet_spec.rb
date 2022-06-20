@@ -6,7 +6,8 @@ describe LoanCreator::Bullet do
     loan_type = 'bullet'
     scenarios = [
       ['month', '55000', '10', '2018-01-01', '36', '0'],
-      ['year', '55000', '10', '2018-01-01', '3', '0']
+      ['year', '55000', '10', '2018-01-01', '3', '0'],
+      ['year', '0', '10', '2018-01-01', '3', '0'],
     ]
 
     scenarios.each do |scenario|
