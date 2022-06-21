@@ -1,3 +1,15 @@
+v0.12.0
+-------------------------
+- improve argument error management and allow amount equal to zero.
+
+v0.11.0
+-------------------------
+- add `multi_part_interests_calculation` option.
+
+v0.10.0
+-------------------------
+- fix `term_dates` options, notably with `starts_on`.
+
 v0.9.1
 -------------------------
 - add spec importer `scripts/convert_export_to_spec.rb {csv_url}`

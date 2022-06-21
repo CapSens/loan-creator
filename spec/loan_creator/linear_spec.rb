@@ -13,7 +13,8 @@ describe LoanCreator::Linear do
       ['semester', '55000', '10', '2018-01-01', '6', '3'],
       ['year', '55000', '10', '2018-01-01', '3', '0'],
       ['year', '55000', '10', '2018-01-10', '3', '0', '2017-01-01'],
-      ['year', '55000', '10', '2018-01-01', '3', '1']
+      ['year', '55000', '10', '2018-01-01', '3', '1'],
+      ['year', '0', '10', '2018-01-01', '3', '1'],
     ]
 
     scenarios.each do |scenario|
@@ -25,7 +26,8 @@ describe LoanCreator::Linear do
     context 'given scenarios with realistic durations' do
       scenarios = [
         ['semester', '100000', '12', '2022-04-15', '3', '0'],
-        ['year', '100000', '12', '2021-10-15', '3', '0']
+        ['year', '100000', '12', '2021-10-15', '3', '0'],
+        ['year', '0', '10', '2018-01-01', '3', '1'],
       ]
       scenarios.each do |scenario|
         include_examples('valid lender timetable', loan_type, scenario, nil, true)

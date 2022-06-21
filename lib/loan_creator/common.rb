@@ -107,20 +107,34 @@ module LoanCreator
       OPTIONAL_ATTRIBUTES.each { |k, v| instance_variable_set(:"@#{k}", @options.fetch(k, v)) }
     end
 
-    def validate(key, &block)
-      raise unless block.call(instance_variable_get(:"@#{key}"))
-    rescue => e
-      raise ArgumentError.new([key, e.message].join(': '))
+    def validate(message, &block)
+      raise ArgumentError.new(message) unless block.call
     end
 
     def validate_attributes
-      validate(:period) { |v| PERIODS_IN_MONTHS.keys.include?(v) } unless term_dates?
-      validate(:amount) { |v| v.is_a?(BigDecimal) && v > 0 }
-      validate(:annual_interests_rate) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:starts_on) { |v| v.is_a?(Date) }
-      validate(:duration_in_periods) { |v| v.is_a?(Integer) && v > 0 }
-      validate(:deferred_in_periods) { |v| v.is_a?(Integer) && v >= 0 && v < duration_in_periods }
-      validate_term_dates if term_dates?
+      validate("amount #{@amount} must be positive") do
+        @amount.is_a?(BigDecimal) && @amount >= 0
+      end
+      validate("annual_interests_rate #{@annual_interests_rate} must be positive") do
+        @annual_interests_rate.is_a?(BigDecimal) && @annual_interests_rate >= 0
+      end
+      validate("starts_on #{@starts_on} must be a date but is a #{@starts_on.class}") do
+        @starts_on.is_a?(Date)
+      end
+      validate("duration_in_periods #{@duration_in_periods} must be positive") do
+        @duration_in_periods.is_a?(Integer) && @duration_in_periods > 0
+      end
+      validate("deferred_in_periods #{@deferred_in_periods} must be positive and less than duration_in_periods #{@duration_in_periods}") do
+        @deferred_in_periods.is_a?(Integer) && @deferred_in_periods >= 0 && @deferred_in_periods < duration_in_periods
+      end
+      if term_dates?
+        validate_term_dates
+      else
+        validate("period #{@period} must be in #{PERIODS_IN_MONTHS}") do
+          PERIODS_IN_MONTHS.keys.include?(@period)
+        end
+      end
+
     end
 
     def validate_term_dates
@@ -135,10 +149,18 @@ module LoanCreator
     def validate_initial_values
       return if initial_values.blank?
 
-      validate(:total_paid_capital_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:total_paid_interests_end_of_period) { |v| v.is_a?(BigDecimal) && v >= 0 }
-      validate(:accrued_delta_interests) { |v| v.is_a?(BigDecimal) }
-      validate(:starting_index) { |v| v.is_a?(Integer) && v >= 0 }
+      validate("total_paid_capital_end_of_period #{@total_paid_capital_end_of_period} must be positive") do
+        @total_paid_capital_end_of_period.is_a?(BigDecimal) && @total_paid_capital_end_of_period >= 0
+      end
+      validate("total_paid_interests_end_of_period #{@total_paid_interests_end_of_period} must be positive") do
+        @total_paid_interests_end_of_period.is_a?(BigDecimal) && @total_paid_interests_end_of_period >= 0
+      end
+      validate("accrued_delta_interests must be a BigDecimal but is a #{@accrued_delta_interests.class}") do
+        @accrued_delta_interests.is_a?(BigDecimal)
+      end
+      validate("starting_index #{@starting_index} must be positive") do
+        @starting_index.is_a?(Integer) && @starting_index >= 0
+      end
     end
 
     def set_initial_values
