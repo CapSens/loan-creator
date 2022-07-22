@@ -73,21 +73,21 @@ module LoanCreator
     # Capital * monthly_interests_rate
     #
     def _monthly_interests(amount)
-      BigDecimal.new(amount, @@accuracy)
+      BigDecimal(amount, @@accuracy)
         .mult(self.monthly_interests_rate, @@accuracy)
     end
 
     # total_terms * monthly_interests
     #
     def _total_interests(amount)
-      BigDecimal.new(self.duration_in_months, @@accuracy)
+      BigDecimal(self.duration_in_months, @@accuracy)
         .mult(self.monthly_interests(amount), @@accuracy)
     end
 
     # total_terms * rounded_monthly_interests
     #
     def _total_rounded_interests(amount)
-      (BigDecimal.new(self.duration_in_months, @@accuracy)
+      (BigDecimal(self.duration_in_months, @@accuracy)
         .mult(self.rounded_monthly_interests(amount), @@accuracy)).round
     end
 

@@ -123,8 +123,8 @@ module LoanCreator
     #         1200               for the monthly frequency, so 1200)
     #
     def _monthly_interests_rate
-      BigDecimal.new(self.annual_interests_rate, @@accuracy)
-        .div(BigDecimal.new(1200, @@accuracy), @@accuracy)
+      BigDecimal(self.annual_interests_rate, @@accuracy)
+        .div(BigDecimal(1200, @@accuracy), @@accuracy)
     end
   end
 end
