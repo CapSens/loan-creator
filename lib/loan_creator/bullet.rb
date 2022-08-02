@@ -24,12 +24,29 @@ module LoanCreator
     def compute_last_term(timetable)
       @crd_end_of_period                  = bigd('0')
       @due_interests_beginning_of_period  = @due_interests_end_of_period
-      @period_interests                   = @due_interests_end_of_period + compute_capitalized_interests(timetable)
+      @period_interests                   = @due_interests_end_of_period + compute_rounded_interests(timetable)
       @due_interests_end_of_period        = 0
       @period_capital                     = @crd_beginning_of_period
       @total_paid_capital_end_of_period   += @period_capital
       @total_paid_interests_end_of_period += @period_interests
       @period_amount_to_pay               = @period_capital + @period_interests
+    end
+
+    def compute_rounded_interests(timetable)
+      @period_theoric_interests = compute_capitalized_interests(timetable)
+      @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
+      @accrued_delta_interests += @delta_interests
+      @amount_to_add = bigd(
+        if @accrued_delta_interests >= bigd('0.01')
+          '0.01'
+        elsif @accrued_delta_interests <= bigd('-0.01')
+          '-0.01'
+        else
+          '0'
+        end
+      )
+      @accrued_delta_interests -= @amount_to_add
+      @period_theoric_interests.round(2) + @amount_to_add
     end
 
     def compute_capitalized_interests(timetable)
@@ -47,7 +64,8 @@ module LoanCreator
 
     def compute_term(timetable)
       @due_interests_beginning_of_period = @due_interests_end_of_period
-      @due_interests_end_of_period += compute_capitalized_interests(timetable)
+      @due_interests_end_of_period += compute_rounded_interests(timetable)
     end
+
   end
 end

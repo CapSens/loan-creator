@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry', '~> 0.13.1'
   spec.add_development_dependency 'table_print', '~> 1.5'
 
+
   spec.add_runtime_dependency 'bigdecimal'
   spec.add_runtime_dependency 'activesupport'
 end

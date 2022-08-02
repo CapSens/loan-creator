@@ -56,6 +56,7 @@ RSpec.shared_examples 'valid lender timetable' do |loan_type, scenario, initial_
       csv_name = "#{csv_name}_with_custom_term_dates"
     end
 
+    puts csv_name if PRINT_DEBUG
     CSV.parse(File.read("./spec/fixtures/#{csv_name}.csv"))
   end
 
