@@ -28,7 +28,7 @@ module LoanCreator
       @crd_beginning_of_period = @crd_end_of_period
       @due_interests_beginning_of_period = @due_interests_end_of_period
 
-      @period_theoric_interests = (
+      period_theoric_interests =
         # if period is more than a year
         if multi_part_interests_calculation && term_dates? && (timetable_term_dates[timetable.current_index] + 1.year) < @due_on
           multi_part_interests(
@@ -40,21 +40,8 @@ module LoanCreator
         else
           period_theoric_interests(periodic_interests_rate(timetable_term_dates[timetable.current_index], @due_on))
         end
-      )
 
-      @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
-      @accrued_delta_interests += @delta_interests
-      @amount_to_add = bigd(
-        if @accrued_delta_interests >= bigd('0.01')
-          '0.01'
-        elsif @accrued_delta_interests <= bigd('-0.01')
-          '-0.01'
-        else
-          '0'
-        end
-      )
-      @accrued_delta_interests -= @amount_to_add
-      @period_interests = @period_theoric_interests.round(2) + @amount_to_add
+      @period_interests = apply_interests_roundings(period_theoric_interests)
       @period_capital = period_capital
       @total_paid_capital_end_of_period += @period_capital
       @total_paid_interests_end_of_period += @period_interests

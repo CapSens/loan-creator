@@ -295,5 +295,22 @@ module LoanCreator
     def amount_to_capitalize
       @crd_beginning_of_period + @due_interests_beginning_of_period
     end
+
+    def apply_interests_roundings(periodic_theoric_interests)
+      @period_theoric_interests = periodic_theoric_interests
+      @delta_interests = @period_theoric_interests - @period_theoric_interests.round(2)
+      @accrued_delta_interests += @delta_interests
+      @amount_to_add = bigd(
+        if @accrued_delta_interests >= bigd('0.01')
+          '0.01'
+        elsif @accrued_delta_interests <= bigd('-0.01')
+          '-0.01'
+        else
+          '0'
+        end
+      )
+      @accrued_delta_interests -= @amount_to_add
+      @period_theoric_interests.round(2) + @amount_to_add
+    end
   end
 end

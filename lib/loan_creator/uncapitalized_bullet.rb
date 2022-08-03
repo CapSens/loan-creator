@@ -34,7 +34,8 @@ module LoanCreator
 
     def compute_interests(due_date, timetable)
       computed_periodic_interests_rate = periodic_interests_rate(timetable_term_dates[timetable.current_index], due_date)
-      amount.mult(bigd(computed_periodic_interests_rate), BIG_DECIMAL_DIGITS)
+
+      apply_interests_roundings(amount.mult(bigd(computed_periodic_interests_rate), BIG_DECIMAL_DIGITS))
     end
 
     def compute_term(timetable)
