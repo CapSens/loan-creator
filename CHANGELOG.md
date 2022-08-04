@@ -1,3 +1,8 @@
+v0.12.1
+-------------------------
+#### Bugfix
+- `Bullet` and `Uncapitalized Bullet` now manage roundings as other loan types
+
 v0.12.0
 -------------------------
 - improve argument error management and allow amount equal to zero.
